@@ -120,6 +120,9 @@ En la demo la separación es solo por URL (no hay login). Aquí se hace con **ro
 ### Decididas durante el trabajo
 - **Modo oscuro**: se conserva el selector de apariencia del starter kit (claro, oscuro o sistema).
   Los tokens de la marca tienen variante oscura.
+- **«Municipio»** en la interfaz en lugar de «ciudad» (en el código sigue siendo `City`).
+- **Catálogo de municipios**: los 19 de Casanare vienen sembrados; el admin puede agregar, renombrar o
+  eliminar.
 
 ---
 
@@ -254,14 +257,23 @@ mesa y la pantalla; hasta entonces todos llegan a `/inicio`):
 - [x] Tests (58), Pint y Larastan en verde. Revisado en el navegador: admin, registrador y usuario desactivado; claro, oscuro y celular
 - Redirección por rol después del login: pasa a las fases 7 y 10
 
-### Fase 3 · Ciudades y colegios
-- [ ] Migraciones, modelos, factories y relaciones `City` y `School`
-- [ ] Seeder con las ciudades y colegios de la demo
-- [ ] Módulo **Lugares**: CRUD de ciudades y colegios con contadores y bloqueo de borrado si hay dependencias
-- [ ] Tests: unicidad, bloqueo de borrado, permisos
+### Fase 3 · Municipios y colegios ✅
+- [x] Migraciones, modelos, factories y relaciones `City` y `School` (en la interfaz, «municipios»)
+- [x] Seeders:
+  - `CitySeeder`: los 19 municipios de Casanare. Solo agrega los que faltan, así que se puede correr en producción al instalar (`php artisan db:seed --class=CitySeeder --force`)
+  - `DemoSchoolSeeder`: los 8 colegios de la demo, solo para desarrollo
+- [x] Módulo **Municipios y colegios** (`/lugares`):
+  - municipios a la izquierda con su número de colegios; colegios del municipio elegido a la derecha (el municipio va en la URL)
+  - búsqueda de colegios en todos los municipios
+  - campo rápido para agregar colegios; modales para renombrar, mover un colegio de municipio y eliminar
+  - orden alfabético que ignora tildes («Támara» antes de «Tauramena»); los nombres se guardan sin espacios de más
+- [x] Un municipio con colegios no se puede eliminar: `DeleteCity` explica cuántos quedan
+- [x] Tests (35 en las carpetas tocadas), Pint y Larastan en verde. Revisado en el navegador: claro, oscuro y celular
+- El conteo de docentes y el bloqueo de borrado de colegios con docentes pasan a la fase 4, cuando exista `Teacher`
 
 ### Fase 4 · Padrón de docentes
 - [ ] Migración, modelo `Teacher` (soft deletes), factory y seeder con los 18 docentes de la demo
+- [ ] Municipios y colegios: conteo de docentes, y un colegio (o un municipio) con docentes no se puede eliminar
 - [ ] Código `SIM-###` automático y único
 - [ ] Scopes de consulta: búsqueda (nombre, cédula, código, colegio, ciudad), ciudad, colegio, afiliados, presentes en una jornada
 - [ ] Módulo **Docentes**:
@@ -359,7 +371,7 @@ mesa y la pantalla; hasta entonces todos llegan a `/inicio`):
 
 ### Fase 14 · Cierre
 - [ ] Suite completa, Pint y Larastan en verde
-- [ ] Guía de despliegue: Reverb, queue y scheduler, variables de entorno, usuario admin inicial
+- [ ] Guía de despliegue: Reverb, queue y scheduler, variables de entorno, seeders de roles y municipios, usuario admin inicial
 
 ---
 
@@ -370,3 +382,5 @@ mesa y la pantalla; hasta entonces todos llegan a `/inicio`):
 | 2026-09-28 | 0 | Análisis de la demo y plan de trabajo creados. Decisiones: Reverb, código en inglés, usuarios/roles, PDF, carnés, premio, excluir ganadores previos y varios ganadores. |
 | 2026-09-28 | 1 | Fundaciones y sistema de diseño. Se conserva el modo oscuro. El panel queda en `/inicio`. Los layouts de mesa y pantalla se crean en sus fases. |
 | 2026-09-28 | 2 | Roles, permisos y usuarios. Se quitó la autoeliminación de cuentas; los usuarios se desactivan. El admin inicial se crea con `app:create-admin-user`. La redirección por rol pasa a las fases 7 y 10. |
+| 2026-09-28 | 2 | Arreglo: `app:create-admin-user` no mostraba las preguntas en Windows (el `db:seed` silencioso previo se quedaba con la salida de Prompts). Ahora corre el seeder directamente. |
+| 2026-09-28 | 3 | Municipios y colegios. En la interfaz se dice «municipio». Se siembran los 19 municipios de Casanare (seguro en producción) y los colegios de la demo solo en desarrollo. |

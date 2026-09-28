@@ -194,6 +194,7 @@ return [
     */
 
     'attributes' => [
+        'city_id' => 'municipio',
         'code' => 'código',
         'current_password' => 'contraseña actual',
         'email' => 'correo electrónico',

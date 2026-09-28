@@ -19,6 +19,16 @@
                 </flux:sidebar.item>
             </flux:sidebar.nav>
 
+            @can('viewAny', App\Models\City::class)
+                <flux:sidebar.nav>
+                    <flux:sidebar.group :heading="__('Roll')">
+                        <flux:sidebar.item icon="map-pin" :href="route('locations.index')" :current="request()->routeIs('locations.*')" wire:navigate>
+                            {{ __('Municipalities and schools') }}
+                        </flux:sidebar.item>
+                    </flux:sidebar.group>
+                </flux:sidebar.nav>
+            @endcan
+
             @can('viewAny', App\Models\User::class)
                 <flux:sidebar.nav>
                     <flux:sidebar.group :heading="__('Administration')">

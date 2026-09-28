@@ -12,11 +12,15 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database for local development: one user per role,
-     * all with the password "password".
+     * all with the password "password", and the demo's schools.
      */
     public function run(): void
     {
-        $this->call(RolesAndPermissionsSeeder::class);
+        $this->call([
+            RolesAndPermissionsSeeder::class,
+            CitySeeder::class,
+            DemoSchoolSeeder::class,
+        ]);
 
         User::factory()->admin()->create([
             'name' => 'Administrador',

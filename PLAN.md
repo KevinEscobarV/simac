@@ -150,8 +150,8 @@ users ── roles/permissions (spatie)
 | `assemblies` (jornadas) | name, date, location?, quorum_type? (`count`/`percentage`), quorum_value?, closed_at? (null = abierta), opened_by |
 | `attendances` | assembly_id (cascade), teacher_id, checked_in_at, checked_out_at?, registered_by · único (assembly_id, teacher_id) |
 | `raffles` (actas) | assembly_id? (null on delete), prize, winners_count, animation, filters (json), filter_description, participants_count, quorum_met?, drawn_by, drawn_at |
-| `raffle_entries` | raffle_id (cascade), teacher_id (restrict), winner_position? · PK (raffle_id, teacher_id) |
-| estado de proyección | fase, raffle_id, intento, ganador revelado (índice). Se guarda en el servidor (caché o tabla de una fila; se decide en la fase 8) |
+| `raffle_entries` | raffle_id (cascade), teacher_id (restrict), winner_position? · PK (raffle_id, teacher_id) · único (raffle_id, winner_position) |
+| `projections` | una sola fila: phase, raffle_id?, attempt, winner_position (el ganador cargado o en pantalla) |
 
 ---
 
@@ -344,15 +344,22 @@ el proyector en la fase 10):
 - [x] `Attendance::teacher()` incluye docentes retirados: el registro es historial y conserva a su docente
 - [x] Tests (160 en las carpetas tocadas): acceso por rol y destino después del login, Enter y Shift+Enter por clave, clave ambigua, error que sobrevive a la petición siguiente, lista solo con término, deshacer, «ya presente» sin deshacer, últimos movimientos en orden, jornada cerrada en medio. La resolución de claves ya la cubre `ResolveTeacherTest`
 
-### Fase 8 · Motor del sorteo
-- [ ] Migraciones y modelos `Raffle` y `RaffleEntry`. Enums `RaffleAnimation` y `ProjectionPhase`
-- [ ] Action `DrawRaffle`:
-  - [ ] Filtros, excluir ganadores previos y N ganadores con CSPRNG
-  - [ ] Premio y descripción del filtro
-  - [ ] Quórum congelado y acta en transacción
-- [ ] Máquina de estados de la proyección: preparar, lanzar, repetir, siguiente ganador, terminado (valida el intento) y liberar
-- [ ] Evento `ProjectionUpdated` y contador de pantallas conectadas (latido)
-- [ ] Tests: reglas de participantes, exclusión, varios ganadores sin repetir, acta completa y transiciones de fase
+### Fase 8 · Motor del sorteo ✅
+- [x] Migraciones y modelos `Raffle` (acta; `drawn_at` es su única marca de tiempo) y `RaffleEntry` (pivote con `winner_position`, único por sorteo). Enums `RaffleAnimation` (ruleta, tómbola, revelado) y `ProjectionPhase`
+- [x] Objeto de valor `App\Support\RaffleFilters`: la misma consulta cuenta a los participantes mientras se arma el sorteo (fase 9) y los elige al sortear. Solo docentes activos; «presentes» y «sin ganadores anteriores» usan la jornada abierta
+- [x] Action `DrawRaffle`, todo en una transacción:
+  - [x] Filtros, excluir ganadores previos de la misma jornada (activado por defecto) y N ganadores con `Random\Randomizer` + `Engine\Secure` (barajado completo, sin repetir)
+  - [x] Premio, descripción del filtro en palabras (se guarda tal cual, aunque luego cambien los nombres) y participantes en el acta
+  - [x] Jornada en curso y quórum congelado (`quorum_met`: sí, no, o nada si no había quórum)
+  - [x] Mínimo 2 participantes y más participantes que ganadores
+  - [x] Deja el sorteo cargado en la pantalla; no se puede sortear otro mientras haya uno en pantalla
+- [x] Estado de la proyección en una tabla de una fila (`Projection`, aprobado): preparar, «¡Ya!» (anima al ganador cargado o, con uno en pantalla, al siguiente), repetir, terminado (ignora intentos viejos) y liberar. Cada cambio bloquea la fila, así la consola y las pantallas no se pisan
+- [x] Evento `ProjectionUpdated` en el canal privado `projection` (administrador y proyector; `ProjectionPolicy`). No lleva nombres: el ganador lo muestra el servidor cuando la fase lo permite
+- [x] Contador de pantallas conectadas por latido (`Projection::recordScreen()` / `connectedScreens()`, en caché, 45 s de gracia). Una pantalla nueva se anuncia al momento
+- [x] `RafflePolicy` (sortear: `raffles.draw`; historial: `raffles.view`)
+- [x] Una jornada con sorteos tampoco se puede eliminar: es historial
+- [x] Tests (169 en las carpetas tocadas): participantes y filtros, exclusión, varios ganadores en orden, acta completa, quórum congelado, reglas de mínimo, pantalla ocupada, transiciones, intentos viejos, anuncios, latido, canal y políticas
+- Siembra de un sorteo de demostración: pasa a la fase 11, donde el historial lo usa
 
 ### Fase 9 · Nuevo sorteo y consola de proyección (admin)
 - [ ] Formulario en pasos:
@@ -415,3 +422,4 @@ el proyector en la fase 10):
 | 2026-09-28 | 5 | Jornadas y asistencia. Una jornada solo se elimina si no tiene registros. Objetos de valor en `app/Support` (aprobado). |
 | 2026-09-28 | 6 | Tiempo real con Reverb (dependencias aprobadas). El evento de jornada se llama `AssemblyChanged` porque también cubre el ajuste del quórum. Una caída de Reverb nunca impide registrar. |
 | 2026-09-28 | 7 | Mesa de registro. `/inicio` envía a cada rol a su puesto. Los últimos movimientos son de todas las mesas (como en la demo). Arreglado el error que desaparecía tras Enter, también en el panel. |
+| 2026-09-28 | 8 | Motor del sorteo. Estado de la proyección en una tabla de una fila (aprobado). No se sortea otro mientras haya uno en pantalla. Una jornada con sorteos es historial. |

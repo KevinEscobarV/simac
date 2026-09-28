@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -64,6 +65,18 @@ class Teacher extends Model
     public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class);
+    }
+
+    /**
+     * The raffles they took part in; the pivot says whether they won.
+     *
+     * @return BelongsToMany<Raffle, $this, RaffleEntry>
+     */
+    public function raffles(): BelongsToMany
+    {
+        return $this->belongsToMany(Raffle::class, 'raffle_entries')
+            ->using(RaffleEntry::class)
+            ->withPivot('winner_position');
     }
 
     /**
@@ -152,5 +165,21 @@ class Teacher extends Model
         $query->whereHas('attendances', fn (Builder $attendances) => $attendances
             ->whereBelongsTo($assembly)
             ->whereNull('checked_out_at'));
+    }
+
+    /**
+     * Who already won a raffle held during the assembly, or with $won false,
+     * who did not.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function wonAt(Builder $query, Assembly $assembly, bool $won = true): void
+    {
+        $wonThere = fn (Builder $raffles) => $raffles
+            ->whereBelongsTo($assembly)
+            ->whereNotNull('raffle_entries.winner_position');
+
+        $won ? $query->whereHas('raffles', $wonThere) : $query->whereDoesntHave('raffles', $wonThere);
     }
 }

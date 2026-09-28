@@ -7,6 +7,7 @@ use App\Actions\Assemblies\ReopenAssembly;
 use App\Enums\QuorumType;
 use App\Models\Assembly;
 use App\Models\Attendance;
+use App\Models\Raffle;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
 
@@ -76,4 +77,13 @@ test('an assembly can be deleted only if nobody was registered at it', function 
 
     $this->assertModelMissing($empty);
     $this->assertModelExists($withAttendance);
+});
+
+test('an assembly with raffles is kept as history too', function () {
+    $assembly = Raffle::factory()->for(Assembly::factory()->closed())->create()->assembly;
+
+    expect(app(DeleteAssembly::class)->blocker($assembly))->not->toBeNull()
+        ->and(fn () => app(DeleteAssembly::class)->handle($assembly))->toThrow(ValidationException::class);
+
+    $this->assertModelExists($assembly);
 });

@@ -9,18 +9,25 @@ use Illuminate\Validation\ValidationException;
 class DeleteAssembly
 {
     /**
-     * Why the assembly cannot be deleted, or null when nobody was registered
-     * at it (it was opened by mistake). One with attendance is history.
+     * Why the assembly cannot be deleted, or null when nothing was recorded
+     * at it (it was opened by mistake). One with attendance or raffles is
+     * history.
      */
     public function blocker(Assembly $assembly): ?string
     {
         $attendances = $assembly->attendances()->count();
 
-        if ($attendances === 0) {
-            return null;
+        if ($attendances > 0) {
+            return trans_choice('It has :count check-in on record, so it is kept as history.|It has :count check-ins on record, so it is kept as history.', $attendances);
         }
 
-        return trans_choice('It has :count check-in on record, so it is kept as history.|It has :count check-ins on record, so it is kept as history.', $attendances);
+        $raffles = $assembly->raffles()->count();
+
+        if ($raffles > 0) {
+            return trans_choice('It has :count raffle on record, so it is kept as history.|It has :count raffles on record, so it is kept as history.', $raffles);
+        }
+
+        return null;
     }
 
     /**

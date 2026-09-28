@@ -69,6 +69,14 @@ class Assembly extends Model
     }
 
     /**
+     * @return HasMany<Raffle, $this>
+     */
+    public function raffles(): HasMany
+    {
+        return $this->hasMany(Raffle::class);
+    }
+
+    /**
      * @return BelongsTo<User, $this>
      */
     public function opener(): BelongsTo

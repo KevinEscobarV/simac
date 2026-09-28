@@ -2,6 +2,7 @@
 
 namespace App\Actions\Assemblies;
 
+use App\Events\AssemblyChanged;
 use App\Models\Assembly;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\ValidationException;
@@ -26,5 +27,7 @@ class ReopenAssembly
 
             $assembly->forceFill(['closed_at' => null])->save();
         });
+
+        broadcast(new AssemblyChanged($assembly->id))->toOthers();
     }
 }

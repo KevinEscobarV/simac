@@ -113,7 +113,7 @@ En la demo la separación es solo por URL (no hay login). Aquí se hace con **ro
 
 ### Por confirmar al llegar a cada fase
 - Dependencias nuevas:
-  - `laravel/reverb` + `laravel-echo`/`pusher-js` (fase 6);
+  - ~~`laravel/reverb` + `laravel-echo`/`pusher-js` (fase 6)~~ aprobadas e instaladas;
   - `barryvdh/laravel-dompdf` (fase 11);
   - `picqer/php-barcode-generator` (fase 12).
 
@@ -309,12 +309,21 @@ mesa y la pantalla; hasta entonces todos llegan a `/inicio`):
 - [x] `DemoAssemblySeeder`: jornada abierta como la de la demo (desarrollo)
 - [x] Tests (110 en las carpetas tocadas, incluidos unitarios del quórum), Pint y Larastan en verde. Revisado en el navegador: claro, oscuro y celular
 
-### Fase 6 · Tiempo real (Reverb)
-- [ ] Instalar y configurar Reverb y Echo (`php artisan install:broadcasting`)
-- [ ] Canales privados autorizados por permiso (`routes/channels.php`)
-- [ ] Eventos `AttendanceChanged` y `AssemblyStatusChanged`. El panel de jornadas se actualiza en vivo
-- [ ] Añadir Reverb a `composer run dev`
-- [ ] Tests: los eventos se difunden (`Event::fake`) y la autorización de los canales
+### Fase 6 · Tiempo real (Reverb) ✅
+- [x] Reverb 1.12, Echo 2 y pusher-js instalados con `php artisan install:broadcasting --reverb`
+  - Reverb exige Guzzle 7: Composer bajó `guzzlehttp/guzzle` de 8 a 7
+  - `echo.js` no crea Echo si faltan las credenciales: la app funciona igual, sin actualizaciones en vivo
+  - `<meta name="csrf-token">` en el `<head>`: Echo lo necesita para autorizar canales privados
+- [x] Canal privado `assemblies` (`routes/channels.php`), autorizado por `AssemblyPolicy::followLive`: administrador y registrador sí, proyector no. Se quitó el canal de ejemplo `App.Models.User.{id}`
+- [x] Eventos `AttendanceChanged` (entrada, reingreso, salida, anular y deshacer) y `AssemblyChanged` (abrir, ajustar quórum, cerrar, reabrir y eliminar)
+  - Llevan solo el id de la jornada: quien escucha vuelve a leer los datos. Ningún dato personal viaja por el WebSocket
+  - `ShouldBroadcastNow` (sin cola), `ShouldDispatchAfterCommit` y `ShouldRescue`: si Reverb está caído la entrada se guarda igual y el error queda en el log
+  - Se emiten con `toOthers()`: la pestaña que hizo el cambio no se refresca dos veces
+  - Tiempo de espera corto hacia Reverb (conexión 1 s, total 3 s), así un servidor caído o inalcanzable no frena la mesa
+- [x] Nueva action `AdjustQuorum` (antes el componente actualizaba el modelo directamente)
+- [x] El panel de jornadas escucha los dos eventos y se actualiza solo (probado con Reverb: entrada desde otra «mesa», cierre y reapertura)
+- [x] Reverb se agrega solo a `composer run dev` (`php artisan dev` lo incluye desde que el paquete está instalado)
+- [x] Tests (97 en las carpetas tocadas): eventos emitidos y no emitidos, falla de Reverb sin perder la entrada, autorización del canal por rol. Pint y Larastan en verde
 
 ### Fase 7 · Mesa de registro (`/registro`)
 - [ ] Layout de quiosco (cabecera oscura, cuerpo claro, primero para celular)
@@ -383,6 +392,7 @@ mesa y la pantalla; hasta entonces todos llegan a `/inicio`):
 ### Fase 14 · Cierre
 - [ ] Suite completa, Pint y Larastan en verde
 - [ ] Guía de despliegue: Reverb, queue y scheduler, variables de entorno, seeders de roles y municipios, usuario admin inicial
+  - Reverb: `REVERB_APP_ID/KEY/SECRET` vienen vacíos en `.env.example` (cualquier valor aleatorio sirve); `npm run build` después de fijar las `VITE_REVERB_*`; `php artisan reverb:start` bajo un supervisor
 
 ---
 
@@ -397,3 +407,4 @@ mesa y la pantalla; hasta entonces todos llegan a `/inicio`):
 | 2026-09-28 | 3 | Municipios y colegios. En la interfaz se dice «municipio». Se siembran los 19 municipios de Casanare (seguro en producción) y los colegios de la demo solo en desarrollo. |
 | 2026-09-28 | 4 | Padrón de docentes. Retirar = soft delete con reincorporación. Código SIM derivado del id. Búsqueda sin tildes con `normalized_name`. |
 | 2026-09-28 | 5 | Jornadas y asistencia. Una jornada solo se elimina si no tiene registros. Objetos de valor en `app/Support` (aprobado). |
+| 2026-09-28 | 6 | Tiempo real con Reverb (dependencias aprobadas). El evento de jornada se llama `AssemblyChanged` porque también cubre el ajuste del quórum. Una caída de Reverb nunca impide registrar. |

@@ -53,4 +53,14 @@ class AssemblyPolicy
     {
         return $user->hasPermissionTo(Permission::RegisterAttendance) && $assembly->isOpen();
     }
+
+    /**
+     * Receiving the live updates of the assemblies (openings, closings and
+     * every check-in), which the panel and the desks both show.
+     */
+    public function followLive(User $user): bool
+    {
+        return $user->hasPermissionTo(Permission::ManageAssemblies)
+            || $user->hasPermissionTo(Permission::RegisterAttendance);
+    }
 }

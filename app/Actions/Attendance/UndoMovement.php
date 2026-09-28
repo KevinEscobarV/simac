@@ -3,6 +3,7 @@
 namespace App\Actions\Attendance;
 
 use App\Enums\AttendanceMovement;
+use App\Events\AttendanceChanged;
 use App\Models\Assembly;
 use App\Models\Teacher;
 use Illuminate\Validation\ValidationException;
@@ -37,5 +38,7 @@ class UndoMovement
                 'teacher' => __('The record of :name changed in the meantime: check their status.', ['name' => $teacher->name]),
             ]);
         }
+
+        broadcast(new AttendanceChanged($assembly->id))->toOthers();
     }
 }

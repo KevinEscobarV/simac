@@ -2,6 +2,7 @@
 
 namespace App\Actions\Assemblies;
 
+use App\Events\AssemblyChanged;
 use App\Models\Assembly;
 use Illuminate\Validation\ValidationException;
 
@@ -34,5 +35,7 @@ class DeleteAssembly
         }
 
         $assembly->delete();
+
+        broadcast(new AssemblyChanged($assembly->id))->toOthers();
     }
 }

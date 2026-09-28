@@ -2,6 +2,7 @@
 
 namespace App\Actions\Attendance;
 
+use App\Events\AttendanceChanged;
 use App\Models\Assembly;
 use App\Models\Teacher;
 use Illuminate\Validation\ValidationException;
@@ -25,5 +26,7 @@ class VoidAttendance
                 'teacher' => __(':name has no record at this assembly.', ['name' => $teacher->name]),
             ]);
         }
+
+        broadcast(new AttendanceChanged($assembly->id))->toOthers();
     }
 }

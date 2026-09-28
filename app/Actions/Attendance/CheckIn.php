@@ -3,6 +3,7 @@
 namespace App\Actions\Attendance;
 
 use App\Enums\AttendanceMovement;
+use App\Events\AttendanceChanged;
 use App\Models\Assembly;
 use App\Models\Attendance;
 use App\Models\Teacher;
@@ -34,16 +35,16 @@ class CheckIn
             ['checked_in_at' => now(), 'registered_by' => $registeredBy?->id],
         );
 
-        if ($attendance->wasRecentlyCreated) {
-            return AttendanceMovement::CheckIn;
-        }
-
-        if ($attendance->isPresent()) {
+        if (! $attendance->wasRecentlyCreated && $attendance->isPresent()) {
             return AttendanceMovement::AlreadyPresent;
         }
 
-        $attendance->update(['checked_out_at' => null]);
+        if (! $attendance->wasRecentlyCreated) {
+            $attendance->update(['checked_out_at' => null]);
+        }
 
-        return AttendanceMovement::Reentry;
+        broadcast(new AttendanceChanged($assembly->id))->toOthers();
+
+        return $attendance->wasRecentlyCreated ? AttendanceMovement::CheckIn : AttendanceMovement::Reentry;
     }
 }

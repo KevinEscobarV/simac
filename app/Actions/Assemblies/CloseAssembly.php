@@ -2,6 +2,7 @@
 
 namespace App\Actions\Assemblies;
 
+use App\Events\AssemblyChanged;
 use App\Models\Assembly;
 
 class CloseAssembly
@@ -14,6 +15,8 @@ class CloseAssembly
     {
         if ($assembly->isOpen()) {
             $assembly->forceFill(['closed_at' => now()])->save();
+
+            broadcast(new AssemblyChanged($assembly->id))->toOthers();
         }
     }
 }

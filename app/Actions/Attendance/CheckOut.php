@@ -3,6 +3,7 @@
 namespace App\Actions\Attendance;
 
 use App\Enums\AttendanceMovement;
+use App\Events\AttendanceChanged;
 use App\Models\Assembly;
 use App\Models\Teacher;
 use Illuminate\Validation\ValidationException;
@@ -28,6 +29,8 @@ class CheckOut
                 'teacher' => __(':name is not checked in at this assembly.', ['name' => $teacher->name]),
             ]);
         }
+
+        broadcast(new AttendanceChanged($assembly->id))->toOthers();
 
         return AttendanceMovement::CheckOut;
     }

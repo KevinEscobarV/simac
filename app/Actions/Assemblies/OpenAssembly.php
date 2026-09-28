@@ -3,6 +3,7 @@
 namespace App\Actions\Assemblies;
 
 use App\Enums\QuorumType;
+use App\Events\AssemblyChanged;
 use App\Models\Assembly;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
@@ -21,7 +22,7 @@ class OpenAssembly
      */
     public function handle(User $openedBy, array $attributes): Assembly
     {
-        return Cache::lock(Assembly::OPENING_LOCK, 10)->block(5, function () use ($openedBy, $attributes): Assembly {
+        $assembly = Cache::lock(Assembly::OPENING_LOCK, 10)->block(5, function () use ($openedBy, $attributes): Assembly {
             $open = Assembly::current();
 
             if ($open !== null) {
@@ -32,5 +33,9 @@ class OpenAssembly
 
             return Assembly::create([...$attributes, 'opened_by' => $openedBy->id]);
         });
+
+        broadcast(new AssemblyChanged($assembly->id))->toOthers();
+
+        return $assembly;
     }
 }

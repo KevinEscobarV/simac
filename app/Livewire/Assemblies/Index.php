@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Assemblies;
 
+use App\Actions\Assemblies\AdjustQuorum;
 use App\Actions\Assemblies\CloseAssembly;
 use App\Actions\Assemblies\DeleteAssembly;
 use App\Actions\Assemblies\OpenAssembly;
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -141,13 +143,13 @@ class Index extends Component
         Flux::modal('assembly-quorum')->show();
     }
 
-    public function saveQuorum(): void
+    public function saveQuorum(AdjustQuorum $adjustQuorum): void
     {
         $assembly = $this->currentOrFail();
 
         $this->authorize('update', $assembly);
 
-        $assembly->update($this->quorumForm->attributesFrom($this->quorumForm->validate()));
+        $adjustQuorum->handle($assembly, $this->quorumForm->attributesFrom($this->quorumForm->validate()));
 
         Flux::modal('assembly-quorum')->close();
         Flux::toast(variant: 'success', text: __('Quorum updated.'));
@@ -274,6 +276,17 @@ class Index extends Component
         Flux::toast(text: __('The record of :name was voided.', ['name' => $this->voiding->name]));
 
         $this->voiding = null;
+        $this->refreshAssembly();
+    }
+
+    /**
+     * A desk or another administrator changed something: render again with
+     * fresh counters, quorum and roll.
+     */
+    #[On('echo-private:assemblies,AttendanceChanged')]
+    #[On('echo-private:assemblies,AssemblyChanged')]
+    public function refreshLive(): void
+    {
         $this->refreshAssembly();
     }
 

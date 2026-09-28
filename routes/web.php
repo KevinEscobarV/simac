@@ -1,8 +1,10 @@
 <?php
 
+use App\Livewire\Assemblies;
 use App\Livewire\Locations;
 use App\Livewire\Teachers;
 use App\Livewire\Users;
+use App\Models\Assembly;
 use App\Models\City;
 use App\Models\Teacher;
 use App\Models\User;
@@ -20,6 +22,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('lugares', Locations\Index::class)
         ->name('locations.index')
         ->can('viewAny', City::class);
+
+    Route::livewire('jornadas', Assemblies\Index::class)
+        ->name('assemblies.index')
+        ->can('viewAny', Assembly::class);
 
     Route::livewire('usuarios', Users\Index::class)
         ->name('users.index')

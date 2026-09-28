@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\Role;
+use App\Models\Assembly;
 use App\Models\City;
 use App\Models\School;
 use App\Models\Teacher;
@@ -26,5 +27,6 @@ test('seeds the roll of the demo', function () {
     expect(City::count())->toBe(19)
         ->and(School::count())->toBe(8)
         ->and(Teacher::count())->toBe(18)
-        ->and(Teacher::firstWhere('document_number', '1118920467')->school->name)->toBe('IE La Presentación');
+        ->and(Teacher::firstWhere('document_number', '1118920467')->school->name)->toBe('IE La Presentación')
+        ->and(Assembly::current()?->opener?->email)->toBe('admin@simac.test');
 });

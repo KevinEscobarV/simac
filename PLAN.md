@@ -124,6 +124,8 @@ En la demo la separación es solo por URL (no hay login). Aquí se hace con **ro
 - **Catálogo de municipios**: los 19 de Casanare vienen sembrados; el admin puede agregar, renombrar o
   eliminar.
 - **Docentes**: se retiran y reincorporan (soft delete), nunca se borran. La cédula es solo numérica.
+- **Jornadas**: solo se elimina una jornada sin registros de asistencia; las demás son historial.
+- **Estructura**: los objetos de valor van en `app/Support`.
 - **Textos neutros**: los mensajes que nombran a un docente no asumen su género («Se registró la
   afiliación de :name»).
 
@@ -290,19 +292,22 @@ mesa y la pantalla; hasta entonces todos llegan a `/inicio`):
 - [x] Cédula: solo números, 5 a 12 dígitos; se acepta con puntos y se guardan los dígitos. Única también frente a los retirados
 - [x] Tests (69 en las carpetas tocadas), Pint y Larastan en verde. Revisado en el navegador: claro, oscuro y celular
 
-### Fase 5 · Jornadas y asistencia (panel admin)
-- [ ] Migraciones y modelos `Assembly` y `Attendance`
-- [ ] Scope `Teacher::presentAt(Assembly)` (presentes en una jornada)
-- [ ] Objeto de valor `Quorum`, con el cálculo y el estado
-- [ ] Actions:
-  - [ ] Jornada: abrir, cerrar, reabrir, eliminar y ajustar el quórum
-  - [ ] Asistencia: entrada, salida, anular y deshacer
-- [ ] Módulo **Jornadas**:
-  - [ ] Tarjeta de jornada en curso: contadores y quórum con barra
-  - [ ] Padrón de la jornada con filtros (todos, presentes, ya salieron, sin registrar)
-  - [ ] Entrada con `Enter` desde el buscador
-  - [ ] Jornadas anteriores
-- [ ] Tests: una sola jornada abierta, entrada/repetido/reingreso, deshacer, cálculo del quórum (unitarios)
+### Fase 5 · Jornadas y asistencia (panel admin) ✅
+- [x] Migraciones y modelos `Assembly` y `Attendance` (única por jornada y docente)
+- [x] Scope `Teacher::presentAt(Assembly)` (presentes en una jornada)
+- [x] Enum `QuorumType` y objeto de valor `App\Support\Quorum`: requeridos (hacia arriba y sin ruido de coma flotante), faltantes, cumplido, alcanzable, avance
+- [x] Actions:
+  - [x] Jornada: abrir, cerrar, reabrir y eliminar. Un lock (`Cache::lock`) garantiza una sola abierta. Solo se elimina una jornada sin registros
+  - [x] Asistencia: `CheckIn` (entrada, ya presente o reingreso, a prueba de dos mesas a la vez con `createOrFirst`), `CheckOut`, `VoidAttendance` y `UndoMovement` (rechaza si el registro cambió)
+  - [x] `ResolveTeacher`: cédula o código exactos primero, luego nombre (uno resuelve, cero o varios dan error). La mesa de la fase 7 lo reutiliza
+- [x] Módulo **Jornadas** (`/jornadas`, grupo «Asamblea»):
+  - [x] Tarjeta oscura de jornada en curso: contadores y quórum con barra (componente `x-assemblies.quorum`, reutilizable en la mesa)
+  - [x] Padrón de la jornada con filtros (todos, presentes, ya salieron, sin registrar); en celular el filtro es un select
+  - [x] Entrada con `Enter` desde el buscador (cédula con o sin puntos, código o nombre)
+  - [x] Ajuste del quórum sin cerrar la jornada, con la traducción a personas («harán falta 7 de 13 afiliados»)
+  - [x] Jornadas anteriores: reabrir y eliminar
+- [x] `DemoAssemblySeeder`: jornada abierta como la de la demo (desarrollo)
+- [x] Tests (110 en las carpetas tocadas, incluidos unitarios del quórum), Pint y Larastan en verde. Revisado en el navegador: claro, oscuro y celular
 
 ### Fase 6 · Tiempo real (Reverb)
 - [ ] Instalar y configurar Reverb y Echo (`php artisan install:broadcasting`)
@@ -391,3 +396,4 @@ mesa y la pantalla; hasta entonces todos llegan a `/inicio`):
 | 2026-09-28 | 2 | Arreglo: `app:create-admin-user` no mostraba las preguntas en Windows (el `db:seed` silencioso previo se quedaba con la salida de Prompts). Ahora corre el seeder directamente. |
 | 2026-09-28 | 3 | Municipios y colegios. En la interfaz se dice «municipio». Se siembran los 19 municipios de Casanare (seguro en producción) y los colegios de la demo solo en desarrollo. |
 | 2026-09-28 | 4 | Padrón de docentes. Retirar = soft delete con reincorporación. Código SIM derivado del id. Búsqueda sin tildes con `normalized_name`. |
+| 2026-09-28 | 5 | Jornadas y asistencia. Una jornada solo se elimina si no tiene registros. Objetos de valor en `app/Support` (aprobado). |

@@ -32,6 +32,16 @@
                 </flux:sidebar.nav>
             @endcan
 
+            @can('viewAny', App\Models\Assembly::class)
+                <flux:sidebar.nav>
+                    <flux:sidebar.group :heading="__('Assembly')">
+                        <flux:sidebar.item icon="calendar-days" :href="route('assemblies.index')" :current="request()->routeIs('assemblies.*')" wire:navigate>
+                            {{ __('Assemblies') }}
+                        </flux:sidebar.item>
+                    </flux:sidebar.group>
+                </flux:sidebar.nav>
+            @endcan
+
             @can('viewAny', App\Models\User::class)
                 <flux:sidebar.nav>
                     <flux:sidebar.group :heading="__('Administration')">

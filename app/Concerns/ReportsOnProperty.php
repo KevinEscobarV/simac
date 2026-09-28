@@ -6,16 +6,17 @@ use Closure;
 use Illuminate\Validation\ValidationException;
 
 /**
- * For the Livewire components that take attendance from a search field.
+ * For the Livewire components that run actions: why an action could not go
+ * ahead has to stay on screen.
  */
-trait ReportsOnSearch
+trait ReportsOnProperty
 {
     /**
-     * Run an attendance action and report why it could not go ahead on the
-     * search field, where the page shows it. The actions report on keys that
-     * are not properties (key, teacher, assembly), and Livewire forgets those
-     * on the next request, such as the debounced sync of the field that
-     * follows an Enter.
+     * Run an action and report why it could not go ahead under a property of
+     * the component (a search field, a form), where the page shows it. The
+     * actions report on keys that are not properties (key, teacher,
+     * participants…), and Livewire forgets those on the next request, such
+     * as the debounced sync of a field that follows an Enter.
      *
      * @template TResult
      *
@@ -24,13 +25,13 @@ trait ReportsOnSearch
      *
      * @throws ValidationException
      */
-    protected function reportingOnSearch(Closure $action): mixed
+    protected function reportingOn(string $property, Closure $action): mixed
     {
         try {
             return $action();
         } catch (ValidationException $exception) {
             throw ValidationException::withMessages([
-                'search' => $exception->validator->errors()->first(),
+                $property => $exception->validator->errors()->first(),
             ]);
         }
     }

@@ -194,6 +194,7 @@ return [
     */
 
     'attributes' => [
+        'animation' => 'animación',
         'city_id' => 'municipio',
         'code' => 'código',
         'current_password' => 'contraseña actual',
@@ -205,11 +206,13 @@ return [
         'name' => 'nombre',
         'password' => 'contraseña',
         'password_confirmation' => 'confirmación de la contraseña',
+        'prize' => 'premio',
         'quorum_type' => 'tipo de quórum',
         'quorum_value' => 'quórum',
         'recovery_code' => 'código de recuperación',
         'role' => 'rol',
         'school_id' => 'colegio',
+        'winners_count' => 'número de ganadores',
     ],
 
 ];

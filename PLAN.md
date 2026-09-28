@@ -361,18 +361,23 @@ el proyector en la fase 10):
 - [x] Tests (169 en las carpetas tocadas): participantes y filtros, exclusión, varios ganadores en orden, acta completa, quórum congelado, reglas de mínimo, pantalla ocupada, transiciones, intentos viejos, anuncios, latido, canal y políticas
 - Siembra de un sorteo de demostración: pasa a la fase 11, donde el historial lo usa
 
-### Fase 9 · Nuevo sorteo y consola de proyección (admin)
-- [ ] Formulario en pasos:
-  - [ ] ¿Quiénes participan?
-  - [ ] Premio y número de ganadores
-  - [ ] Animación (con ilustraciones)
-- [ ] Resumen en vivo: participantes, filtros, aviso de quórum y pantallas conectadas
-- [ ] Consola:
-  - [ ] Pasos (cargado → en pantalla → ganador)
-  - [ ] Botones «¡Ya!», «Repetir», «Siguiente ganador» y «Liberar»
-  - [ ] «Ver antes»
-- [ ] Indicador «EN VIVO» en la navegación
-- [ ] Tests del componente (Livewire)
+### Fase 9 · Nuevo sorteo y consola de proyección (admin) ✅
+- [x] `/sorteos/nuevo` (`Raffles\Create`, grupo «Sorteos» del menú): formulario mientras la pantalla descansa, consola mientras hay un sorteo cargado. Recargar la página no pierde nada: todo sale del servidor
+- [x] Formulario en tres pasos a la vista (`RaffleForm`):
+  - [x] ¿Quiénes participan?: solo presentes (se desactiva sin jornada abierta), solo afiliados, sin ganadores anteriores, municipio → colegio en cascada
+  - [x] Premio y número de ganadores (1 a 20)
+  - [x] Animación con ilustraciones SVG: ruleta, tómbola de nombres y cuenta regresiva. Aviso si la ruleta tiene más de 40 participantes
+- [x] Resumen en vivo: participantes (con sus nombres cortos), filtros en palabras, ganadores, premio, aviso de quórum y pantallas conectadas. Se actualiza con cada entrada o salida de la jornada (Reverb) y cada 15 s
+- [x] Consola:
+  - [x] Pasos (cargado → en pantalla → ganador), título y detalle según la fase, datos del acta
+  - [x] «¡Ya!», «Siguiente ganador (2 de 3)», «Repetir animación», «Terminar y liberar» y «Cancelar proyección» (con confirmación)
+  - [x] «Ver antes», solo para quien dirige; cuadro de honor con los ganadores ya revelados
+  - [x] Una orden que ya no aplica (otra consola o una pantalla se adelantaron) es solo un aviso
+- [x] Indicador «EN VIVO» en la navegación (`Raffles\LiveBadge`), en vivo por Reverb y por evento de la propia página
+- [x] Trait `ReportsOnSearch` generalizado a `ReportsOnProperty` (los errores del sorteo quedan en `form.draw` y no se pierden)
+- [x] `Teacher::short_name` («María Fernanda Rojas» → «María Rojas»), `Projection::isLive()` y `revealed()`
+- [x] Tests (207 en las carpetas tocadas): acceso, sorteo desde el formulario, validación, conteo en vivo, cascada, error que se queda, ganador oculto y «Ver antes», recorrido con dos ganadores siguiendo a la pantalla, orden que ya no aplica y «EN VIVO». Revisado en el navegador con una pantalla simulada: claro, oscuro, escritorio y celular
+- El enlace a `/pantalla` desde la consola y el resumen llega con la fase 10
 
 ### Fase 10 · Pantalla de proyección (`/pantalla`)
 - [ ] Layout de escenario, siempre oscuro
@@ -423,3 +428,4 @@ el proyector en la fase 10):
 | 2026-09-28 | 6 | Tiempo real con Reverb (dependencias aprobadas). El evento de jornada se llama `AssemblyChanged` porque también cubre el ajuste del quórum. Una caída de Reverb nunca impide registrar. |
 | 2026-09-28 | 7 | Mesa de registro. `/inicio` envía a cada rol a su puesto. Los últimos movimientos son de todas las mesas (como en la demo). Arreglado el error que desaparecía tras Enter, también en el panel. |
 | 2026-09-28 | 8 | Motor del sorteo. Estado de la proyección en una tabla de una fila (aprobado). No se sortea otro mientras haya uno en pantalla. Una jornada con sorteos es historial. |
+| 2026-09-28 | 9 | Nuevo sorteo y consola. Máximo 20 ganadores por sorteo. «Ver antes» solo en la consola. |

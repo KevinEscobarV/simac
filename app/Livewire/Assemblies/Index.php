@@ -11,7 +11,7 @@ use App\Actions\Attendance\CheckIn;
 use App\Actions\Attendance\CheckOut;
 use App\Actions\Attendance\ResolveTeacher;
 use App\Actions\Attendance\VoidAttendance;
-use App\Concerns\ReportsOnSearch;
+use App\Concerns\ReportsOnProperty;
 use App\Enums\AttendanceMovement;
 use App\Livewire\Forms\AssemblyForm;
 use App\Livewire\Forms\QuorumForm;
@@ -44,7 +44,7 @@ use Livewire\WithPagination;
  */
 class Index extends Component
 {
-    use ReportsOnSearch, WithPagination;
+    use ReportsOnProperty, WithPagination;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -217,7 +217,7 @@ class Index extends Component
 
     public function checkIn(Teacher $teacher, CheckIn $checkIn): void
     {
-        $this->reportingOnSearch(fn () => $this->registerCheckIn($teacher, $checkIn));
+        $this->reportingOn('search', fn () => $this->registerCheckIn($teacher, $checkIn));
     }
 
     /**
@@ -226,14 +226,14 @@ class Index extends Component
      */
     public function checkInFromSearch(ResolveTeacher $resolveTeacher, CheckIn $checkIn): void
     {
-        $this->reportingOnSearch(fn () => $this->registerCheckIn($resolveTeacher->handle($this->search), $checkIn));
+        $this->reportingOn('search', fn () => $this->registerCheckIn($resolveTeacher->handle($this->search), $checkIn));
 
         $this->reset('search');
     }
 
     public function checkOut(Teacher $teacher, CheckOut $checkOut): void
     {
-        $this->reportingOnSearch(function () use ($teacher, $checkOut): void {
+        $this->reportingOn('search', function () use ($teacher, $checkOut): void {
             $assembly = $this->currentOrFail();
 
             $this->authorize('registerAttendance', $assembly);

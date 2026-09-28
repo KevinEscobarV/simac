@@ -4,10 +4,12 @@ use App\Http\Controllers\DashboardController;
 use App\Livewire\Assemblies;
 use App\Livewire\Desk;
 use App\Livewire\Locations;
+use App\Livewire\Raffles;
 use App\Livewire\Teachers;
 use App\Livewire\Users;
 use App\Models\Assembly;
 use App\Models\City;
+use App\Models\Raffle;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +34,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('usuarios', Users\Index::class)
         ->name('users.index')
         ->can('viewAny', User::class);
+
+    Route::livewire('sorteos/nuevo', Raffles\Create::class)
+        ->name('raffles.create')
+        ->can('create', Raffle::class);
 
     Route::livewire('registro', Desk\Index::class)
         ->name('desk')

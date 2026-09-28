@@ -31,6 +31,7 @@ use Illuminate\Support\Str;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property-read string $code
+ * @property-read string $short_name
  * @property-read School $school
  */
 #[Fillable(['school_id', 'name', 'document_number', 'is_union_member'])]
@@ -89,6 +90,21 @@ class Teacher extends Model
     protected function code(): Attribute
     {
         return Attribute::get(fn (): string => sprintf('SIM-%03d', $this->id));
+    }
+
+    /**
+     * First name and last surname ("María Fernanda Rojas" → "María Rojas"):
+     * fits a chip or a slice of the wheel without cutting.
+     *
+     * @return Attribute<string, never>
+     */
+    protected function shortName(): Attribute
+    {
+        return Attribute::get(function (): string {
+            $words = explode(' ', $this->name);
+
+            return count($words) > 1 ? $words[0].' '.end($words) : $this->name;
+        });
     }
 
     /**

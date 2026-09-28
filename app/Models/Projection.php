@@ -77,6 +77,27 @@ class Projection extends Model
     }
 
     /**
+     * Whether something is loaded on the screens.
+     */
+    public function isLive(): bool
+    {
+        return $this->phase !== ProjectionPhase::Idle;
+    }
+
+    /**
+     * How many winners are public: the ones before the current and, once its
+     * animation ended, the current one.
+     */
+    public function revealed(): int
+    {
+        return match ($this->phase) {
+            ProjectionPhase::Idle => 0,
+            ProjectionPhase::Winner => $this->winner_position,
+            default => max(0, $this->winner_position - 1),
+        };
+    }
+
+    /**
      * Whether winners of the loaded raffle are still to be revealed after the
      * current one.
      */

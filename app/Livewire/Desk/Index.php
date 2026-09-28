@@ -6,7 +6,7 @@ use App\Actions\Attendance\CheckIn;
 use App\Actions\Attendance\CheckOut;
 use App\Actions\Attendance\ResolveTeacher;
 use App\Actions\Attendance\UndoMovement;
-use App\Concerns\ReportsOnSearch;
+use App\Concerns\ReportsOnProperty;
 use App\Enums\AttendanceMovement;
 use App\Models\Assembly;
 use App\Models\Attendance;
@@ -35,7 +35,7 @@ use Livewire\Component;
  */
 class Index extends Component
 {
-    use ReportsOnSearch;
+    use ReportsOnProperty;
 
     /** How many matches the desk lists: it serves one person, it does not browse the roll. */
     public const int RESULTS = 8;
@@ -123,7 +123,7 @@ class Index extends Component
     {
         $this->clearScreen();
 
-        $this->reportingOnSearch(fn () => $this->registerCheckIn($resolveTeacher->handle($key), $checkIn));
+        $this->reportingOn('search', fn () => $this->registerCheckIn($resolveTeacher->handle($key), $checkIn));
     }
 
     /**
@@ -133,17 +133,17 @@ class Index extends Component
     {
         $this->clearScreen();
 
-        $this->reportingOnSearch(fn () => $this->registerCheckOut($resolveTeacher->handle($key), $checkOut));
+        $this->reportingOn('search', fn () => $this->registerCheckOut($resolveTeacher->handle($key), $checkOut));
     }
 
     public function checkIn(Teacher $teacher, CheckIn $checkIn): void
     {
-        $this->reportingOnSearch(fn () => $this->registerCheckIn($teacher, $checkIn));
+        $this->reportingOn('search', fn () => $this->registerCheckIn($teacher, $checkIn));
     }
 
     public function checkOut(Teacher $teacher, CheckOut $checkOut): void
     {
-        $this->reportingOnSearch(fn () => $this->registerCheckOut($teacher, $checkOut));
+        $this->reportingOn('search', fn () => $this->registerCheckOut($teacher, $checkOut));
     }
 
     /**
@@ -159,7 +159,7 @@ class Index extends Component
             return;
         }
 
-        $this->reportingOnSearch(function () use ($undoMovement, $teacher, $movement): void {
+        $this->reportingOn('search', function () use ($undoMovement, $teacher, $movement): void {
             $assembly = $this->startMovement();
 
             $undoMovement->handle($assembly, $teacher, $movement);

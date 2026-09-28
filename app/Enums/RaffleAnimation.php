@@ -16,17 +16,17 @@ enum RaffleAnimation: string
     {
         return match ($this) {
             self::Wheel => __('Wheel'),
-            self::Drum => __('Raffle drum'),
-            self::Reveal => __('Countdown reveal'),
+            self::Drum => __('Name drum'),
+            self::Reveal => __('Countdown'),
         };
     }
 
     public function description(): string
     {
         return match ($this) {
-            self::Wheel => __('A wheel with the participants spins and slows down on the winner.'),
-            self::Drum => __('The drum turns and a ball with the winner comes out.'),
-            self::Reveal => __('A countdown, then the name appears letter by letter.'),
+            self::Wheel => __('The wheel spins and slows down until it stops on the winning name. The classic.'),
+            self::Drum => __('The names go by fast and slow down little by little. Best for long lists.'),
+            self::Reveal => __('3, 2, 1… and the name appears letter by letter. Quick and effective.'),
         };
     }
 }

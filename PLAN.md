@@ -438,10 +438,15 @@ Después del login, cada rol aterriza en su puesto (`User::homeRoute()`):
 - [x] Accesibilidad: enlace «Saltar al contenido» (primer Tab), `aria-live` en el estado de la consola, anillo de foco en las filas del historial, contraste suficiente en textos secundarios sobre fondo oscuro. `prefers-reduced-motion` ya estaba cubierto (regla global y la pantalla)
 - [x] Tests (295, toda la suite): jornada en curso y sin jornada, aviso del sorteo en pantalla, métricas y último sorteo, usuario sin puesto, 404 y 403 en español. Revisado en el navegador: claro, oscuro, escritorio y celular
 
-### Fase 14 · Cierre
-- [ ] Suite completa, Pint y Larastan en verde
-- [ ] Guía de despliegue: Reverb, queue y scheduler, variables de entorno, seeders de roles y municipios, usuario admin inicial
-  - Reverb: `REVERB_APP_ID/KEY/SECRET` vienen vacíos en `.env.example` (cualquier valor aleatorio sirve); `npm run build` después de fijar las `VITE_REVERB_*`; `php artisan reverb:start` bajo un supervisor
+### Fase 14 · Cierre ✅
+- [x] Suite completa, Pint y Larastan en verde
+- [x] `README.md` (no existía): qué es SIMAC y sus tres puestos, desarrollo local con usuarios de demostración, pruebas, y la guía de despliegue:
+  - variables de entorno (HTTPS para las passkeys, SMTP para recuperar contraseñas, credenciales propias de Reverb; las `VITE_REVERB_*` se incrustan al compilar)
+  - migraciones, `RolesAndPermissionsSeeder` en cada despliegue, `CitySeeder`, `app:create-admin-user` y la advertencia de no correr `db:seed` sin `--class` en producción
+  - Reverb bajo Supervisor y detrás de Nginx en el mismo dominio (`/app` y `/apps`)
+  - sin worker de colas ni programador de tareas: nada se encola y no hay tareas programadas
+  - actualizaciones, copias de seguridad, lista para el día de la asamblea y problemas frecuentes
+- [x] Arreglo: el PDF del acta fallaba con `php artisan serve` en Windows («Path must not be empty»). Ese comando no le pasa `TEMP`/`TMP` al servidor, PHP usa `C:\Windows` como carpeta temporal y dompdf no podía escribir el subconjunto de fuentes. `config/dompdf.php` publicado con `temp_dir` en `storage/framework/cache` y el subconjunto de fuentes activado ahí
 
 ---
 
@@ -465,3 +470,5 @@ Después del login, cada rol aterriza en su puesto (`User::homeRoute()`):
 | 2026-09-28 | 10 | Arreglo: el conteo de pantallas iba y venía con la pantalla en una pestaña de fondo, y cerrar una pantalla tardaba hasta un minuto en notarse. Ahora la pantalla avisa al cerrarse y la gracia cubre el freno del navegador. Sin pantallas conectadas no se lanza (decisión del usuario: bloquear). |
 | 2026-09-28 | 12 | Carnés (picqer aprobado). Tamaño de tarjeta de identificación, 8 por hoja carta, impresos desde el navegador. El código de barras lleva `SIM012` sin guion por el teclado en español. Sin cédula en el carné: el código basta para la mesa. |
 | 2026-09-28 | 13 | Inicio y pulido. El inicio muestra solo lo que cada permiso autoriza. Páginas de error propias en español. Sin dependencias nuevas. |
+| 2026-09-28 | 11 | Arreglo: PDF del acta con `php artisan serve` en Windows (carpeta temporal de dompdf dentro de `storage`). |
+| 2026-09-28 | 14 | Cierre. La guía del proyecto y de despliegue queda en `README.md` (decisión del usuario). |

@@ -33,9 +33,7 @@ class RaffleRecordController extends Controller
             'participants' => $participants,
             'title' => __('Raffle record No. :number', ['number' => $raffle->id]),
         ])
-            ->setPaper('letter')
-            // Only the letters in use are embedded: the file stays light.
-            ->setOption('enable_font_subsetting', true);
+            ->setPaper('letter');
 
         $this->numberPages($document);
 

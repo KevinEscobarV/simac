@@ -182,8 +182,8 @@ En código son los enums `App\Enums\Role` y `App\Enums\Permission`:
 
 La aplicación siempre pregunta por el permiso, nunca por el rol. Cada usuario tiene exactamente un rol.
 
-Después del login, cada rol aterriza en su puesto (se implementa en las fases 7 y 10, cuando existan la
-mesa y la pantalla; hasta entonces todos llegan a `/inicio`):
+Después del login, cada rol aterriza en su puesto (`User::homeRoute()`; el registrador desde la fase 7,
+el proyector en la fase 10):
 
 | Rol | Destino |
 | --- | --- |
@@ -325,18 +325,24 @@ mesa y la pantalla; hasta entonces todos llegan a `/inicio`):
 - [x] Reverb se agrega solo a `composer run dev` (`php artisan dev` lo incluye desde que el paquete está instalado)
 - [x] Tests (97 en las carpetas tocadas): eventos emitidos y no emitidos, falla de Reverb sin perder la entrada, autorización del canal por rol. Pint y Larastan en verde
 
-### Fase 7 · Mesa de registro (`/registro`)
-- [ ] Layout de quiosco (cabecera oscura, cuerpo claro, primero para celular)
-- [ ] Después del login, el registrador aterriza en `/registro`
-- [ ] Componente de quiosco:
-  - [ ] Campo grande siempre enfocado y búsqueda con *debounce*
-  - [ ] `Enter`, `Shift+Enter` y `Esc`
-  - [ ] Resolución por cédula, código o nombre
-- [ ] Confirmación grande con **Deshacer**, que se retira sola
-- [ ] Últimos movimientos, contadores, reloj y tira de quórum
-- [ ] Estado «sin jornada abierta» que se actualiza solo (Reverb)
-- [ ] Diseño primero para celular
-- [ ] Tests: resolución de clave (exacta, única, ambigua, inexistente), movimientos y deshacer
+### Fase 7 · Mesa de registro (`/registro`) ✅
+- [x] Layout de quiosco `layouts::kiosk`: sin menú lateral; la cabecera oscura la pone la página
+- [x] Después del login, el registrador aterriza en `/registro`
+  - `User::homeRoute()` decide por permisos y `/inicio` redirige a quien trabaja en otro puesto; así funciona igual con contraseña, 2FA, passkey o «recordarme»
+  - En el menú lateral, «Inicio» solo aparece a quien usa el panel. Nuevo ítem «Mesa de registro» en «Asamblea» (administrador y registrador)
+  - Permiso de la ruta: `AssemblyPolicy::useDesk` (registrar asistencia)
+- [x] Componente `Desk\Index`:
+  - [x] Campo grande siempre enfocado y búsqueda con *debounce*; vuelve a enfocarse después de cada movimiento
+  - [x] `Enter` (entrada), `Shift+Enter` (salida) y `Esc` (borra). La clave viaja tal cual al servidor, así el lector de códigos de barras no espera la lista. Un segundo Enter mientras se procesa el primero se ignora
+  - [x] Resolución por cédula, código o nombre (`ResolveTeacher`); varias coincidencias muestran el error y la lista para elegir. Sin término no se muestra el padrón (máximo 8 resultados)
+- [x] Confirmación grande (entrada verde, salida dorada, aviso neutro) con **Deshacer**, barra de cuenta regresiva y retiro solo a los 6 s. Los errores se quedan hasta el siguiente intento
+- [x] Cabecera: contadores, reloj y tira de quórum (`x-assemblies.quorum`). Últimos 8 movimientos de todas las mesas
+- [x] Estado «sin jornada abierta» que se actualiza solo (Reverb, con un sondeo cada 30 s de respaldo). Si cierran la jornada, la mesa borra lo escrito y vuelve a esperar
+- [x] Menú de usuario con «Panel administrativo» para quien lo tiene (`x-user-menu` acepta enlaces propios de la página)
+- [x] Diseño primero para celular; revisado en claro, oscuro, escritorio y celular, y con entradas desde otra «mesa» en vivo
+- [x] Arreglo que también afecta al panel de jornadas: Livewire solo conserva entre peticiones los errores con nombre de propiedad, y el envío diferido del buscador que sigue a un Enter borraba el error («varias coincidencias»). Ahora se reportan sobre `search` (trait `ReportsOnSearch`)
+- [x] `Attendance::teacher()` incluye docentes retirados: el registro es historial y conserva a su docente
+- [x] Tests (160 en las carpetas tocadas): acceso por rol y destino después del login, Enter y Shift+Enter por clave, clave ambigua, error que sobrevive a la petición siguiente, lista solo con término, deshacer, «ya presente» sin deshacer, últimos movimientos en orden, jornada cerrada en medio. La resolución de claves ya la cubre `ResolveTeacherTest`
 
 ### Fase 8 · Motor del sorteo
 - [ ] Migraciones y modelos `Raffle` y `RaffleEntry`. Enums `RaffleAnimation` y `ProjectionPhase`
@@ -408,3 +414,4 @@ mesa y la pantalla; hasta entonces todos llegan a `/inicio`):
 | 2026-09-28 | 4 | Padrón de docentes. Retirar = soft delete con reincorporación. Código SIM derivado del id. Búsqueda sin tildes con `normalized_name`. |
 | 2026-09-28 | 5 | Jornadas y asistencia. Una jornada solo se elimina si no tiene registros. Objetos de valor en `app/Support` (aprobado). |
 | 2026-09-28 | 6 | Tiempo real con Reverb (dependencias aprobadas). El evento de jornada se llama `AssemblyChanged` porque también cubre el ajuste del quórum. Una caída de Reverb nunca impide registrar. |
+| 2026-09-28 | 7 | Mesa de registro. `/inicio` envía a cada rol a su puesto. Los últimos movimientos son de todas las mesas (como en la demo). Arreglado el error que desaparecía tras Enter, también en el panel. |

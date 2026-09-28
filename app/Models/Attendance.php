@@ -52,11 +52,13 @@ class Attendance extends Model
     }
 
     /**
+     * Retired teachers included: the record is history and keeps its teacher.
+     *
      * @return BelongsTo<Teacher, $this>
      */
     public function teacher(): BelongsTo
     {
-        return $this->belongsTo(Teacher::class);
+        return $this->belongsTo(Teacher::class)->withTrashed();
     }
 
     /**

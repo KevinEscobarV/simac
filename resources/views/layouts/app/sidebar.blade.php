@@ -13,11 +13,13 @@
                 <flux:sidebar.collapse class="lg:hidden" />
             </flux:sidebar.header>
 
-            <flux:sidebar.nav class="mt-4">
-                <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                    {{ __('Home') }}
-                </flux:sidebar.item>
-            </flux:sidebar.nav>
+            @if (auth()->user()->homeRoute() === 'dashboard')
+                <flux:sidebar.nav class="mt-4">
+                    <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
+                        {{ __('Home') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.nav>
+            @endif
 
             @can('viewAny', App\Models\City::class)
                 <flux:sidebar.nav>
@@ -32,15 +34,23 @@
                 </flux:sidebar.nav>
             @endcan
 
-            @can('viewAny', App\Models\Assembly::class)
-                <flux:sidebar.nav>
+            @canany(['viewAny', 'useDesk'], App\Models\Assembly::class)
+                <flux:sidebar.nav @class(['mt-4' => auth()->user()->homeRoute() !== 'dashboard'])>
                     <flux:sidebar.group :heading="__('Assembly')">
-                        <flux:sidebar.item icon="calendar-days" :href="route('assemblies.index')" :current="request()->routeIs('assemblies.*')" wire:navigate>
-                            {{ __('Assemblies') }}
-                        </flux:sidebar.item>
+                        @can('viewAny', App\Models\Assembly::class)
+                            <flux:sidebar.item icon="calendar-days" :href="route('assemblies.index')" :current="request()->routeIs('assemblies.*')" wire:navigate>
+                                {{ __('Assemblies') }}
+                            </flux:sidebar.item>
+                        @endcan
+
+                        @can('useDesk', App\Models\Assembly::class)
+                            <flux:sidebar.item icon="clipboard-document-check" :href="route('desk')" :current="request()->routeIs('desk')" wire:navigate>
+                                {{ __('Registration desk') }}
+                            </flux:sidebar.item>
+                        @endcan
                     </flux:sidebar.group>
                 </flux:sidebar.nav>
-            @endcan
+            @endcanany
 
             @can('viewAny', App\Models\User::class)
                 <flux:sidebar.nav>

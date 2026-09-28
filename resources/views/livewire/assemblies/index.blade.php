@@ -58,7 +58,7 @@
                     clearable
                     autofocus
                 />
-                <flux:error name="key" />
+                <flux:error name="search" />
                 <flux:error name="teacher" />
                 <flux:error name="assembly" />
             </div>

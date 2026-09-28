@@ -62,6 +62,19 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * The route the user starts at: whoever only takes attendance works at
+     * the registration desk; everyone else, at the dashboard.
+     */
+    public function homeRoute(): string
+    {
+        if ($this->can('useDesk', Assembly::class) && $this->cannot('viewAny', Assembly::class)) {
+            return 'desk';
+        }
+
+        return 'dashboard';
+    }
+
+    /**
      * A deactivated user keeps their history but can no longer sign in.
      */
     public function isDeactivated(): bool

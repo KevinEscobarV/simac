@@ -55,6 +55,15 @@ class AssemblyPolicy
     }
 
     /**
+     * The registration desk, which waits for an assembly to open when there
+     * is none.
+     */
+    public function useDesk(User $user): bool
+    {
+        return $user->hasPermissionTo(Permission::RegisterAttendance);
+    }
+
+    /**
      * Receiving the live updates of the assemblies (openings, closings and
      * every check-in), which the panel and the desks both show.
      */

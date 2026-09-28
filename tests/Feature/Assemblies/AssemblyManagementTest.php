@@ -122,8 +122,10 @@ test('pressing Enter with an ambiguous search checks nobody in', function () {
     Livewire::test(Index::class)
         ->set('search', 'luz')
         ->call('checkInFromSearch')
-        ->assertHasErrors('key')
-        ->assertSet('search', 'luz');
+        ->assertHasErrors('search')
+        ->assertSet('search', 'luz')
+        ->call('$refresh')
+        ->assertHasErrors('search');
 
     expect($assembly->attendances()->count())->toBe(0);
 });

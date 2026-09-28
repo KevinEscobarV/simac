@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Livewire\Assemblies;
+use App\Livewire\Desk;
 use App\Livewire\Locations;
 use App\Livewire\Teachers;
 use App\Livewire\Users;
@@ -13,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', 'inicio')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('inicio', 'dashboard')->name('dashboard');
+    Route::get('inicio', DashboardController::class)->name('dashboard');
 
     Route::livewire('docentes', Teachers\Index::class)
         ->name('teachers.index')
@@ -30,6 +32,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('usuarios', Users\Index::class)
         ->name('users.index')
         ->can('viewAny', User::class);
+
+    Route::livewire('registro', Desk\Index::class)
+        ->name('desk')
+        ->can('useDesk', Assembly::class);
 });
 
 require __DIR__.'/settings.php';

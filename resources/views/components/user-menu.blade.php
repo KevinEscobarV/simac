@@ -12,6 +12,13 @@
 
     <flux:menu.separator />
 
+    {{-- Links of the page the menu sits on, above the ones every page has. --}}
+    @if ($slot->isNotEmpty())
+        {{ $slot }}
+
+        <flux:menu.separator />
+    @endif
+
     <flux:menu.item :href="route('profile.edit')" icon="cog" wire:navigate>
         {{ __('Settings') }}
     </flux:menu.item>

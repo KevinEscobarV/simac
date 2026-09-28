@@ -92,6 +92,7 @@
     --animate-float: float 18s ease-in-out infinite;
     --animate-breathe: breathe 3.5s ease-in-out infinite;
     --animate-slide-in: slide-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    --animate-drain: drain 6s linear both;
 
     @keyframes fade-in {
         from {
@@ -166,6 +167,16 @@
         to {
             opacity: 1;
             transform: translateX(0);
+        }
+    }
+
+    /* A bar that empties: how long a confirmation has left on screen. */
+    @keyframes drain {
+        from {
+            transform: scaleX(1);
+        }
+        to {
+            transform: scaleX(0);
         }
     }
 }

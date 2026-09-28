@@ -11,6 +11,7 @@ use App\Actions\Attendance\CheckIn;
 use App\Actions\Attendance\CheckOut;
 use App\Actions\Attendance\ResolveTeacher;
 use App\Actions\Attendance\VoidAttendance;
+use App\Concerns\ReportsOnSearch;
 use App\Enums\AttendanceMovement;
 use App\Livewire\Forms\AssemblyForm;
 use App\Livewire\Forms\QuorumForm;
@@ -43,7 +44,7 @@ use Livewire\WithPagination;
  */
 class Index extends Component
 {
-    use WithPagination;
+    use ReportsOnSearch, WithPagination;
 
     #[Url(as: 'q', except: '')]
     public string $search = '';
@@ -69,7 +70,7 @@ class Index extends Component
     {
         if (in_array($property, ['search', 'filter'], true)) {
             $this->resetPage();
-            $this->resetErrorBag('key');
+            $this->resetErrorBag('search');
         }
     }
 
@@ -216,19 +217,7 @@ class Index extends Component
 
     public function checkIn(Teacher $teacher, CheckIn $checkIn): void
     {
-        $assembly = $this->currentOrFail();
-
-        $this->authorize('registerAttendance', $assembly);
-
-        $movement = $checkIn->handle($assembly, $teacher, auth()->user());
-
-        Flux::toast(variant: $movement === AttendanceMovement::AlreadyPresent ? null : 'success', text: match ($movement) {
-            AttendanceMovement::AlreadyPresent => __(':name was already present.', ['name' => $teacher->name]),
-            AttendanceMovement::Reentry => __(':name came back in.', ['name' => $teacher->name]),
-            default => __('Check-in of :name registered.', ['name' => $teacher->name]),
-        });
-
-        $this->refreshAssembly();
+        $this->reportingOnSearch(fn () => $this->registerCheckIn($teacher, $checkIn));
     }
 
     /**
@@ -237,22 +226,24 @@ class Index extends Component
      */
     public function checkInFromSearch(ResolveTeacher $resolveTeacher, CheckIn $checkIn): void
     {
-        $this->checkIn($resolveTeacher->handle($this->search), $checkIn);
+        $this->reportingOnSearch(fn () => $this->registerCheckIn($resolveTeacher->handle($this->search), $checkIn));
 
         $this->reset('search');
     }
 
     public function checkOut(Teacher $teacher, CheckOut $checkOut): void
     {
-        $assembly = $this->currentOrFail();
+        $this->reportingOnSearch(function () use ($teacher, $checkOut): void {
+            $assembly = $this->currentOrFail();
 
-        $this->authorize('registerAttendance', $assembly);
+            $this->authorize('registerAttendance', $assembly);
 
-        $checkOut->handle($assembly, $teacher);
+            $checkOut->handle($assembly, $teacher);
 
-        Flux::toast(text: __('Check-out of :name registered.', ['name' => $teacher->name]));
+            Flux::toast(text: __('Check-out of :name registered.', ['name' => $teacher->name]));
 
-        $this->refreshAssembly();
+            $this->refreshAssembly();
+        });
     }
 
     public function confirmVoiding(Teacher $teacher): void
@@ -318,6 +309,23 @@ class Index extends Component
             ))
             ->orderByName()
             ->paginate(25);
+    }
+
+    private function registerCheckIn(Teacher $teacher, CheckIn $checkIn): void
+    {
+        $assembly = $this->currentOrFail();
+
+        $this->authorize('registerAttendance', $assembly);
+
+        $movement = $checkIn->handle($assembly, $teacher, auth()->user());
+
+        Flux::toast(variant: $movement === AttendanceMovement::AlreadyPresent ? null : 'success', text: match ($movement) {
+            AttendanceMovement::AlreadyPresent => __(':name was already present.', ['name' => $teacher->name]),
+            AttendanceMovement::Reentry => __(':name came back in.', ['name' => $teacher->name]),
+            default => __('Check-in of :name registered.', ['name' => $teacher->name]),
+        });
+
+        $this->refreshAssembly();
     }
 
     /**

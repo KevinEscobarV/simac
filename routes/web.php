@@ -5,10 +5,12 @@ use App\Livewire\Assemblies;
 use App\Livewire\Desk;
 use App\Livewire\Locations;
 use App\Livewire\Raffles;
+use App\Livewire\Screen;
 use App\Livewire\Teachers;
 use App\Livewire\Users;
 use App\Models\Assembly;
 use App\Models\City;
+use App\Models\Projection;
 use App\Models\Raffle;
 use App\Models\Teacher;
 use App\Models\User;
@@ -42,6 +44,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('registro', Desk\Index::class)
         ->name('desk')
         ->can('useDesk', Assembly::class);
+
+    Route::livewire('pantalla', Screen\Index::class)
+        ->name('screen')
+        ->can('watch', Projection::class);
 });
 
 require __DIR__.'/settings.php';

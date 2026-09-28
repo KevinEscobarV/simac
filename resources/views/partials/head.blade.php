@@ -15,4 +15,8 @@
 @fonts
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
-@fluxAppearance
+
+{{-- The projection stage is always dark: it does not follow the chosen appearance. --}}
+@if ($appearance ?? true)
+    @fluxAppearance
+@endif

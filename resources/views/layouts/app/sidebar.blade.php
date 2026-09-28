@@ -52,18 +52,27 @@
                 </flux:sidebar.nav>
             @endcanany
 
-            @can('create', App\Models\Raffle::class)
-                <flux:sidebar.nav>
+            @if (auth()->user()->can('create', App\Models\Raffle::class) || auth()->user()->can('watch', App\Models\Projection::class))
+                <flux:sidebar.nav @class(['mt-4' => auth()->user()->homeRoute() !== 'dashboard'])>
                     <flux:sidebar.group :heading="__('Raffles')">
-                        <flux:sidebar.item icon="gift" :href="route('raffles.create')" :current="request()->routeIs('raffles.create')" wire:navigate>
-                            <span class="flex items-center justify-between gap-2">
-                                {{ __('New raffle') }}
-                                <livewire:raffles.live-badge />
-                            </span>
-                        </flux:sidebar.item>
+                        @can('create', App\Models\Raffle::class)
+                            <flux:sidebar.item icon="gift" :href="route('raffles.create')" :current="request()->routeIs('raffles.create')" wire:navigate>
+                                <span class="flex items-center justify-between gap-2">
+                                    {{ __('New raffle') }}
+                                    <livewire:raffles.live-badge />
+                                </span>
+                            </flux:sidebar.item>
+                        @endcan
+
+                        @can('watch', App\Models\Projection::class)
+                            {{-- In a tab of its own: it is meant for the projector. --}}
+                            <flux:sidebar.item icon="tv" :href="route('screen')" target="_blank">
+                                {{ __('Projection screen') }}
+                            </flux:sidebar.item>
+                        @endcan
                     </flux:sidebar.group>
                 </flux:sidebar.nav>
-            @endcan
+            @endif
 
             @can('viewAny', App\Models\User::class)
                 <flux:sidebar.nav>

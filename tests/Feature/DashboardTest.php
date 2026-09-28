@@ -13,6 +13,12 @@ test('registrars land on the registration desk', function () {
     $this->get(route('dashboard'))->assertRedirect(route('desk'));
 });
 
+test('the projector lands on the projection screen', function () {
+    $this->actingAs(User::factory()->projector()->create());
+
+    $this->get(route('dashboard'))->assertRedirect(route('screen'));
+});
+
 test('administrators stay on the dashboard', function () {
     $this->actingAs(User::factory()->admin()->create());
 

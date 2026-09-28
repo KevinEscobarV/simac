@@ -8,6 +8,9 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Short screens, like a 720p projector: the stage tightens to fit the winner. */
+@custom-variant short (@media (max-height: 820px));
+
 /*
  * SIMAC design system.
  * Institutional green + ceremonial gold over warm, green-tinted neutrals.
@@ -178,6 +181,37 @@
         to {
             transform: scaleX(0);
         }
+    }
+}
+
+/* Projection stage: confetti, and the gold sweep over the revealed name. */
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-8vh);
+        opacity: 1;
+    }
+    85% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(108vh);
+        opacity: 0;
+    }
+}
+
+@keyframes confetti-spin {
+    to {
+        transform: rotate3d(1, 1, 0.4, 720deg);
+    }
+}
+
+@keyframes sweep {
+    0% {
+        background-position: -180% 0;
+    }
+    60%,
+    100% {
+        background-position: 180% 0;
     }
 }
 

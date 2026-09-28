@@ -8,7 +8,8 @@
             <x-raffles.console :projection="$projection" :winners="$this->winners" :peeking="$peeking" :screens="$this->screens" />
 
             <p class="mt-4 px-1 text-center text-xs text-zinc-500 dark:text-zinc-400">
-                {{ __('Open the projection screen on the projector and leave it there for the whole assembly.') }}
+                <flux:link :href="route('screen')" target="_blank" class="font-semibold">{{ __('Open the projection screen') }}</flux:link>
+                {{ __('on the projector and leave it there for the whole assembly.') }}
             </p>
         </div>
 
@@ -188,7 +189,11 @@
                         @if ($this->screens === 0)
                             <p class="flex items-start gap-2 text-gold-200/90">
                                 <flux:icon.tv variant="micro" class="mt-px size-3.5 shrink-0" />
-                                {{ __('No screen is connected. Open the projection screen on the projector before drawing.') }}
+                                <span>
+                                    {{ __('No screen is connected.') }}
+                                    <a href="{{ route('screen') }}" target="_blank" class="font-semibold text-gold-200 underline underline-offset-4">{{ __('Open the projection screen') }}</a>
+                                    {{ __('on the projector before drawing.') }}
+                                </span>
                             </p>
                         @endif
                     </div>

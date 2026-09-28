@@ -63,12 +63,17 @@ class User extends Authenticatable implements PasskeyUser
 
     /**
      * The route the user starts at: whoever only takes attendance works at
-     * the registration desk; everyone else, at the dashboard.
+     * the registration desk, whoever only watches the projection stays at the
+     * screen; everyone else, at the dashboard.
      */
     public function homeRoute(): string
     {
         if ($this->can('useDesk', Assembly::class) && $this->cannot('viewAny', Assembly::class)) {
             return 'desk';
+        }
+
+        if ($this->can('watch', Projection::class) && $this->cannot('control', Projection::class)) {
+            return 'screen';
         }
 
         return 'dashboard';

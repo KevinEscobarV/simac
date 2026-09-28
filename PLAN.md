@@ -182,8 +182,7 @@ En código son los enums `App\Enums\Role` y `App\Enums\Permission`:
 
 La aplicación siempre pregunta por el permiso, nunca por el rol. Cada usuario tiene exactamente un rol.
 
-Después del login, cada rol aterriza en su puesto (`User::homeRoute()`; el registrador desde la fase 7,
-el proyector en la fase 10):
+Después del login, cada rol aterriza en su puesto (`User::homeRoute()`):
 
 | Rol | Destino |
 | --- | --- |
@@ -379,18 +378,24 @@ el proyector en la fase 10):
 - [x] Tests (207 en las carpetas tocadas): acceso, sorteo desde el formulario, validación, conteo en vivo, cascada, error que se queda, ganador oculto y «Ver antes», recorrido con dos ganadores siguiendo a la pantalla, orden que ya no aplica y «EN VIVO». Revisado en el navegador con una pantalla simulada: claro, oscuro, escritorio y celular
 - El enlace a `/pantalla` desde la consola y el resumen llega con la fase 10
 
-### Fase 10 · Pantalla de proyección (`/pantalla`)
-- [ ] Layout de escenario, siempre oscuro
-- [ ] Después del login, el proyector aterriza en `/pantalla`
-- [ ] Escenario: degradado, orbes, textura y viñeta. Estados de espera y «PREPÁRENSE»
-- [ ] Animaciones en Alpine:
-  - [ ] Ruleta SVG
-  - [ ] Tómbola
-  - [ ] Cuenta regresiva con revelado
-- [ ] Confeti y sonidos
-- [ ] Tarjeta del ganador y cuadro de honor para varios ganadores
-- [ ] Pantalla completa (botón y tecla `F`, que se ocultan solos) y aviso de reconexión
-- [ ] Entra en la fase actual si se abre tarde
+### Fase 10 · Pantalla de proyección (`/pantalla`) ✅
+- [x] Layout `layouts::stage`, siempre oscuro (el `<head>` omite el selector de apariencia) y con su propio JS (`resources/js/screen.js` + módulos en `resources/js/screen/`)
+- [x] Después del login, el proyector aterriza en `/pantalla` (`User::homeRoute()`). En el menú, «Pantalla de proyección» se abre en otra pestaña; la consola y el resumen también la enlazan
+- [x] Escenario: degradado, orbes, textura y viñeta. Reposo (marca, jornada en curso, «Esperando el sorteo») y «PREPÁRENSE» con el premio, los participantes y los ganadores
+- [x] Animaciones en Alpine (el servidor pinta y solo manda al ganador cuando empieza su animación):
+  - [x] Ruleta SVG con aro dorado, marcas y puntero; nombres hasta 40 gajos
+  - [x] Tómbola de nombres
+  - [x] Cuenta regresiva con revelado letra a letra y barrido dorado
+  - Con listas largas giran hasta 48 nombres (el ganador y una muestra de los demás, sin los que ya ganaron), barajados con semilla del sorteo para que todas las pantallas muestren lo mismo
+- [x] Confeti y sonidos WebAudio (tic y fanfarria); botón «Activar sonido», porque el navegador no deja sonar hasta el primer gesto
+- [x] Tarjeta del ganador («¡Felicitaciones!», colegio, municipio, afiliación, premio y acta), «Ya ganaron» con los anteriores y cuadro de honor 6 s después del último
+- [x] Pantalla completa (botón y tecla `F`), controles y cursor que se ocultan a los 3 s
+- [x] Aviso «Reconectando con el servidor…»; sin Reverb la pantalla pregunta cada 5 s y sigue al día (probado apagando Reverb)
+- [x] Entra en la fase actual si se abre tarde (en «ganador», la animación aparece ya detenida)
+- [x] Latido cada 15 s (una id por pestaña; recargar no cuenta como otra pantalla) y aviso de fin de animación (`finish`, que ignora intentos viejos)
+- [x] `prefers-reduced-motion`: sin giro ni confeti, el resultado aparece directo
+- [x] Variante `short` (alto ≤ 820 px) para proyectores de 720p. Revisado a 1280×720, 1440×900 y 1920×1080
+- [x] Tests (254, toda la suite): acceso por rol y destino del proyector, reposo, «PREPÁRENSE» sin revelar al ganador, carrete con el ganador y sin los anteriores, misma ruleta en todas las pantallas, fin de animación e intento viejo, cuadro de honor y latido
 
 ### Fase 11 · Historial y actas
 - [ ] Historial: acta destacada, lista con filtros por jornada, insignia «Sin quórum»
@@ -429,3 +434,4 @@ el proyector en la fase 10):
 | 2026-09-28 | 7 | Mesa de registro. `/inicio` envía a cada rol a su puesto. Los últimos movimientos son de todas las mesas (como en la demo). Arreglado el error que desaparecía tras Enter, también en el panel. |
 | 2026-09-28 | 8 | Motor del sorteo. Estado de la proyección en una tabla de una fila (aprobado). No se sortea otro mientras haya uno en pantalla. Una jornada con sorteos es historial. |
 | 2026-09-28 | 9 | Nuevo sorteo y consola. Máximo 20 ganadores por sorteo. «Ver antes» solo en la consola. |
+| 2026-09-28 | 10 | Pantalla de proyección. Sonido tras el primer gesto (política de los navegadores). Con listas largas, la ruleta y la tómbola muestran una muestra de 48 nombres con el ganador. Sin Reverb la pantalla sigue por sondeo. |

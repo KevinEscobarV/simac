@@ -27,10 +27,7 @@ class CreateAdminUser extends Command
 {
     public function handle(CreateUser $createUser): int
     {
-        $this->callSilently('db:seed', [
-            '--class' => RolesAndPermissionsSeeder::class,
-            '--force' => true,
-        ]);
+        $this->seedRolesAndPermissions();
 
         $name = text(
             label: __('Name'),
@@ -68,5 +65,15 @@ class CreateAdminUser extends Command
         $this->components->info(__('Administrator :email created.', ['email' => $user->email]));
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Runs the seeder directly instead of through `db:seed`: every Artisan
+     * command re-binds the static prompt fallbacks to its own output, so a
+     * silent sub-command would leave the questions below invisible on Windows.
+     */
+    private function seedRolesAndPermissions(): void
+    {
+        $this->laravel->call([$this->laravel->make(RolesAndPermissionsSeeder::class), 'run']);
     }
 }

@@ -354,7 +354,7 @@ Después del login, cada rol aterriza en su puesto (`User::homeRoute()`):
   - [x] Deja el sorteo cargado en la pantalla; no se puede sortear otro mientras haya uno en pantalla
 - [x] Estado de la proyección en una tabla de una fila (`Projection`, aprobado): preparar, «¡Ya!» (anima al ganador cargado o, con uno en pantalla, al siguiente), repetir, terminado (ignora intentos viejos) y liberar. Cada cambio bloquea la fila, así la consola y las pantallas no se pisan
 - [x] Evento `ProjectionUpdated` en el canal privado `projection` (administrador y proyector; `ProjectionPolicy`). No lleva nombres: el ganador lo muestra el servidor cuando la fase lo permite
-- [x] Contador de pantallas conectadas por latido (`Projection::recordScreen()` / `connectedScreens()`, en caché, 45 s de gracia). Una pantalla nueva se anuncia al momento
+- [x] Contador de pantallas conectadas por latido (`Projection::recordScreen()` / `connectedScreens()`, en caché, 75 s de gracia). Una pantalla nueva se anuncia al momento; una que se cierra, también (`forgetScreen()`)
 - [x] `RafflePolicy` (sortear: `raffles.draw`; historial: `raffles.view`)
 - [x] Una jornada con sorteos tampoco se puede eliminar: es historial
 - [x] Tests (169 en las carpetas tocadas): participantes y filtros, exclusión, varios ganadores en orden, acta completa, quórum congelado, reglas de mínimo, pantalla ocupada, transiciones, intentos viejos, anuncios, latido, canal y políticas
@@ -393,6 +393,7 @@ Después del login, cada rol aterriza en su puesto (`User::homeRoute()`):
 - [x] Aviso «Reconectando con el servidor…»; sin Reverb la pantalla pregunta cada 5 s y sigue al día (probado apagando Reverb)
 - [x] Entra en la fase actual si se abre tarde (en «ganador», la animación aparece ya detenida)
 - [x] Latido cada 15 s (una id por pestaña; recargar no cuenta como otra pantalla) y aviso de fin de animación (`finish`, que ignora intentos viejos)
+- [x] Arreglo posterior (tras probar con el usuario): la pantalla avisa al cerrarse o recargarse (`sendBeacon` a `POST /pantalla/salida`), late apenas vuelve a estar visible y la gracia sube a 75 s, porque el navegador frena a una vez por minuto los temporizadores de una pestaña de fondo. «¡Ya!», «Siguiente ganador» y «Repetir» se bloquean sin pantallas conectadas (botón desactivado con aviso y rechazo en el servidor)
 - [x] `prefers-reduced-motion`: sin giro ni confeti, el resultado aparece directo
 - [x] Variante `short` (alto ≤ 820 px) para proyectores de 720p. Revisado a 1280×720, 1440×900 y 1920×1080
 - [x] Tests (254, toda la suite): acceso por rol y destino del proyector, reposo, «PREPÁRENSE» sin revelar al ganador, carrete con el ganador y sin los anteriores, misma ruleta en todas las pantallas, fin de animación e intento viejo, cuadro de honor y latido
@@ -446,3 +447,4 @@ Después del login, cada rol aterriza en su puesto (`User::homeRoute()`):
 | 2026-09-28 | 9 | Nuevo sorteo y consola. Máximo 20 ganadores por sorteo. «Ver antes» solo en la consola. |
 | 2026-09-28 | 10 | Pantalla de proyección. Sonido tras el primer gesto (política de los navegadores). Con listas largas, la ruleta y la tómbola muestran una muestra de 48 nombres con el ganador. Sin Reverb la pantalla sigue por sondeo. |
 | 2026-09-28 | 11 | Historial y actas (dompdf aprobado). Los ganadores de un sorteo en pantalla no aparecen en el historial ni en el PDF hasta que la pantalla los revela. El PDF identifica a los participantes por código, no por cédula. |
+| 2026-09-28 | 10 | Arreglo: el conteo de pantallas iba y venía con la pantalla en una pestaña de fondo, y cerrar una pantalla tardaba hasta un minuto en notarse. Ahora la pantalla avisa al cerrarse y la gracia cubre el freno del navegador. Sin pantallas conectadas no se lanza (decisión del usuario: bloquear). |

@@ -28,11 +28,43 @@ export default () => ({
             }
         });
 
-        const screen = this.screenId();
-        this.$wire.beat(screen);
-        setInterval(() => this.$wire.beat(screen), BEAT);
-
+        this.keepReporting();
         this.followConnection();
+    },
+
+    /**
+     * The heartbeat. A tab in the background gets its timers slowed down by
+     * the browser, so it also reports as soon as it is in view again; and it
+     * says goodbye when it closes or reloads, so the console stops counting
+     * it at once.
+     */
+    keepReporting() {
+        const screen = this.screenId();
+        const beat = () => this.$wire.beat(screen);
+
+        beat();
+        setInterval(beat, BEAT);
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                beat();
+            }
+        });
+
+        window.addEventListener('pagehide', () => {
+            const data = new FormData();
+            data.append('_token', document.querySelector('meta[name="csrf-token"]')?.content ?? '');
+            data.append('screen', screen);
+
+            navigator.sendBeacon(this.$root.dataset.leaveUrl, data);
+        });
+
+        // Back from the browser's page cache: the goodbye was already sent.
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) {
+                beat();
+            }
+        });
     },
 
     showControls() {

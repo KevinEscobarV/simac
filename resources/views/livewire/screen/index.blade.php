@@ -1,5 +1,6 @@
 <div
     x-data="stage"
+    data-leave-url="{{ route('screen.leave') }}"
     x-on:animation-finished="$wire.finish($event.detail.attempt)"
     :class="controls || 'cursor-none'"
     class="fixed inset-0 flex flex-col overflow-hidden"

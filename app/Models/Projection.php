@@ -37,8 +37,13 @@ class Projection extends Model
     /** The single row. */
     public const int ROW = 1;
 
-    /** A screen that stops reporting for this long no longer counts as on. */
-    public const int SCREEN_TIMEOUT = 45;
+    /**
+     * A screen that stops reporting for this long no longer counts as on. A
+     * screen reports every 15 seconds, but browsers slow down the timers of a
+     * tab in the background to once a minute: the margin covers that. A
+     * screen that closes says so, and stops counting at once.
+     */
+    public const int SCREEN_TIMEOUT = 75;
 
     private const string SCREENS_KEY = 'projection:screens';
 
@@ -142,7 +147,7 @@ class Projection extends Model
     /**
      * "Go!": animates the loaded winner or, once one is on screen, the next.
      *
-     * @throws ValidationException when there is nothing to launch
+     * @throws ValidationException when there is nothing to launch, or no screen to show it
      */
     public function launch(): void
     {
@@ -157,6 +162,8 @@ class Projection extends Model
                 }]);
             }
 
+            self::ensureScreenConnected();
+
             $projection->phase = ProjectionPhase::Animating;
             $projection->attempt++;
         });
@@ -165,7 +172,7 @@ class Projection extends Model
     /**
      * "Again": the same winner from the start. The record does not change.
      *
-     * @throws ValidationException when nothing was launched yet
+     * @throws ValidationException when nothing was launched yet, or no screen is on
      */
     public function repeat(): void
     {
@@ -175,6 +182,8 @@ class Projection extends Model
                     ? __('No raffle is loaded on the screen.')
                     : __('There is nothing to repeat yet: launch it first.')]);
             }
+
+            self::ensureScreenConnected();
 
             $projection->phase = ProjectionPhase::Animating;
             $projection->attempt++;
@@ -234,11 +243,47 @@ class Projection extends Model
     }
 
     /**
+     * A screen was closed or reloaded: it stops counting at once, and the
+     * console hears about it. A reloaded screen reports again as it opens.
+     */
+    public static function forgetScreen(string $screen): void
+    {
+        $wasOn = Cache::lock(self::SCREENS_KEY.':lock', 5)->block(3, function () use ($screen): bool {
+            $screens = self::liveScreens();
+            $wasOn = array_key_exists($screen, $screens);
+
+            unset($screens[$screen]);
+            Cache::put(self::SCREENS_KEY, $screens, self::SCREEN_TIMEOUT * 2);
+
+            return $wasOn;
+        });
+
+        if ($wasOn) {
+            self::current()->announce();
+        }
+    }
+
+    /**
      * How many screens reported in the last SCREEN_TIMEOUT seconds.
      */
     public static function connectedScreens(): int
     {
         return count(self::liveScreens());
+    }
+
+    /**
+     * An animation launched with no screen on would run for nobody, and the
+     * console would wait for an end that no screen reports.
+     *
+     * @throws ValidationException
+     */
+    private static function ensureScreenConnected(): void
+    {
+        if (self::connectedScreens() === 0) {
+            throw ValidationException::withMessages([
+                'projection' => __('No screen is connected. Open the projection screen, or reload it, to launch.'),
+            ]);
+        }
     }
 
     /**

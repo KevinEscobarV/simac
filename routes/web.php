@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LeaveScreenController;
 use App\Http\Controllers\RaffleRecordController;
 use App\Livewire\Assemblies;
 use App\Livewire\Desk;
@@ -62,6 +63,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::livewire('pantalla', Screen\Index::class)
         ->name('screen')
+        ->can('watch', Projection::class);
+
+    Route::post('pantalla/salida', LeaveScreenController::class)
+        ->name('screen.leave')
         ->can('watch', Projection::class);
 });
 

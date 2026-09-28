@@ -134,9 +134,21 @@
             </div>
         @endif
 
+        {{-- An animation launched with no screen on would run for nobody: the server refuses it too. --}}
+        @if ($screens === 0)
+            <p class="flex items-start gap-2.5 rounded-xl border border-gold-400/30 bg-gold-400/10 px-4 py-3 text-sm text-gold-100">
+                <flux:icon.tv variant="mini" class="mt-0.5 size-4 shrink-0 text-gold-300" />
+                <span>
+                    {{ __('No screen is connected.') }}
+                    <a href="{{ route('screen') }}" target="_blank" class="font-semibold text-gold-200 underline underline-offset-4">{{ __('Open the projection screen') }}</a>
+                    {{ __('(or reload it) to launch.') }}
+                </span>
+            </p>
+        @endif
+
         <div class="flex flex-wrap gap-2.5 border-t border-white/10 pt-5">
             @if ($phase === ProjectionPhase::Ready)
-                <x-gold-button icon="sparkles" wire:click="launch" wire:loading.attr="disabled" class="flex-1">
+                <x-gold-button icon="sparkles" wire:click="launch" wire:loading.attr="disabled" :disabled="$screens === 0" class="flex-1">
                     {{ __('Go! Launch the animation') }}
                 </x-gold-button>
             @elseif ($phase === ProjectionPhase::Animating)
@@ -148,13 +160,13 @@
                     {{ __('Projecting…') }}
                 </span>
             @elseif ($winnersLeft)
-                <x-gold-button icon="forward" wire:click="launch" wire:loading.attr="disabled" class="flex-1">
+                <x-gold-button icon="forward" wire:click="launch" wire:loading.attr="disabled" :disabled="$screens === 0" class="flex-1">
                     {{ __('Next winner (:position of :total)', ['position' => $position + 1, 'total' => $total]) }}
                 </x-gold-button>
             @endif
 
             @if ($phase !== ProjectionPhase::Ready)
-                <flux:button icon="arrow-path" wire:click="repeat" class="max-sm:flex-1">{{ __('Repeat animation') }}</flux:button>
+                <flux:button icon="arrow-path" wire:click="repeat" :disabled="$screens === 0" class="max-sm:flex-1">{{ __('Repeat animation') }}</flux:button>
             @endif
 
             @if ($phase === ProjectionPhase::Winner && ! $winnersLeft)

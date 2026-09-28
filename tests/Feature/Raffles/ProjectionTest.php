@@ -7,8 +7,13 @@ use App\Models\Raffle;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * A raffle loaded on the screens, with one screen on to show it.
+ */
 function loadedProjection(int $winners = 1): Projection
 {
+    Projection::recordScreen('hall');
+
     $projection = Projection::current();
     $projection->prepare(Raffle::factory()->create(['winners_count' => $winners]));
 
@@ -71,6 +76,21 @@ test('nothing is launched or repeated without a raffle, and nothing is repeated 
         ->and(fn () => loadedProjection()->repeat())->toThrow(ValidationException::class);
 });
 
+test('the go and the repeat wait for a screen to be on', function () {
+    $projection = loadedProjection(winners: 2);
+    Projection::forgetScreen('hall');
+
+    expect(fn () => $projection->launch())->toThrow(ValidationException::class, __('No screen is connected. Open the projection screen, or reload it, to launch.'))
+        ->and($projection->fresh()->phase)->toBe(ProjectionPhase::Ready);
+
+    Projection::recordScreen('hall');
+    $projection->launch();
+    Projection::forgetScreen('hall');
+
+    expect(fn () => $projection->repeat())->toThrow(ValidationException::class)
+        ->and($projection->fresh()->attempt)->toBe(1);
+});
+
 test('releasing sends the screens back to rest and keeps the record', function () {
     $projection = loadedProjection();
     $raffle = $projection->raffle;
@@ -86,6 +106,7 @@ test('releasing sends the screens back to rest and keeps the record', function (
 });
 
 test('every change is announced to the screens, and a report that changes nothing is not', function () {
+    Projection::recordScreen('hall');
     Event::fake([ProjectionUpdated::class]);
     $projection = loadedProjection();
 
@@ -111,4 +132,16 @@ test('screens count while they keep reporting, and a new one is announced', func
     $this->travel(20)->seconds();
 
     expect(Projection::connectedScreens())->toBe(1);
+});
+
+test('a screen that closes stops counting at once, and that is announced', function () {
+    Projection::recordScreen('screen-a');
+    Projection::recordScreen('screen-b');
+    Event::fake([ProjectionUpdated::class]);
+
+    Projection::forgetScreen('screen-a');
+    Projection::forgetScreen('screen-a');
+
+    expect(Projection::connectedScreens())->toBe(1);
+    Event::assertDispatchedTimes(ProjectionUpdated::class, 1);
 });

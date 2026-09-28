@@ -74,6 +74,7 @@ test('the record names the winners in order, every participant and leaves room t
 test('the record waits until the screen has shown every winner', function () {
     $this->actingAs(User::factory()->admin()->create());
     $raffle = Raffle::factory()->drawnAmong(Teacher::factory()->count(3)->create())->create();
+    Projection::recordScreen('hall');
     $projection = Projection::current();
     $projection->prepare($raffle);
     $projection->launch();

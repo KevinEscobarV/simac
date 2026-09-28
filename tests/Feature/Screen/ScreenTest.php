@@ -16,6 +16,7 @@ use Livewire\Livewire;
 function screenRaffle(int $winners = 1, int $participants = 4, RaffleAnimation $animation = RaffleAnimation::Wheel): Raffle
 {
     Teacher::factory()->count($participants)->create();
+    Projection::recordScreen('hall');
 
     return app(DrawRaffle::class)->handle(User::factory()->admin()->create(), new RaffleFilters, 'Bicicleta todoterreno', $winners, $animation);
 }
@@ -118,6 +119,24 @@ test('the screen reports that it is on', function () {
     $this->actingAs(User::factory()->projector()->create());
 
     Livewire::test(Index::class)->call('beat', 'screen-in-the-hall');
+
+    expect(Projection::connectedScreens())->toBe(1);
+});
+
+test('a screen that closes says so, and stops counting', function () {
+    $this->actingAs(User::factory()->projector()->create());
+    Projection::recordScreen('screen-in-the-hall');
+
+    $this->post(route('screen.leave'), ['screen' => 'screen-in-the-hall'])->assertNoContent();
+
+    expect(Projection::connectedScreens())->toBe(0);
+});
+
+test('only who watches the projection can report a screen leaving', function () {
+    $this->actingAs(User::factory()->registrar()->create());
+    Projection::recordScreen('screen-in-the-hall');
+
+    $this->post(route('screen.leave'), ['screen' => 'screen-in-the-hall'])->assertForbidden();
 
     expect(Projection::connectedScreens())->toBe(1);
 });

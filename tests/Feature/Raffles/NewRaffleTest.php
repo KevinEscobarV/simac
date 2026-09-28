@@ -122,6 +122,7 @@ test('the console keeps the winner hidden until the screen reveals it, unless as
 test('the console launches each winner, follows the screen and releases it', function () {
     $this->actingAs(User::factory()->admin()->create());
     Teacher::factory()->count(4)->create();
+    Projection::recordScreen('hall');
 
     $console = Livewire::test(Create::class)
         ->set('form.prize', 'Bicicleta')
@@ -151,6 +152,7 @@ test('the console launches each winner, follows the screen and releases it', fun
 test('a console order that no longer applies is only a notice', function () {
     $this->actingAs(User::factory()->admin()->create());
     Teacher::factory()->count(3)->create();
+    Projection::recordScreen('hall');
 
     Livewire::test(Create::class)
         ->set('form.prize', 'Bicicleta')
@@ -160,6 +162,22 @@ test('a console order that no longer applies is only a notice', function () {
         ->assertHasNoErrors();
 
     expect(Projection::current()->attempt)->toBe(1);
+});
+
+test('the console does not launch while no screen is on', function () {
+    $this->actingAs(User::factory()->admin()->create());
+    Teacher::factory()->count(3)->create();
+
+    $console = Livewire::test(Create::class)
+        ->set('form.prize', 'Bicicleta')
+        ->call('draw')
+        ->assertSee(__('(or reload it) to launch.'))
+        ->call('launch');
+
+    expect(Projection::current()->phase)->toBe(ProjectionPhase::Ready);
+
+    Projection::recordScreen('hall');
+    $console->call('refreshLive')->assertDontSee(__('(or reload it) to launch.'));
 });
 
 test('the navigation marks a raffle on screen as live', function () {

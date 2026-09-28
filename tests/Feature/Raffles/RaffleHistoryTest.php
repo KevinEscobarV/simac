@@ -74,6 +74,7 @@ test('the history does not give away a winner before the screen reveals it', fun
     $this->actingAs(User::factory()->admin()->create());
     $raffle = Raffle::factory()->drawnAmong(Teacher::factory()->count(4)->create())->create(['winners_count' => 2]);
     [$first, $second] = $raffle->winners->all();
+    Projection::recordScreen('hall');
     $projection = Projection::current();
     $projection->prepare($raffle);
 
@@ -124,6 +125,7 @@ test('the participants of a record can be searched', function () {
 test('a record on screen shows only the winners already revealed', function () {
     $this->actingAs(User::factory()->admin()->create());
     $raffle = Raffle::factory()->drawnAmong(Teacher::factory()->count(4)->create())->create(['winners_count' => 2]);
+    Projection::recordScreen('hall');
     $projection = Projection::current();
     $projection->prepare($raffle);
     $projection->launch();

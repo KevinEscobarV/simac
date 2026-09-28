@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LeaveScreenController;
+use App\Http\Controllers\PrintCardsController;
 use App\Http\Controllers\RaffleRecordController;
 use App\Livewire\Assemblies;
 use App\Livewire\Desk;
@@ -25,6 +26,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::livewire('docentes', Teachers\Index::class)
         ->name('teachers.index')
+        ->can('viewAny', Teacher::class);
+
+    Route::livewire('docentes/carnes', Teachers\Cards::class)
+        ->name('teachers.cards')
+        ->can('viewAny', Teacher::class);
+
+    Route::get('docentes/carnes/imprimir', PrintCardsController::class)
+        ->name('teachers.cards.print')
         ->can('viewAny', Teacher::class);
 
     Route::livewire('lugares', Locations\Index::class)

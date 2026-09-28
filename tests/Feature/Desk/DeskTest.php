@@ -80,6 +80,20 @@ test('a key several teachers match checks nobody in and lists them to pick one',
     expect(Attendance::count())->toBe(0);
 });
 
+test('a scanned card checks the teacher in', function () {
+    $this->actingAs(User::factory()->registrar()->create());
+    $assembly = Assembly::factory()->create();
+    $teacher = Teacher::factory()->create();
+
+    // The scanner types what the barcode carries and presses Enter, faster than the field syncs.
+    Livewire::test(Index::class)
+        ->call('checkInByKey', $teacher->barcode)
+        ->assertHasNoErrors()
+        ->assertSet('confirmation.title', __('Check-in registered'));
+
+    expect($assembly->attendances()->sole()->teacher->is($teacher))->toBeTrue();
+});
+
 test('why a movement failed stays on screen through the next request', function () {
     $this->actingAs(User::factory()->registrar()->create());
     Assembly::factory()->create();

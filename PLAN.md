@@ -115,7 +115,7 @@ En la demo la separación es solo por URL (no hay login). Aquí se hace con **ro
 - Dependencias nuevas:
   - ~~`laravel/reverb` + `laravel-echo`/`pusher-js` (fase 6)~~ aprobadas e instaladas;
   - ~~`barryvdh/laravel-dompdf` (fase 11)~~ aprobada e instalada;
-  - `picqer/php-barcode-generator` (fase 12).
+  - ~~`picqer/php-barcode-generator` (fase 12)~~ aprobada e instalada.
 
 ### Decididas durante el trabajo
 - **Modo oscuro**: se conserva el selector de apariencia del starter kit (claro, oscuro o sistema).
@@ -414,9 +414,16 @@ Después del login, cada rol aterriza en su puesto (`User::homeRoute()`):
 - [x] Factory: `Raffle::factory()->drawnAmong($teachers)` (acta sellada con participantes; los primeros ganan)
 - [x] Tests (274, toda la suite): acceso por rol a historial, detalle y PDF; orden; filtro por jornada; «Sin quórum»; ganadores ocultos mientras la pantalla no los revela (historial, detalle y PDF); búsqueda de participantes; descarga y contenido del PDF (ganadores en orden, todos los participantes, firmas); siembra. Revisado en el navegador: claro, oscuro, escritorio y celular
 
-### Fase 12 · Carnés
-- [ ] Vista imprimible del carné con el código de barras `SIM-###` (individual y por lote de colegio o ciudad)
-- [ ] Comprobar que el escáner (que escribe el código y pulsa `Enter`) funciona en la mesa
+### Fase 12 · Carnés ✅
+- [x] `picqer/php-barcode-generator` 3.3 instalado (aprobado)
+- [x] Carné (`x-teachers.card`) a tamaño de tarjeta de identificación (85,6 × 54 mm): franja verde con la marca, nombre, colegio y municipio, «Afiliación sindical» para los afiliados, código de barras y el código `SIM-###`. Los colores salen aunque el navegador no imprima fondos (`print-color-adjust: exact`)
+- [x] Código de barras Code 128 (`x-teachers.barcode`, SVG propio con zona de silencio). Lleva `SIM012`, sin guion (`Teacher::barcode`): un lector configurado como teclado de EE. UU. escribe otro carácter en lugar del guion en un equipo con teclado en español; letras y números salen igual. La mesa ya leía «SIM12» y «SIM-012»
+- [x] `/docentes/carnes` (`Teachers\Cards`, ítem «Carnés» en «Padrón»): filtros por municipio → colegio y afiliación en la URL, conteo de carnés y hojas, vista previa de la primera hoja
+- [x] Hoja de impresión (`/docentes/carnes/imprimir`, `PrintCardsController`, vista `resources/views/print/cards.blade.php`): hojas carta con 8 carnés (2 × 4), ordenados por municipio, colegio y nombre para repartirlos; se abre en otra pestaña y lanza el diálogo de impresión. Solo docentes activos
+- [x] Carné individual desde el menú de cada docente («Imprimir carné»); desde Docentes, «Carnés» conserva los filtros
+- [x] Objeto de valor `App\Support\CardSelection`: la misma selección cuenta en la página y lista en la hoja
+- [x] Escáner comprobado en la mesa con eventos de teclado reales (código y Enter a la velocidad de un lector): registra la entrada y, al repetir, avisa «Ya figura como presente»
+- [x] Tests: acceso por rol, conteo por filtros (sin retirados), vista previa de una hoja, hojas de 8 en orden, filtros del enlace, carné individual (y 404 para un retirado), carné escaneado en la mesa. Revisado en el navegador (claro, oscuro, celular) y en el PDF que produce el diálogo de impresión
 
 ### Fase 13 · Inicio y pulido
 - [ ] Inicio del admin: métricas, jornada en curso, último sorteo y accesos rápidos
@@ -448,3 +455,4 @@ Después del login, cada rol aterriza en su puesto (`User::homeRoute()`):
 | 2026-09-28 | 10 | Pantalla de proyección. Sonido tras el primer gesto (política de los navegadores). Con listas largas, la ruleta y la tómbola muestran una muestra de 48 nombres con el ganador. Sin Reverb la pantalla sigue por sondeo. |
 | 2026-09-28 | 11 | Historial y actas (dompdf aprobado). Los ganadores de un sorteo en pantalla no aparecen en el historial ni en el PDF hasta que la pantalla los revela. El PDF identifica a los participantes por código, no por cédula. |
 | 2026-09-28 | 10 | Arreglo: el conteo de pantallas iba y venía con la pantalla en una pestaña de fondo, y cerrar una pantalla tardaba hasta un minuto en notarse. Ahora la pantalla avisa al cerrarse y la gracia cubre el freno del navegador. Sin pantallas conectadas no se lanza (decisión del usuario: bloquear). |
+| 2026-09-28 | 12 | Carnés (picqer aprobado). Tamaño de tarjeta de identificación, 8 por hoja carta, impresos desde el navegador. El código de barras lleva `SIM012` sin guion por el teclado en español. Sin cédula en el carné: el código basta para la mesa. |

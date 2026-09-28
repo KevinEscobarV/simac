@@ -31,6 +31,7 @@ use Illuminate\Support\Str;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property-read string $code
+ * @property-read string $barcode
  * @property-read string $short_name
  * @property-read School $school
  */
@@ -90,6 +91,18 @@ class Teacher extends Model
     protected function code(): Attribute
     {
         return Attribute::get(fn (): string => sprintf('SIM-%03d', $this->id));
+    }
+
+    /**
+     * What the barcode on their card carries: the code without the hyphen.
+     * A scanner types as a US keyboard, and on a Spanish layout the hyphen's
+     * key gives another character; letters and digits come out the same.
+     *
+     * @return Attribute<non-falsy-string, never>
+     */
+    protected function barcode(): Attribute
+    {
+        return Attribute::get(fn (): string => sprintf('SIM%03d', $this->id));
     }
 
     /**

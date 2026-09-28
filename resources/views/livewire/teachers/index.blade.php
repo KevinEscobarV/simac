@@ -1,6 +1,14 @@
 <div>
     <x-page-header :title="__('Teachers')" :description="__('The union roll: who takes part in assemblies and raffles.')">
         <x-slot:actions>
+            {{-- The cards of the same teachers the filters show. --}}
+            <flux:button
+                icon="identification"
+                :href="route('teachers.cards', array_filter(['municipio' => $city, 'colegio' => $school, 'afiliacion' => $membership]))"
+                wire:navigate
+            >
+                {{ __('Cards') }}
+            </flux:button>
             <flux:button variant="primary" icon="user-plus" wire:click="create">
                 {{ __('Register teacher') }}
             </flux:button>
@@ -165,6 +173,9 @@
                                             @else
                                                 <flux:menu.item icon="pencil-square" wire:click="edit({{ $teacher->id }})">
                                                     {{ __('Edit') }}
+                                                </flux:menu.item>
+                                                <flux:menu.item icon="identification" :href="route('teachers.cards.print', ['docente' => $teacher->id])" target="_blank">
+                                                    {{ __('Print card') }}
                                                 </flux:menu.item>
                                                 <flux:menu.separator />
                                                 <flux:menu.item variant="danger" icon="archive-box-arrow-down" wire:click="confirmRetirement({{ $teacher->id }})">

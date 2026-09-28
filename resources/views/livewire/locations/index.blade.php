@@ -61,6 +61,9 @@
                                     <span class="block truncate text-sm font-semibold text-zinc-900 dark:text-white">{{ $city->name }}</span>
                                     <span class="block text-xs text-zinc-500 dark:text-zinc-400">
                                         {{ trans_choice('{0} No schools|{1} :count school|[2,*] :count schools', $city->schools_count) }}
+                                        @if ($city->teachers_count > 0)
+                                            · {{ trans_choice('{1} :count teacher|[2,*] :count teachers', $city->teachers_count) }}
+                                        @endif
                                     </span>
                                 </span>
                             </button>
@@ -127,12 +130,13 @@
 
                             <div class="min-w-0 flex-1">
                                 <div class="truncate text-sm font-semibold text-zinc-900 dark:text-white">{{ $school->name }}</div>
-                                @if ($search !== '')
-                                    <div class="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                <div class="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                    @if ($search !== '')
                                         <flux:icon.map-pin variant="micro" class="size-3" />
-                                        {{ $school->city->name }}
-                                    </div>
-                                @endif
+                                        {{ $school->city->name }} ·
+                                    @endif
+                                    {{ trans_choice('{0} No teachers|{1} :count teacher|[2,*] :count teachers', $school->teachers_count) }}
+                                </div>
                             </div>
 
                             <flux:dropdown position="bottom" align="end">
@@ -200,7 +204,7 @@
 
     <p class="mt-5 flex items-start gap-2 px-1 text-xs text-zinc-500 dark:text-zinc-400">
         <flux:icon.shield-check variant="micro" class="mt-px shrink-0 text-brand-600 dark:text-brand-400" />
-        {{ __('A municipality that still has schools cannot be deleted: move or delete its schools first.') }}
+        {{ __('A municipality with schools, or a school with teachers, cannot be deleted: the roll never loses track of where someone works.') }}
     </p>
 
     {{-- Create / rename a municipality --}}
@@ -290,18 +294,32 @@
     {{-- Delete a school --}}
     <flux:modal name="school-delete" class="w-full md:w-md">
         <div class="space-y-6">
-            <div>
-                <flux:heading size="lg" class="font-display">{{ __('Delete :name?', ['name' => $deletingSchool?->name]) }}</flux:heading>
-                <flux:text class="mt-1">{{ __('It will be removed from the list of schools.') }}</flux:text>
-            </div>
+            @if ($schoolDeletionBlocker)
+                <div>
+                    <flux:heading size="lg" class="font-display">{{ __(':name cannot be deleted yet', ['name' => $deletingSchool?->name]) }}</flux:heading>
+                    <flux:text class="mt-1">{{ $schoolDeletionBlocker }}</flux:text>
+                </div>
 
-            <div class="flex justify-end gap-2">
-                <flux:modal.close>
-                    <flux:button variant="ghost">{{ __('Cancel') }}</flux:button>
-                </flux:modal.close>
+                <div class="flex justify-end">
+                    <flux:modal.close>
+                        <flux:button variant="primary">{{ __('Understood') }}</flux:button>
+                    </flux:modal.close>
+                </div>
+            @else
+                <div>
+                    <flux:heading size="lg" class="font-display">{{ __('Delete :name?', ['name' => $deletingSchool?->name]) }}</flux:heading>
+                    <flux:text class="mt-1">{{ __('It has no teachers, so nothing else is affected.') }}</flux:text>
+                    <flux:error name="school" />
+                </div>
 
-                <flux:button variant="danger" wire:click="deleteSchool">{{ __('Delete') }}</flux:button>
-            </div>
+                <div class="flex justify-end gap-2">
+                    <flux:modal.close>
+                        <flux:button variant="ghost">{{ __('Cancel') }}</flux:button>
+                    </flux:modal.close>
+
+                    <flux:button variant="danger" wire:click="deleteSchool">{{ __('Delete') }}</flux:button>
+                </div>
+            @endif
         </div>
     </flux:modal>
 </div>

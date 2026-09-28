@@ -12,7 +12,7 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database for local development: one user per role,
-     * all with the password "password", and the demo's schools.
+     * all with the password "password", and the demo's schools and teachers.
      */
     public function run(): void
     {
@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionsSeeder::class,
             CitySeeder::class,
             DemoSchoolSeeder::class,
+            DemoTeacherSeeder::class,
         ]);
 
         User::factory()->admin()->create([

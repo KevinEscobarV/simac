@@ -197,12 +197,15 @@ return [
         'city_id' => 'municipio',
         'code' => 'código',
         'current_password' => 'contraseña actual',
+        'document_number' => 'cédula',
         'email' => 'correo electrónico',
+        'is_union_member' => 'afiliación',
         'name' => 'nombre',
         'password' => 'contraseña',
         'password_confirmation' => 'confirmación de la contraseña',
         'recovery_code' => 'código de recuperación',
         'role' => 'rol',
+        'school_id' => 'colegio',
     ],
 
 ];

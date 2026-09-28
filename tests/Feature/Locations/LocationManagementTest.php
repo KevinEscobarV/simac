@@ -3,6 +3,7 @@
 use App\Livewire\Locations\Index;
 use App\Models\City;
 use App\Models\School;
+use App\Models\Teacher;
 use App\Models\User;
 use Livewire\Livewire;
 
@@ -181,6 +182,32 @@ test('administrators can rename a school and move it to another municipality', f
 
     expect($school->name)->toBe('IE Siglo XXI')
         ->and($school->city->is($tauramena))->toBeTrue();
+});
+
+test('municipalities and schools show how many active teachers they have', function () {
+    $this->actingAs(User::factory()->admin()->create());
+    $school = School::factory()->create();
+    Teacher::factory()->for($school)->count(2)->create();
+    Teacher::factory()->for($school)->trashed()->create();
+
+    Livewire::test(Index::class)
+        ->call('selectCity', $school->city_id)
+        ->assertSee(trans_choice('{0} No teachers|{1} :count teacher|[2,*] :count teachers', 2))
+        ->assertDontSee(trans_choice('{0} No teachers|{1} :count teacher|[2,*] :count teachers', 3));
+});
+
+test('a school with teachers cannot be deleted, not even if they are all retired', function () {
+    $this->actingAs(User::factory()->admin()->create());
+    $school = School::factory()->create();
+    Teacher::factory()->for($school)->trashed()->create();
+
+    Livewire::test(Index::class)
+        ->call('confirmSchoolDeletion', $school->id)
+        ->assertNotSet('schoolDeletionBlocker', null)
+        ->call('deleteSchool')
+        ->assertHasErrors('school');
+
+    $this->assertModelExists($school);
 });
 
 test('administrators can delete a school', function () {

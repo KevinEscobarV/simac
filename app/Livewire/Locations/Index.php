@@ -3,6 +3,7 @@
 namespace App\Livewire\Locations;
 
 use App\Actions\Locations\DeleteCity;
+use App\Actions\Locations\DeleteSchool;
 use App\Livewire\Forms\CityForm;
 use App\Livewire\Forms\SchoolForm;
 use App\Models\City;
@@ -10,7 +11,6 @@ use App\Models\School;
 use Flux\Flux;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
@@ -48,13 +48,16 @@ class Index extends Component
     #[Locked]
     public ?School $deletingSchool = null;
 
+    #[Locked]
+    public ?string $schoolDeletionBlocker = null;
+
     /**
      * @return Collection<int, City>
      */
     #[Computed]
     public function cities(): Collection
     {
-        return $this->alphabetically(City::query()->withCount('schools')->get());
+        return City::query()->withCount(['schools', 'teachers'])->orderByName()->get();
     }
 
     /**
@@ -73,16 +76,19 @@ class Index extends Component
     public function schools(): Collection
     {
         if ($this->search !== '') {
-            return $this->alphabetically(
-                School::query()->with('city')->whereLike('name', "%{$this->search}%")->get(),
-            );
+            return School::query()
+                ->with('city')
+                ->withCount('teachers')
+                ->whereNameContains($this->search)
+                ->orderByName()
+                ->get();
         }
 
         if ($this->selectedCity === null) {
             return new Collection;
         }
 
-        return $this->alphabetically($this->selectedCity->schools()->get());
+        return $this->selectedCity->schools()->withCount('teachers')->orderByName()->get();
     }
 
     public function selectCity(int $cityId): void
@@ -206,20 +212,22 @@ class Index extends Component
         $this->refreshLists();
     }
 
-    public function confirmSchoolDeletion(School $school): void
+    public function confirmSchoolDeletion(School $school, DeleteSchool $deleteSchool): void
     {
         $this->authorize('delete', $school);
 
+        $this->resetErrorBag('school');
         $this->deletingSchool = $school;
+        $this->schoolDeletionBlocker = $deleteSchool->blocker($school);
 
         Flux::modal('school-delete')->show();
     }
 
-    public function deleteSchool(): void
+    public function deleteSchool(DeleteSchool $deleteSchool): void
     {
         $this->authorize('delete', $this->deletingSchool);
 
-        $this->deletingSchool->delete();
+        $deleteSchool->handle($this->deletingSchool);
 
         Flux::modal('school-delete')->close();
         Flux::toast(text: __(':name was deleted.', ['name' => $this->deletingSchool->name]));
@@ -240,20 +248,5 @@ class Index extends Component
     private function refreshLists(): void
     {
         unset($this->cities, $this->selectedCity, $this->schools);
-    }
-
-    /**
-     * Sort by name ignoring accents, so "Támara" comes before "Tauramena".
-     *
-     * @template TModel of City|School
-     *
-     * @param  Collection<int, TModel>  $models
-     * @return Collection<int, TModel>
-     */
-    private function alphabetically(Collection $models): Collection
-    {
-        return $models
-            ->sortBy(fn (City|School $model): string => Str::ascii($model->name), SORT_NATURAL | SORT_FLAG_CASE)
-            ->values();
     }
 }

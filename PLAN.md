@@ -123,6 +123,9 @@ En la demo la separación es solo por URL (no hay login). Aquí se hace con **ro
 - **«Municipio»** en la interfaz en lugar de «ciudad» (en el código sigue siendo `City`).
 - **Catálogo de municipios**: los 19 de Casanare vienen sembrados; el admin puede agregar, renombrar o
   eliminar.
+- **Docentes**: se retiran y reincorporan (soft delete), nunca se borran. La cédula es solo numérica.
+- **Textos neutros**: los mensajes que nombran a un docente no asumen su género («Se registró la
+  afiliación de :name»).
 
 ---
 
@@ -141,7 +144,7 @@ users ── roles/permissions (spatie)
 | --- | --- |
 | `cities` | name (único) |
 | `schools` | city_id (restrict), name · único (city_id, name) |
-| `teachers` | school_id (restrict), name, document_number (único), code `SIM-###` (único, lo genera el sistema), is_union_member, soft deletes |
+| `teachers` | school_id (restrict), name, normalized_name, document_number (único, solo dígitos), is_union_member, soft deletes. El código `SIM-###` se deriva del id |
 | `assemblies` (jornadas) | name, date, location?, quorum_type? (`count`/`percentage`), quorum_value?, closed_at? (null = abierta), opened_by |
 | `attendances` | assembly_id (cascade), teacher_id, checked_in_at, checked_out_at?, registered_by · único (assembly_id, teacher_id) |
 | `raffles` (actas) | assembly_id? (null on delete), prize, winners_count, animation, filters (json), filter_description, participants_count, quorum_met?, drawn_by, drawn_at |
@@ -271,22 +274,25 @@ mesa y la pantalla; hasta entonces todos llegan a `/inicio`):
 - [x] Tests (35 en las carpetas tocadas), Pint y Larastan en verde. Revisado en el navegador: claro, oscuro y celular
 - El conteo de docentes y el bloqueo de borrado de colegios con docentes pasan a la fase 4, cuando exista `Teacher`
 
-### Fase 4 · Padrón de docentes
-- [ ] Migración, modelo `Teacher` (soft deletes), factory y seeder con los 18 docentes de la demo
-- [ ] Municipios y colegios: conteo de docentes, y un colegio (o un municipio) con docentes no se puede eliminar
-- [ ] Código `SIM-###` automático y único
-- [ ] Scopes de consulta: búsqueda (nombre, cédula, código, colegio, ciudad), ciudad, colegio, afiliados, presentes en una jornada
-- [ ] Módulo **Docentes**:
-  - [ ] Métricas
-  - [ ] Búsqueda y filtros en la URL
-  - [ ] Tabla paginada
-  - [ ] Alta y edición en modal (ciudad → colegio en cascada, con opción de crear el colegio al vuelo)
-  - [ ] Cambio rápido de afiliación
-  - [ ] Retirar, con protección si tiene actas
-- [ ] Tests: validación (cédula única), código generado, filtros, protección de borrado
+### Fase 4 · Padrón de docentes ✅
+- [x] Migración, modelo `Teacher` (soft deletes), factory y `DemoTeacherSeeder` con los 18 docentes de la demo
+- [x] Municipios y colegios: conteo de docentes; un colegio con docentes (aunque estén retirados) no se puede eliminar (`DeleteSchool`)
+- [x] Código `SIM-###` derivado del id: único, nunca se reutiliza y no necesita contador. Se lee como «SIM-012», «sim-12» o «SIM12»
+- [x] Búsqueda sin tildes y por palabras sueltas («hector nino» → «Héctor Fabio Niño»): columna `normalized_name` en municipios, colegios y docentes (trait `HasNormalizedName`), que también ordena en SQL
+- [x] Scopes: búsqueda (nombre, cédula con o sin puntos, código, colegio, municipio), municipio, afiliados. «Presentes en una jornada» pasa a la fase 5
+- [x] Módulo **Docentes** (`/docentes`):
+  - [x] Métricas: docentes, afiliados (con %), colegios y municipios con docentes
+  - [x] Búsqueda y filtros en la URL (municipio → colegio en cascada, afiliación)
+  - [x] Tabla paginada con pestañas «Activos» y «Retirados»
+  - [x] Alta y edición en modal: municipio → colegio en cascada, y el colegio que falta se agrega sin salir del diálogo
+  - [x] Cambio rápido de afiliación con un toque
+  - [x] Retirar (soft delete) y reincorporar. Nada se borra: el historial queda intacto
+- [x] Cédula: solo números, 5 a 12 dígitos; se acepta con puntos y se guardan los dígitos. Única también frente a los retirados
+- [x] Tests (69 en las carpetas tocadas), Pint y Larastan en verde. Revisado en el navegador: claro, oscuro y celular
 
 ### Fase 5 · Jornadas y asistencia (panel admin)
 - [ ] Migraciones y modelos `Assembly` y `Attendance`
+- [ ] Scope `Teacher::presentAt(Assembly)` (presentes en una jornada)
 - [ ] Objeto de valor `Quorum`, con el cálculo y el estado
 - [ ] Actions:
   - [ ] Jornada: abrir, cerrar, reabrir, eliminar y ajustar el quórum
@@ -384,3 +390,4 @@ mesa y la pantalla; hasta entonces todos llegan a `/inicio`):
 | 2026-09-28 | 2 | Roles, permisos y usuarios. Se quitó la autoeliminación de cuentas; los usuarios se desactivan. El admin inicial se crea con `app:create-admin-user`. La redirección por rol pasa a las fases 7 y 10. |
 | 2026-09-28 | 2 | Arreglo: `app:create-admin-user` no mostraba las preguntas en Windows (el `db:seed` silencioso previo se quedaba con la salida de Prompts). Ahora corre el seeder directamente. |
 | 2026-09-28 | 3 | Municipios y colegios. En la interfaz se dice «municipio». Se siembran los 19 municipios de Casanare (seguro en producción) y los colegios de la demo solo en desarrollo. |
+| 2026-09-28 | 4 | Padrón de docentes. Retirar = soft delete con reincorporación. Código SIM derivado del id. Búsqueda sin tildes con `normalized_name`. |

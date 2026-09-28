@@ -22,6 +22,9 @@
             @can('viewAny', App\Models\City::class)
                 <flux:sidebar.nav>
                     <flux:sidebar.group :heading="__('Roll')">
+                        <flux:sidebar.item icon="academic-cap" :href="route('teachers.index')" :current="request()->routeIs('teachers.*')" wire:navigate>
+                            {{ __('Teachers') }}
+                        </flux:sidebar.item>
                         <flux:sidebar.item icon="map-pin" :href="route('locations.index')" :current="request()->routeIs('locations.*')" wire:navigate>
                             {{ __('Municipalities and schools') }}
                         </flux:sidebar.item>

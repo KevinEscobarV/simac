@@ -4,8 +4,10 @@ namespace Database\Factories;
 
 use App\Enums\RaffleAnimation;
 use App\Models\Raffle;
+use App\Models\Teacher;
 use App\Support\RaffleFilters;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Collection;
 
 /**
  * @extends Factory<Raffle>
@@ -30,5 +32,20 @@ class RaffleFactory extends Factory
             'quorum_met' => null,
             'drawn_by' => null,
         ];
+    }
+
+    /**
+     * A sealed record among these teachers: the first ones won, in order.
+     *
+     * @param  Collection<int, Teacher>  $teachers
+     */
+    public function drawnAmong(Collection $teachers): static
+    {
+        return $this->state(['participants_count' => $teachers->count()])
+            ->afterCreating(function (Raffle $raffle) use ($teachers): void {
+                $raffle->participants()->attach($teachers->values()->mapWithKeys(fn (Teacher $teacher, int $index): array => [
+                    $teacher->id => ['winner_position' => $index < $raffle->winners_count ? $index + 1 : null],
+                ]));
+            });
     }
 }

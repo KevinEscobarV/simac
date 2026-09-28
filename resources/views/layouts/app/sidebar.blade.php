@@ -52,7 +52,7 @@
                 </flux:sidebar.nav>
             @endcanany
 
-            @if (auth()->user()->can('create', App\Models\Raffle::class) || auth()->user()->can('watch', App\Models\Projection::class))
+            @if (auth()->user()->can('create', App\Models\Raffle::class) || auth()->user()->can('viewAny', App\Models\Raffle::class) || auth()->user()->can('watch', App\Models\Projection::class))
                 <flux:sidebar.nav @class(['mt-4' => auth()->user()->homeRoute() !== 'dashboard'])>
                     <flux:sidebar.group :heading="__('Raffles')">
                         @can('create', App\Models\Raffle::class)
@@ -61,6 +61,12 @@
                                     {{ __('New raffle') }}
                                     <livewire:raffles.live-badge />
                                 </span>
+                            </flux:sidebar.item>
+                        @endcan
+
+                        @can('viewAny', App\Models\Raffle::class)
+                            <flux:sidebar.item icon="document-text" :href="route('raffles.index')" :current="request()->routeIs('raffles.index', 'raffles.show')" wire:navigate>
+                                {{ __('History') }}
                             </flux:sidebar.item>
                         @endcan
 

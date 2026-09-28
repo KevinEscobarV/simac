@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RaffleRecordController;
 use App\Livewire\Assemblies;
 use App\Livewire\Desk;
 use App\Livewire\Locations;
@@ -37,9 +38,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->name('users.index')
         ->can('viewAny', User::class);
 
+    Route::livewire('sorteos', Raffles\Index::class)
+        ->name('raffles.index')
+        ->can('viewAny', Raffle::class);
+
     Route::livewire('sorteos/nuevo', Raffles\Create::class)
         ->name('raffles.create')
         ->can('create', Raffle::class);
+
+    Route::livewire('sorteos/{raffle}', Raffles\Show::class)
+        ->name('raffles.show')
+        ->whereNumber('raffle')
+        ->can('view', 'raffle');
+
+    Route::get('sorteos/{raffle}/pdf', RaffleRecordController::class)
+        ->name('raffles.pdf')
+        ->whereNumber('raffle')
+        ->can('download', 'raffle');
 
     Route::livewire('registro', Desk\Index::class)
         ->name('desk')

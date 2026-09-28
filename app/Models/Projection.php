@@ -98,6 +98,15 @@ class Projection extends Model
     }
 
     /**
+     * How many winners of a raffle are public: all of them, except for the
+     * raffle on the screens, whose winners come out one by one.
+     */
+    public function revealedOf(Raffle $raffle): int
+    {
+        return $this->raffle_id === $raffle->id ? $this->revealed() : $raffle->winners_count;
+    }
+
+    /**
      * Whether winners of the loaded raffle are still to be revealed after the
      * current one.
      */

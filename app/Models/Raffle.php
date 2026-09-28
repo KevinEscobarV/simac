@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\RaffleAnimation;
 use Database\Factories\RaffleFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,6 +30,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $drawn_at
  * @property-read Assembly|null $assembly
  * @property-read User|null $drawer
+ * @property-read Collection<int, Teacher> $winners
  */
 #[Fillable(['assembly_id', 'prize', 'winners_count', 'animation', 'filters', 'filter_description', 'participants_count', 'quorum_met', 'drawn_by'])]
 class Raffle extends Model
@@ -98,5 +100,26 @@ class Raffle extends Model
         return $this->participants()
             ->wherePivotNotNull('winner_position')
             ->orderByPivot('winner_position');
+    }
+
+    /**
+     * The winners anyone may read. While the raffle is on the screens only
+     * the ones already revealed: nobody learns a winner from the history
+     * before the room does.
+     *
+     * @return Collection<int, Teacher>
+     */
+    public function publicWinners(Projection $projection): Collection
+    {
+        return $this->winners->take($projection->revealedOf($this));
+    }
+
+    /**
+     * Whether the screens have shown every winner, so the whole record can
+     * be read.
+     */
+    public function isPublic(Projection $projection): bool
+    {
+        return $projection->revealedOf($this) === $this->winners_count;
     }
 }

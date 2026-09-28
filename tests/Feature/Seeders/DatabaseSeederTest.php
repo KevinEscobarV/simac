@@ -3,6 +3,7 @@
 use App\Enums\Role;
 use App\Models\Assembly;
 use App\Models\City;
+use App\Models\Projection;
 use App\Models\School;
 use App\Models\Teacher;
 use App\Models\User;
@@ -29,4 +30,12 @@ test('seeds the roll of the demo', function () {
         ->and(Teacher::count())->toBe(18)
         ->and(Teacher::firstWhere('document_number', '1118920467')->school->name)->toBe('IE La Presentación')
         ->and(Assembly::current()?->opener?->email)->toBe('admin@simac.test');
+});
+
+test('seeds a past assembly with its raffles and leaves the open one and the screen untouched', function () {
+    $this->seed(DatabaseSeeder::class);
+
+    expect(Assembly::query()->closed()->sole()->raffles()->count())->toBe(3)
+        ->and(Assembly::current()->raffles()->exists())->toBeFalse()
+        ->and(Projection::current()->isLive())->toBeFalse();
 });

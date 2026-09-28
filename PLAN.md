@@ -114,7 +114,7 @@ En la demo la separación es solo por URL (no hay login). Aquí se hace con **ro
 ### Por confirmar al llegar a cada fase
 - Dependencias nuevas:
   - ~~`laravel/reverb` + `laravel-echo`/`pusher-js` (fase 6)~~ aprobadas e instaladas;
-  - `barryvdh/laravel-dompdf` (fase 11);
+  - ~~`barryvdh/laravel-dompdf` (fase 11)~~ aprobada e instalada;
   - `picqer/php-barcode-generator` (fase 12).
 
 ### Decididas durante el trabajo
@@ -397,11 +397,21 @@ Después del login, cada rol aterriza en su puesto (`User::homeRoute()`):
 - [x] Variante `short` (alto ≤ 820 px) para proyectores de 720p. Revisado a 1280×720, 1440×900 y 1920×1080
 - [x] Tests (254, toda la suite): acceso por rol y destino del proyector, reposo, «PREPÁRENSE» sin revelar al ganador, carrete con el ganador y sin los anteriores, misma ruleta en todas las pantallas, fin de animación e intento viejo, cuadro de honor y latido
 
-### Fase 11 · Historial y actas
-- [ ] Historial: acta destacada, lista con filtros por jornada, insignia «Sin quórum»
-- [ ] Detalle del acta: ganadores, participantes, filtro, jornada y quórum
-- [ ] PDF del acta, con espacio para firmas
-- [ ] Tests: acceso y contenido del PDF
+### Fase 11 · Historial y actas ✅
+- [x] `barryvdh/laravel-dompdf` 3.1 instalado (aprobado)
+- [x] Historial (`/sorteos`, `Raffles\Index`; «Historial» en el grupo «Sorteos» del menú):
+  - [x] Último sorteo destacado en tarjeta oscura (premio, hasta 3 ganadores, acta, jornada, filtro, participantes); las demás actas en filas, de la más nueva a la más vieja, con paginación
+  - [x] Filtro por jornada en la URL (`?jornada=`), con «Sin jornada abierta» cuando hay actas así
+  - [x] Insignia «Sin quórum» (solo se marca la falta de quórum, como en la demo) y «En pantalla» para el sorteo que se está proyectando
+- [x] Detalle del acta (`/sorteos/{id}`, `Raffles\Show`): ganadores en orden con su código, participantes con búsqueda y paginación (los ganadores marcados), datos del acta (jornada, filtro, animación, quién sorteó, quórum) y «Cómo se sorteó». La consola enlaza al acta desde «Acta N.º»
+- [x] **El secreto se respeta en todas partes**: mientras un sorteo está en pantalla, el historial y el detalle solo muestran a los ganadores ya revelados (`Projection::revealedOf()`, `Raffle::publicWinners()`), y el PDF no se descarga hasta que la pantalla los mostró a todos (`RafflePolicy::download`, con el motivo en la respuesta). Se actualizan solos con cada revelación (Reverb)
+- [x] PDF del acta (`/sorteos/{id}/pdf`, `RaffleRecordController`, vista `resources/views/pdf/raffle.blade.php`), tamaño carta:
+  - página 1: marca, datos, ganadores, constancia de transparencia y tres espacios para firma (firma, nombre y cargo); anexo con la lista completa de participantes (ganadores resaltados)
+  - fuentes DejaVu con subconjunto (el archivo pesa ~40 KB) y «Página X de Y» escrito sobre cada página ya compuesta
+  - los participantes figuran con su código SIM, no con la cédula
+- [x] `DemoRaffleSeeder` (solo desarrollo): una jornada pasada ya cerrada, con asistencia y tres actas (una de tres ganadores). La jornada abierta y la pantalla quedan intactas
+- [x] Factory: `Raffle::factory()->drawnAmong($teachers)` (acta sellada con participantes; los primeros ganan)
+- [x] Tests (274, toda la suite): acceso por rol a historial, detalle y PDF; orden; filtro por jornada; «Sin quórum»; ganadores ocultos mientras la pantalla no los revela (historial, detalle y PDF); búsqueda de participantes; descarga y contenido del PDF (ganadores en orden, todos los participantes, firmas); siembra. Revisado en el navegador: claro, oscuro, escritorio y celular
 
 ### Fase 12 · Carnés
 - [ ] Vista imprimible del carné con el código de barras `SIM-###` (individual y por lote de colegio o ciudad)
@@ -435,3 +445,4 @@ Después del login, cada rol aterriza en su puesto (`User::homeRoute()`):
 | 2026-09-28 | 8 | Motor del sorteo. Estado de la proyección en una tabla de una fila (aprobado). No se sortea otro mientras haya uno en pantalla. Una jornada con sorteos es historial. |
 | 2026-09-28 | 9 | Nuevo sorteo y consola. Máximo 20 ganadores por sorteo. «Ver antes» solo en la consola. |
 | 2026-09-28 | 10 | Pantalla de proyección. Sonido tras el primer gesto (política de los navegadores). Con listas largas, la ruleta y la tómbola muestran una muestra de 48 nombres con el ganador. Sin Reverb la pantalla sigue por sondeo. |
+| 2026-09-28 | 11 | Historial y actas (dompdf aprobado). Los ganadores de un sorteo en pantalla no aparecen en el historial ni en el PDF hasta que la pantalla los revela. El PDF identifica a los participantes por código, no por cédula. |

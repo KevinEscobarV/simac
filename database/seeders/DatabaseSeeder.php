@@ -12,8 +12,8 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database for local development: one user per role,
-     * all with the password "password", the demo's schools and teachers, and an
-     * open assembly.
+     * all with the password "password", the demo's schools and teachers, an
+     * open assembly and a past one with its raffles.
      */
     public function run(): void
     {
@@ -39,7 +39,10 @@ class DatabaseSeeder extends Seeder
             'email' => 'pantalla@simac.test',
         ]);
 
-        // After the users: the assembly records who opened it.
-        $this->call(DemoAssemblySeeder::class);
+        // After the users: assemblies and raffles record who opened and drew them.
+        $this->call([
+            DemoAssemblySeeder::class,
+            DemoRaffleSeeder::class,
+        ]);
     }
 }

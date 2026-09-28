@@ -80,7 +80,14 @@
                 <span class="rounded-md border border-white/10 bg-white/8 px-2 py-1 text-white/70">{{ trans_choice('{1} :count winner|[2,*] :count winners', $total) }}</span>
             @endif
             <span class="rounded-md border border-white/10 bg-white/8 px-2 py-1 text-white/70">{{ $raffle->animation->label() }}</span>
-            <span class="rounded-md border border-white/10 bg-white/8 px-2 py-1 text-white/70">{{ __('Record No. :number', ['number' => $raffle->id]) }}</span>
+            @can('view', $raffle)
+                <a href="{{ route('raffles.show', $raffle) }}" class="inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/8 px-2 py-1 text-white/70 transition hover:border-white/25 hover:text-white" wire:navigate>
+                    {{ __('Record No. :number', ['number' => $raffle->id]) }}
+                    <flux:icon.arrow-up-right variant="micro" class="size-3" />
+                </a>
+            @else
+                <span class="rounded-md border border-white/10 bg-white/8 px-2 py-1 text-white/70">{{ __('Record No. :number', ['number' => $raffle->id]) }}</span>
+            @endcan
         </div>
 
         @if ($earlier->isNotEmpty())

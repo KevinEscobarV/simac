@@ -8,36 +8,177 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * SIMAC design system.
+ * Institutional green + ceremonial gold over warm, green-tinted neutrals.
+ */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+    --font-display: var(--font-fraunces), Georgia, 'Times New Roman', serif;
 
-    --color-zinc-50: #fafafa;
-    --color-zinc-100: #f5f5f5;
-    --color-zinc-200: #e5e5e5;
-    --color-zinc-300: #d4d4d4;
-    --color-zinc-400: #a3a3a3;
-    --color-zinc-500: #737373;
-    --color-zinc-600: #525252;
-    --color-zinc-700: #404040;
-    --color-zinc-800: #262626;
-    --color-zinc-900: #171717;
-    --color-zinc-950: #0a0a0a;
+    /* Institutional green */
+    --color-brand-50: #f0f7f3;
+    --color-brand-100: #daede2;
+    --color-brand-200: #b6dbc7;
+    --color-brand-300: #86c2a5;
+    --color-brand-400: #52a47f;
+    --color-brand-500: #2f8963;
+    --color-brand-600: #1f6e4e;
+    --color-brand-700: #195840;
+    --color-brand-800: #164635;
+    --color-brand-900: #133a2c;
+    --color-brand-950: #08201a;
 
-    --color-accent: var(--color-neutral-800);
-    --color-accent-content: var(--color-neutral-800);
+    /* Ceremonial gold */
+    --color-gold-50: #fef9eb;
+    --color-gold-100: #fcf0c9;
+    --color-gold-200: #f9df8f;
+    --color-gold-300: #f5c955;
+    --color-gold-400: #f2b72f;
+    --color-gold-500: #e39c16;
+    --color-gold-600: #c47610;
+    --color-gold-700: #9c5211;
+    --color-gold-800: #814115;
+    --color-gold-900: #6d3717;
+    --color-gold-950: #3f1c0a;
+
+    /* Neutrals with a green tint. Flux builds every gray from zinc, so it inherits the identity. */
+    --color-zinc-50: #f7f9f8;
+    --color-zinc-100: #eff2f0;
+    --color-zinc-200: #e1e7e4;
+    --color-zinc-300: #cbd4cf;
+    --color-zinc-400: #9fada7;
+    --color-zinc-500: #74847d;
+    --color-zinc-600: #5a6963;
+    --color-zinc-700: #495550;
+    --color-zinc-800: #2b3330;
+    --color-zinc-900: #1b2220;
+    --color-zinc-950: #111614;
+
+    /* Warm red for alerts and destructive actions (Flux's danger variants use it). */
+    --color-red-50: #fdf3f2;
+    --color-red-100: #fbe5e3;
+    --color-red-200: #f6cfcb;
+    --color-red-300: #eeaaa2;
+    --color-red-400: #e0776b;
+    --color-red-500: #c74a3e;
+    --color-red-600: #a93b31;
+    --color-red-700: #8a3129;
+    --color-red-800: #722b25;
+    --color-red-900: #5f2722;
+    --color-red-950: #33110e;
+
+    /* Projection stage */
+    --color-stage-700: #12483a;
+    --color-stage-800: #0a2b22;
+    --color-stage-900: #051510;
+    --color-stage-950: #030c09;
+
+    --color-accent: var(--color-brand-700);
+    --color-accent-content: var(--color-brand-700);
     --color-accent-foreground: var(--color-white);
+
+    --radius-4xl: 2rem;
+
+    --shadow-soft: 0 1px 2px rgb(19 35 29 / 0.04), 0 2px 8px -2px rgb(19 35 29 / 0.05);
+    --shadow-card: 0 1px 2px rgb(19 35 29 / 0.05), 0 8px 20px -6px rgb(19 35 29 / 0.08);
+    --shadow-raised: 0 2px 4px rgb(19 35 29 / 0.06), 0 18px 36px -12px rgb(19 35 29 / 0.18);
+    --shadow-gold: 0 6px 24px -6px rgb(242 183 47 / 0.5);
+
+    --animate-fade-in: fade-in 0.4s ease both;
+    --animate-rise: rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+    --animate-pop: pop 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    --animate-beat: beat 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+    --animate-float: float 18s ease-in-out infinite;
+    --animate-breathe: breathe 3.5s ease-in-out infinite;
+    --animate-slide-in: slide-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes rise {
+        from {
+            opacity: 0;
+            transform: translateY(14px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes pop {
+        from {
+            opacity: 0;
+            transform: scale(0.92);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes beat {
+        from {
+            opacity: 0;
+            transform: scale(1.7);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes float {
+        0%,
+        100% {
+            transform: translate(0, 0) scale(1);
+        }
+        33% {
+            transform: translate(4%, -6%) scale(1.08);
+        }
+        66% {
+            transform: translate(-5%, 4%) scale(0.95);
+        }
+    }
+
+    @keyframes breathe {
+        0%,
+        100% {
+            opacity: 0.55;
+        }
+        50% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slide-in {
+        from {
+            opacity: 0;
+            transform: translateX(24px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
 }
 
 @layer theme {
     .dark {
-        --color-accent: var(--color-white);
-        --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-neutral-800);
+        --color-accent: var(--color-brand-500);
+        --color-accent-content: var(--color-brand-300);
+        --color-accent-foreground: var(--color-white);
     }
 }
 
 @layer base {
-
     *,
     ::after,
     ::before,
@@ -45,6 +186,53 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
     }
+
+    html {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+        font-feature-settings: 'cv02', 'cv03', 'cv11';
+    }
+
+    ::selection {
+        background: var(--color-gold-200);
+        color: var(--color-brand-950);
+    }
+
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-zinc-300) transparent;
+    }
+
+    .dark * {
+        scrollbar-color: var(--color-zinc-700) transparent;
+    }
+}
+
+/* Dotted texture for the dark institutional surfaces. */
+@utility bg-dots {
+    background-image: radial-gradient(rgb(255 255 255 / 0.055) 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+/*
+ * Dark institutional surface: deep green, a green glow at the top, a gold glow
+ * at the bottom and the dotted texture. Painted as backgrounds, not as
+ * absolutely positioned layers, so it works on any element regardless of its
+ * positioning (the Flux sidebar is positioned by JavaScript).
+ */
+@utility bg-institutional {
+    background-color: var(--color-brand-950);
+    background-image:
+        radial-gradient(circle at 0% 0%, rgb(47 137 99 / 0.3), transparent 18rem),
+        radial-gradient(circle at 100% 100%, rgb(227 156 22 / 0.13), transparent 20rem),
+        radial-gradient(rgb(255 255 255 / 0.055) 1px, transparent 1px);
+    background-size:
+        100% 100%,
+        100% 100%,
+        24px 24px;
 }
 
 [data-flux-field]:not(ui-radio, ui-checkbox) {
@@ -52,7 +240,7 @@
 }
 
 [data-flux-label] {
-    @apply  !mb-0 !leading-tight;
+    @apply !mb-0 !leading-tight;
 }
 
 input:focus[data-flux-control],
@@ -61,6 +249,34 @@ select:focus[data-flux-control] {
     @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
 }
 
-/* \[:where(&)\]:size-4 {
-    @apply size-4;
-} */
+/*
+ * Admin sidebar: always dark green, in both appearances. The current item is
+ * marked in gold with a bar on its leading edge.
+ */
+.app-sidebar {
+    --color-accent-content: var(--color-gold-300);
+}
+
+.app-sidebar [data-flux-sidebar-item][data-current] {
+    background-color: rgb(255 255 255 / 0.1);
+}
+
+.app-sidebar [data-flux-sidebar-item][data-current]::before {
+    content: '';
+    position: absolute;
+    inset-block: 0.45rem;
+    inset-inline-start: -1px;
+    width: 3px;
+    border-radius: 0 9999px 9999px 0;
+    background-color: var(--color-gold-400);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

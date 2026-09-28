@@ -3,40 +3,51 @@
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-white antialiased dark:bg-linear-to-b dark:from-neutral-950 dark:to-neutral-900">
-        <div class="relative grid h-dvh flex-col items-center justify-center px-8 sm:px-0 lg:max-w-none lg:grid-cols-2 lg:px-0">
-            <div class="bg-muted relative hidden h-full flex-col p-10 text-white lg:flex dark:border-e dark:border-neutral-800">
-                <div class="absolute inset-0 bg-neutral-900"></div>
-                <a href="{{ route('home') }}" class="relative z-20 flex items-center text-lg font-medium" wire:navigate>
-                    <span class="flex h-10 w-10 items-center justify-center rounded-md">
-                        <x-app-logo-icon class="me-2 h-7 fill-current text-white" />
-                    </span>
-                    {{ config('app.name', 'Laravel') }}
-                </a>
+    <body class="min-h-screen bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
+        <div class="grid min-h-dvh lg:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+            <aside class="dark bg-institutional hidden flex-col justify-between gap-12 p-10 text-white lg:flex xl:p-14">
+                <x-brand.logo :size="44" />
 
-                @php
-                    [$message, $author] = str(Illuminate\Foundation\Inspiring::quotes()->random())->explode('-');
-                @endphp
+                <div class="max-w-md animate-rise">
+                    <h2 class="font-display text-4xl leading-[1.15] font-semibold text-balance xl:text-5xl">
+                        {{ __('Roll, attendance and raffles') }}
+                        <span class="block text-gold-300">{{ __('with verifiable records.') }}</span>
+                    </h2>
 
-                <div class="relative z-20 mt-auto">
-                    <blockquote class="space-y-2">
-                        <flux:heading size="lg">&ldquo;{{ trim($message) }}&rdquo;</flux:heading>
-                        <footer><flux:heading>{{ trim($author) }}</flux:heading></footer>
-                    </blockquote>
+                    <p class="mt-5 text-base leading-relaxed text-white/60">
+                        {{ __('The Casanare Teachers\' Union system to record assembly attendance and hold transparent raffles.') }}
+                    </p>
+
+                    <ul class="mt-10 space-y-4">
+                        @foreach ([
+                            ['icon' => 'shield-check', 'text' => __('The winner is drawn on the server, never in the browser.')],
+                            ['icon' => 'document-check', 'text' => __('Every raffle is sealed in a record before it is shown.')],
+                            ['icon' => 'user-group', 'text' => __('Live attendance and quorum during the assembly.')],
+                        ] as $feature)
+                            <li class="flex items-center gap-3.5 text-sm text-white/75">
+                                <span class="flex size-9 shrink-0 items-center justify-center rounded-xl border border-gold-400/25 bg-gold-400/10 text-gold-300">
+                                    <flux:icon :icon="$feature['icon']" variant="outline" class="size-4.5" />
+                                </span>
+                                {{ $feature['text'] }}
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
-            </div>
-            <div class="w-full lg:p-8">
-                <div class="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-                    <a href="{{ route('home') }}" class="z-20 flex flex-col items-center gap-2 font-medium lg:hidden" wire:navigate>
-                        <span class="flex h-9 w-9 items-center justify-center rounded-md">
-                            <x-app-logo-icon class="size-9 fill-current text-black dark:text-white" />
-                        </span>
 
-                        <span class="sr-only">{{ config('app.name', 'Laravel') }}</span>
+                <p class="text-xs text-white/35">
+                    &copy; {{ now()->year }} {{ __('Casanare Teachers\' Union') }}
+                </p>
+            </aside>
+
+            <main class="flex flex-col items-center justify-center bg-[radial-gradient(60%_40%_at_50%_0%,rgb(47_137_99/0.08),transparent_70%)] px-6 py-10 sm:px-10">
+                <div class="w-full max-w-sm animate-rise">
+                    <a href="{{ route('home') }}" class="mb-10 flex justify-center lg:hidden" wire:navigate>
+                        <x-brand.logo surface="light" />
                     </a>
+
                     {{ $slot }}
                 </div>
-            </div>
+            </main>
         </div>
 
         @persist('toast')

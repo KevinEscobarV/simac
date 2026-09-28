@@ -76,7 +76,7 @@
 
         {{-- Paper stays white in dark mode too: it is what comes out of the printer. On a phone the cards shrink to fit. --}}
         <div class="overflow-x-auto rounded-2xl border border-zinc-200/80 bg-zinc-100 p-4 sm:p-6 dark:border-white/10 dark:bg-zinc-900">
-            <div class="mx-auto grid w-fit gap-4 bg-white p-4 shadow-card max-sm:zoom-[0.85] sm:grid-cols-2 sm:gap-x-[8mm] sm:gap-y-[6mm] sm:p-[8mm]">
+            <div wire:loading.delay.class="opacity-60" class="mx-auto grid w-fit gap-4 bg-white p-4 transition-opacity shadow-card max-sm:zoom-[0.85] sm:grid-cols-2 sm:gap-x-[8mm] sm:gap-y-[6mm] sm:p-[8mm]">
                 @foreach ($preview as $teacher)
                     <x-teachers.card :teacher="$teacher" wire:key="card-{{ $teacher->id }}" />
                 @endforeach

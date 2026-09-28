@@ -121,7 +121,7 @@
             </header>
 
             @if ($this->schools->isNotEmpty())
-                <ul class="divide-y divide-zinc-100 dark:divide-white/5">
+                <ul wire:loading.delay.class="opacity-60" class="divide-y divide-zinc-100 transition-opacity dark:divide-white/5">
                     @foreach ($this->schools as $school)
                         <li wire:key="school-{{ $school->id }}" class="flex items-center gap-3 py-2.5 ps-5 pe-3 transition-colors hover:bg-zinc-50 dark:hover:bg-white/3">
                             <span class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gold-50 text-gold-700 dark:bg-gold-400/10 dark:text-gold-300">

@@ -34,7 +34,7 @@
                     </ul>
                 </div>
 
-                <p class="text-xs text-white/35">
+                <p class="text-xs text-white/50">
                     &copy; {{ now()->year }} {{ __('Casanare Teachers\' Union') }}
                 </p>
             </aside>

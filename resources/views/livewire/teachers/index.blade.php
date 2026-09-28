@@ -110,7 +110,7 @@
             @endif
         @else
             <div class="px-5">
-                <flux:table :paginate="$teachers" pagination:class="py-3">
+                <flux:table :paginate="$teachers" pagination:class="py-3" wire:loading.delay.class="opacity-60" class="transition-opacity">
                     <flux:table.columns>
                         <flux:table.column>{{ __('Teacher') }}</flux:table.column>
                         <flux:table.column class="max-md:hidden">{{ __('Identification') }}</flux:table.column>

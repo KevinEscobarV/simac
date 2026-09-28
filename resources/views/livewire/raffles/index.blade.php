@@ -69,7 +69,7 @@
                         <h2 class="text-sm font-semibold text-zinc-800 dark:text-zinc-100">{{ $featured ? __('Earlier records') : __('Records') }}</h2>
                     </div>
 
-                    <div class="divide-y divide-zinc-100 dark:divide-white/5">
+                    <div wire:loading.delay.class="opacity-60" class="divide-y divide-zinc-100 transition-opacity dark:divide-white/5">
                         @foreach ($rows as $raffle)
                             <x-raffles.record-row :raffle="$raffle" :projection="$this->projection" wire:key="raffle-{{ $raffle->id }}" />
                         @endforeach

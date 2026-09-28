@@ -83,7 +83,7 @@
             <div class="mt-5 flex flex-wrap items-center gap-2.5 border-t border-white/10 pt-5">
                 <flux:button :href="route('raffles.show', $raffle)" icon="document-text" size="sm" wire:navigate>{{ __('View record') }}</flux:button>
                 <x-raffles.download-button :raffle="$raffle" :projection="$projection" compact />
-                <span class="ms-auto text-xs text-white/35">{{ Str::ucfirst($raffle->drawn_at->translatedFormat('j \d\e F \d\e Y, g:i a')) }}</span>
+                <span class="ms-auto text-xs text-white/50">{{ Str::ucfirst($raffle->drawn_at->translatedFormat('j \d\e F \d\e Y, g:i a')) }}</span>
             </div>
         </div>
 

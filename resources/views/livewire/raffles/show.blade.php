@@ -101,7 +101,7 @@
                     <x-empty-state icon="magnifying-glass" :title="__('No matches')" :message="__('Nobody in this raffle matches the search.')" />
                 @else
                     <div class="px-5">
-                        <flux:table :paginate="$participants" pagination:class="py-3">
+                        <flux:table :paginate="$participants" pagination:class="py-3" wire:loading.delay.class="opacity-60" class="transition-opacity">
                             <flux:table.columns>
                                 <flux:table.column>{{ __('Teacher') }}</flux:table.column>
                                 <flux:table.column class="max-sm:hidden">{{ __('Code') }}</flux:table.column>

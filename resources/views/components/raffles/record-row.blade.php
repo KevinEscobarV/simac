@@ -24,7 +24,7 @@
     @endif
 
     <div class="min-w-0 flex-1">
-        <a href="{{ route('raffles.show', $raffle) }}" class="block truncate text-sm font-semibold text-zinc-900 after:absolute after:inset-0 dark:text-white" wire:navigate>
+        <a href="{{ route('raffles.show', $raffle) }}" class="block truncate text-sm font-semibold text-zinc-900 after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-brand-500 focus-visible:after:ring-inset dark:text-white" wire:navigate>
             @if ($first)
                 {{ $others > 0 ? __(':name and :count more', ['name' => $first->name, 'count' => $others]) : $first->name }}
             @else

@@ -4,6 +4,14 @@
         @include('partials.head')
     </head>
     <body class="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+        {{-- For keyboards: the first Tab offers to jump over the navigation. --}}
+        <a
+            href="#main"
+            class="sr-only focus:not-sr-only focus:fixed focus:inset-s-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-brand-900 focus:shadow-raised focus:outline-2 focus:outline-gold-400"
+        >
+            {{ __('Skip to content') }}
+        </a>
+
         {{-- The sidebar is always dark green: the "dark" class scopes Flux's dark variants to it. --}}
         <flux:sidebar sticky collapsible="mobile" class="app-sidebar dark bg-institutional border-e border-white/10 lg:w-66">
             <flux:sidebar.header>
@@ -95,7 +103,7 @@
 
             <flux:spacer />
 
-            <p class="px-1 text-[0.65rem] leading-relaxed text-white/35">
+            <p class="px-1 text-[0.65rem] leading-relaxed text-white/50">
                 {{ __('Casanare Teachers\' Union') }}
             </p>
 

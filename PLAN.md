@@ -425,10 +425,18 @@ Después del login, cada rol aterriza en su puesto (`User::homeRoute()`):
 - [x] Escáner comprobado en la mesa con eventos de teclado reales (código y Enter a la velocidad de un lector): registra la entrada y, al repetir, avisa «Ya figura como presente»
 - [x] Tests: acceso por rol, conteo por filtros (sin retirados), vista previa de una hoja, hojas de 8 en orden, filtros del enlace, carné individual (y 404 para un retirado), carné escaneado en la mesa. Revisado en el navegador (claro, oscuro, celular) y en el PDF que produce el diálogo de impresión
 
-### Fase 13 · Inicio y pulido
-- [ ] Inicio del admin: métricas, jornada en curso, último sorteo y accesos rápidos
-- [ ] Páginas 403 y 404 con la marca. Hoy la 403 es la de Laravel y muestra el mensaje de la excepción en inglés («This action is unauthorized.»). Estados vacíos y de carga
-- [ ] Revisión responsive, accesibilidad (foco, `aria-live`) y `prefers-reduced-motion`
+### Fase 13 · Inicio y pulido ✅
+- [x] Inicio (`Dashboard`, dentro de `/inicio`; el controlador sigue enviando a cada rol a su puesto):
+  - [x] Aviso «Sorteo en pantalla» con el premio y «Ir a la consola» mientras hay algo proyectándose
+  - [x] Jornada en curso: presentes, ya salieron, registrados, quórum y accesos a la mesa y a la jornada. Sin jornada abierta, invita a abrirla
+  - [x] Accesos rápidos (nuevo sorteo, mesa, docentes, carnés, historial, pantalla) y métricas (docentes, afiliados con %, jornadas, actas)
+  - [x] Último sorteo (la misma tarjeta del historial, que respeta el secreto de la pantalla)
+  - [x] Cada parte solo aparece con su permiso; alguien sin puesto ve un aviso. En vivo por Reverb, y solo se une a los canales que su permiso autoriza
+  - [x] «Hola, :name.» en lugar de «Bienvenido» (texto neutro)
+- [x] Páginas de error con la marca (`x-error-page`): 403, 404, 419, 429, 500 y 503, en claro y oscuro, con «Ir al inicio» y «Volver». La 403 explica en español; si una política da su motivo (el PDF que espera a la pantalla), muestra ese
+- [x] Estados de carga: las listas con filtros o búsqueda se atenúan si la respuesta tarda (docentes, usuarios, colegios, asistencia de la jornada, historial, participantes del acta y carnés)
+- [x] Accesibilidad: enlace «Saltar al contenido» (primer Tab), `aria-live` en el estado de la consola, anillo de foco en las filas del historial, contraste suficiente en textos secundarios sobre fondo oscuro. `prefers-reduced-motion` ya estaba cubierto (regla global y la pantalla)
+- [x] Tests (295, toda la suite): jornada en curso y sin jornada, aviso del sorteo en pantalla, métricas y último sorteo, usuario sin puesto, 404 y 403 en español. Revisado en el navegador: claro, oscuro, escritorio y celular
 
 ### Fase 14 · Cierre
 - [ ] Suite completa, Pint y Larastan en verde
@@ -456,3 +464,4 @@ Después del login, cada rol aterriza en su puesto (`User::homeRoute()`):
 | 2026-09-28 | 11 | Historial y actas (dompdf aprobado). Los ganadores de un sorteo en pantalla no aparecen en el historial ni en el PDF hasta que la pantalla los revela. El PDF identifica a los participantes por código, no por cédula. |
 | 2026-09-28 | 10 | Arreglo: el conteo de pantallas iba y venía con la pantalla en una pestaña de fondo, y cerrar una pantalla tardaba hasta un minuto en notarse. Ahora la pantalla avisa al cerrarse y la gracia cubre el freno del navegador. Sin pantallas conectadas no se lanza (decisión del usuario: bloquear). |
 | 2026-09-28 | 12 | Carnés (picqer aprobado). Tamaño de tarjeta de identificación, 8 por hoja carta, impresos desde el navegador. El código de barras lleva `SIM012` sin guion por el teclado en español. Sin cédula en el carné: el código basta para la mesa. |
+| 2026-09-28 | 13 | Inicio y pulido. El inicio muestra solo lo que cada permiso autoriza. Páginas de error propias en español. Sin dependencias nuevas. |

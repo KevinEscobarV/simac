@@ -105,7 +105,7 @@
                     :message="__('No teacher matches the search or the selected filter.')"
                 />
             @else
-                <ul class="divide-y divide-zinc-100 dark:divide-white/5">
+                <ul wire:loading.delay.class="opacity-60" class="divide-y divide-zinc-100 transition-opacity dark:divide-white/5">
                     @foreach ($teachers as $teacher)
                         @php($attendance = $teacher->attendances->first())
 

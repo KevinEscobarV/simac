@@ -64,7 +64,8 @@
             <x-raffles.screens :count="$screens" />
         </div>
 
-        <div>
+        {{-- Read aloud as the phase changes: the console follows the screen by itself. --}}
+        <div aria-live="polite">
             <h2 class="font-display text-2xl font-semibold text-white">{{ $title }}</h2>
             <p class="mt-1.5 text-sm text-white/55">{{ $detail }}</p>
         </div>

@@ -160,7 +160,22 @@ users ── roles/permissions (spatie)
 | Ver historial y descargar actas | ✓ | | |
 | Ver la pantalla de proyección | ✓ | | ✓ |
 
-Después del login, cada rol aterriza en su puesto:
+En código son los enums `App\Enums\Role` y `App\Enums\Permission`:
+
+| Permiso (enum) | Cubre |
+| --- | --- |
+| `users.manage` | Usuarios y roles |
+| `roll.manage` | Padrón, ciudades, colegios y carnés |
+| `assemblies.manage` | Jornadas y quórum |
+| `attendance.register` | Entradas y salidas |
+| `raffles.draw` | Sorteos y proyección |
+| `raffles.view` | Historial y actas |
+| `screen.view` | Pantalla de proyección |
+
+La aplicación siempre pregunta por el permiso, nunca por el rol. Cada usuario tiene exactamente un rol.
+
+Después del login, cada rol aterriza en su puesto (se implementa en las fases 7 y 10, cuando existan la
+mesa y la pantalla; hasta entonces todos llegan a `/inicio`):
 
 | Rol | Destino |
 | --- | --- |
@@ -227,14 +242,17 @@ Después del login, cada rol aterriza en su puesto:
 - [x] Quitados `welcome`, logos y layouts sin uso del starter kit. `/` redirige a `/inicio`
 - [x] Tests (27), Pint y Larastan en verde. Revisado en el navegador: claro, oscuro, escritorio y celular
 
-### Fase 2 · Roles, permisos y usuarios
-- [ ] Enums `Role` y `Permission` y seeder de roles y permisos (idempotente)
-- [ ] Usuario administrador inicial por seeder (credenciales desde `.env`)
-- [ ] Redirección por rol después del login (respuesta de login de Fortify)
-- [ ] Protección de rutas por permiso (middleware de spatie) y políticas
-- [ ] Módulo **Usuarios**: listar, crear, editar, asignar rol, desactivar y restablecer contraseña
-- [ ] Decidir qué pasa con «Eliminar cuenta» en Ajustes. El starter kit deja que cualquier usuario borre su propia cuenta, incluso el único administrador
-- [ ] Tests: acceso por rol a cada ruta, CRUD de usuarios, redirección
+### Fase 2 · Roles, permisos y usuarios ✅
+- [x] Enums `Role` y `Permission`, y `RolesAndPermissionsSeeder` idempotente (sincroniza la base con los enums; correrlo en cada despliegue)
+- [x] Administrador inicial con `php artisan app:create-admin-user`: pide los datos por consola, así la contraseña no queda en `.env`. `DatabaseSeeder` crea un usuario por rol para desarrollo
+- [x] Rutas protegidas con el middleware `can:` y `UserPolicy`. Se usa `can:` y no el middleware de spatie porque Livewire lo vuelve a aplicar en cada petición interna
+- [x] Usuarios desactivados (`deactivated_at`): el middleware `EnsureUserIsActive` cierra su sesión por cualquier vía de entrada (contraseña, 2FA, passkey, «recordarme»)
+- [x] Módulo **Usuarios** (`/usuarios`): búsqueda, filtro por rol, crear, editar, cambiar contraseña, desactivar y reactivar
+  - Nadie puede cambiar su propio rol ni desactivarse (así nunca queda el sistema sin administrador)
+- [x] Se quitó «Eliminar cuenta» de Ajustes
+- [x] Traducciones de las páginas de error de Laravel
+- [x] Tests (58), Pint y Larastan en verde. Revisado en el navegador: admin, registrador y usuario desactivado; claro, oscuro y celular
+- Redirección por rol después del login: pasa a las fases 7 y 10
 
 ### Fase 3 · Ciudades y colegios
 - [ ] Migraciones, modelos, factories y relaciones `City` y `School`
@@ -277,6 +295,7 @@ Después del login, cada rol aterriza en su puesto:
 
 ### Fase 7 · Mesa de registro (`/registro`)
 - [ ] Layout de quiosco (cabecera oscura, cuerpo claro, primero para celular)
+- [ ] Después del login, el registrador aterriza en `/registro`
 - [ ] Componente de quiosco:
   - [ ] Campo grande siempre enfocado y búsqueda con *debounce*
   - [ ] `Enter`, `Shift+Enter` y `Esc`
@@ -312,6 +331,7 @@ Después del login, cada rol aterriza en su puesto:
 
 ### Fase 10 · Pantalla de proyección (`/pantalla`)
 - [ ] Layout de escenario, siempre oscuro
+- [ ] Después del login, el proyector aterriza en `/pantalla`
 - [ ] Escenario: degradado, orbes, textura y viñeta. Estados de espera y «PREPÁRENSE»
 - [ ] Animaciones en Alpine:
   - [ ] Ruleta SVG
@@ -334,7 +354,7 @@ Después del login, cada rol aterriza en su puesto:
 
 ### Fase 13 · Inicio y pulido
 - [ ] Inicio del admin: métricas, jornada en curso, último sorteo y accesos rápidos
-- [ ] Páginas 403 y 404 con la marca. Estados vacíos y de carga
+- [ ] Páginas 403 y 404 con la marca. Hoy la 403 es la de Laravel y muestra el mensaje de la excepción en inglés («This action is unauthorized.»). Estados vacíos y de carga
 - [ ] Revisión responsive, accesibilidad (foco, `aria-live`) y `prefers-reduced-motion`
 
 ### Fase 14 · Cierre
@@ -349,3 +369,4 @@ Después del login, cada rol aterriza en su puesto:
 | --- | --- | --- |
 | 2026-09-28 | 0 | Análisis de la demo y plan de trabajo creados. Decisiones: Reverb, código en inglés, usuarios/roles, PDF, carnés, premio, excluir ganadores previos y varios ganadores. |
 | 2026-09-28 | 1 | Fundaciones y sistema de diseño. Se conserva el modo oscuro. El panel queda en `/inicio`. Los layouts de mesa y pantalla se crean en sus fases. |
+| 2026-09-28 | 2 | Roles, permisos y usuarios. Se quitó la autoeliminación de cuentas; los usuarios se desactivan. El admin inicial se crea con `app:create-admin-user`. La redirección por rol pasa a las fases 7 y 10. |

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Role;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -25,6 +26,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
  * @property string|null $remember_token
+ * @property Carbon|null $deactivated_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -45,7 +47,36 @@ class User extends Authenticatable implements PasskeyUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'deactivated_at' => 'datetime',
         ];
+    }
+
+    /**
+     * The user's role. Each user has exactly one.
+     */
+    public function assignedRole(): ?Role
+    {
+        $name = $this->getRoleNames()->first();
+
+        return is_string($name) ? Role::from($name) : null;
+    }
+
+    /**
+     * A deactivated user keeps their history but can no longer sign in.
+     */
+    public function isDeactivated(): bool
+    {
+        return $this->deactivated_at !== null;
+    }
+
+    public function deactivate(): void
+    {
+        $this->forceFill(['deactivated_at' => now()])->save();
+    }
+
+    public function reactivate(): void
+    {
+        $this->forceFill(['deactivated_at' => null])->save();
     }
 
     /**

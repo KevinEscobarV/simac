@@ -11,15 +11,26 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database.
+     * Seed the application's database for local development: one user per role,
+     * all with the password "password".
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call(RolesAndPermissionsSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        User::factory()->admin()->create([
+            'name' => 'Administrador',
+            'email' => 'admin@simac.test',
+        ]);
+
+        User::factory()->registrar()->create([
+            'name' => 'Mesa de registro',
+            'email' => 'registro@simac.test',
+        ]);
+
+        User::factory()->projector()->create([
+            'name' => 'Proyector',
+            'email' => 'pantalla@simac.test',
         ]);
     }
 }

@@ -19,6 +19,16 @@
                 </flux:sidebar.item>
             </flux:sidebar.nav>
 
+            @can('viewAny', App\Models\User::class)
+                <flux:sidebar.nav>
+                    <flux:sidebar.group :heading="__('Administration')">
+                        <flux:sidebar.item icon="user-group" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>
+                            {{ __('Users') }}
+                        </flux:sidebar.item>
+                    </flux:sidebar.group>
+                </flux:sidebar.nav>
+            @endcan
+
             <flux:spacer />
 
             <p class="px-1 text-[0.65rem] leading-relaxed text-white/35">

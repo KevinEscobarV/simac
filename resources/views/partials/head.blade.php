@@ -4,7 +4,7 @@
 <meta name="description" content="{{ __('The Casanare Teachers\' Union system to record assembly attendance and hold transparent raffles.') }}" />
 
 <title>
-    {{ filled($title ?? null) ? $title.' · '.config('app.name') : config('app.name').' · '.__('Raffles') }}
+    {{ filled($title ?? null) ? __($title).' · '.config('app.name') : config('app.name').' · '.__('Raffles') }}
 </title>
 
 <link rel="icon" href="/favicon.ico" sizes="32x32">

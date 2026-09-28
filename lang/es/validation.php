@@ -201,6 +201,7 @@ return [
         'password' => 'contraseña',
         'password_confirmation' => 'confirmación de la contraseña',
         'recovery_code' => 'código de recuperación',
+        'role' => 'rol',
     ],
 
 ];

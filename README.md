@@ -208,8 +208,12 @@ mensajes al día.
 3. **Subdominio** desde cPanel, con raíz `apps/simac/public`. cPanel deja en `public/` un `.user.ini`, un
    `php.ini` y un bloque al final del `.htaccess`. El `.user.ini` ya hace lo mismo que ese bloque, así que
    devuelve el `.htaccess` a su versión con `git checkout -- public/.htaccess` y agrega los otros a
-   `.git/info/exclude` para que `git status` quede limpio. Activa también **Forzar redirección HTTPS** para el
-   subdominio, en *Dominios* de cPanel.
+   `.git/info/exclude` para que `git status` quede limpio.
+
+   De http a https redirige la aplicación misma, siempre que `APP_URL` empiece por `https://`. La opción
+   *Forzar redirección HTTPS* de cPanel aparece como no disponible en este hosting, porque usa plantillas de
+   Apache propias. Por SSH se puede activar igual (`uapi SSL toggle_ssl_redirect_for_domains domains=<dominio>
+   state=1`), pero cPanel no la soporta aquí y podría dejar de funcionar sin aviso.
 4. **Base de datos** MySQL y su usuario, desde cPanel.
 5. **`.env`**, con estas diferencias frente al de desarrollo:
 
@@ -306,7 +310,8 @@ php artisan up
   *Debug Console* de la app en pusher.com: cada entrada registrada en la mesa debe aparecer ahí como un evento.
 - **«Página expirada» al iniciar sesión, con «No seguro» en la barra.** El navegador entró por `http://`. La
   cookie de sesión solo viaja por HTTPS, así que el formulario llega sin sesión. Pasa, por ejemplo, al abrir la
-  dirección desde la barra de búsqueda de Google en Android. La redirección a HTTPS del servidor lo evita.
+  dirección desde la barra de búsqueda de Google en Android. La aplicación redirige a HTTPS cuando `APP_URL`
+  empieza por `https://`: revisa ese valor en el `.env`.
 - **La consola no detecta la pantalla.** La pantalla debe estar abierta en `/pantalla`. Recargarla la anuncia
   al instante, y cerrarla la quita del conteo.
 

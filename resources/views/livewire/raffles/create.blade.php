@@ -103,13 +103,6 @@
                             </label>
                         @endforeach
                     </div>
-
-                    @if ($form->animation === App\Enums\RaffleAnimation::Wheel->value && $count > App\Livewire\Raffles\Create::WHEEL_LIMIT)
-                        <p class="mt-4 flex items-start gap-2 rounded-xl border border-gold-200 bg-gold-50 px-3.5 py-2.5 text-xs text-gold-800 dark:border-gold-400/30 dark:bg-gold-400/10 dark:text-gold-200">
-                            <flux:icon.exclamation-triangle variant="micro" class="mt-px size-3.5 shrink-0" />
-                            {{ __('With :count participants the wheel gets crowded. The name drum reads better with long lists.', ['count' => $count]) }}
-                        </p>
-                    @endif
                 </x-raffles.step>
             </div>
 

@@ -4,10 +4,10 @@ import { reducedMotion, timeline } from './timeline';
 const SPIN = 6600;
 
 /**
- * The wheel. The server draws the slices; this only turns it so the pointer
- * stops on the slice of the winner it already chose.
+ * The wheel. The server draws the slices and works out where it stops, with
+ * the winner it already chose under the pointer; this only turns it there.
  */
-export default ({ slices, winner, attempt, landed }) => ({
+export default ({ target, attempt, landed }) => ({
     ...timeline,
     timers: [],
     rotation: 0,
@@ -15,8 +15,6 @@ export default ({ slices, winner, attempt, landed }) => ({
     done: false,
 
     init() {
-        const target = this.stopAt(slices, winner, attempt);
-
         if (landed) {
             this.rotation = target;
             this.done = true;
@@ -48,18 +46,6 @@ export default ({ slices, winner, attempt, landed }) => ({
         fanfare();
         this.done = true;
         this.reachedTheEnd(attempt);
-    },
-
-    /**
-     * The pointer is at the top (270° in SVG) and slices start at 0°: turning
-     * the wheel by 270 − the middle of the slice brings it under the pointer,
-     * after six full turns. The small offset is the same on every screen.
-     */
-    stopAt(slices, winner, attempt) {
-        const slice = 360 / slices;
-        const offset = (((attempt * 9301 + 49297) % 233280) / 233280 - 0.5) * slice * 0.45;
-
-        return 360 * 6 + (270 - (winner + 0.5) * slice) + offset;
     },
 
     get style() {

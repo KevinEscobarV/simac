@@ -84,6 +84,18 @@ test('every screen shows the same wheel', function () {
         ->toBe(Livewire::test(Index::class)->instance()->reel);
 });
 
+test('with a long list the wheel still writes every name', function () {
+    $this->actingAs(User::factory()->projector()->create());
+    screenRaffle(participants: 60);
+    Projection::current()->launch();
+
+    $screen = Livewire::test(Index::class);
+    $reel = $screen->instance()->reel;
+
+    expect($reel)->toHaveCount(Index::REEL);
+    $screen->assertSeeHtmlInOrder(array_map(fn (array $entry): string => '>'.e($entry['short']).'</text>', $reel));
+});
+
 test('the animation reaching the end makes the winner public, and an old attempt does not', function () {
     $this->actingAs(User::factory()->projector()->create());
     $raffle = screenRaffle();

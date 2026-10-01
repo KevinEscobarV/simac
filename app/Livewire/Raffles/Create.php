@@ -45,9 +45,6 @@ class Create extends Component
     /** How many names the summary lists before "and N more". */
     public const int SAMPLE = 48;
 
-    /** Above this many slices the wheel gets hard to read. */
-    public const int WHEEL_LIMIT = 40;
-
     public RaffleForm $form;
 
     /** "See before": the console shows the current winner before the screen does. */

@@ -25,12 +25,12 @@ Después de iniciar sesión, cada rol llega directo a su puesto.
   - la pantalla solo muestra un resultado ya decidido;
   - se pueden sortear varios ganadores por acta.
 - **Historial:** actas en PDF con espacio para firmas. Mientras un sorteo está en pantalla, ni el historial ni el PDF revelan a los ganadores que aún no salieron.
-- **Tiempo real:** la mesa, el panel, la consola y la pantalla se actualizan solos con **Laravel Reverb**. Si Reverb se cae, nada se detiene: la pantalla y la consola siguen al día preguntando cada pocos segundos.
+- **Tiempo real:** la mesa, el panel, la consola y la pantalla se actualizan solos con **Laravel Reverb**, o con **Pusher** en un hosting compartido. Si el tiempo real se cae, nada se detiene: la pantalla y la consola siguen al día preguntando cada pocos segundos.
 
 ## Tecnología
 
 Laravel 13 · PHP 8.4 · Livewire 4 · Flux UI · Tailwind CSS 4 · Fortify (contraseña, 2FA y passkeys) ·
-spatie/laravel-permission · Laravel Reverb · dompdf (actas) · picqer/php-barcode-generator (carnés) · Pest.
+spatie/laravel-permission · Laravel Reverb o Pusher · dompdf (actas) · picqer/php-barcode-generator (carnés) · Pest.
 
 Requisitos: PHP 8.4 con `pdo_sqlite` o `pdo_mysql`, `mbstring`, `dom`, `intl` y `fileinfo`; Composer 2;
 Node 22 o superior (solo para compilar los assets).
@@ -57,6 +57,16 @@ valores la aplicación funciona igual, pero sin actualizaciones en vivo.
 
 Además crea los 19 municipios de Casanare, colegios y docentes de ejemplo, una jornada abierta y una jornada
 pasada con tres actas.
+
+Para una demostración del tamaño de una asamblea:
+
+```bash
+php artisan migrate:fresh --seeder=DemoEventSeeder
+```
+
+Borra la base y la rehace con los mismos datos de desarrollo, más un padrón de 200 docentes en 14 municipios y
+20 cuentas de mesa, de `mesa01@simac.test` a `mesa20@simac.test`, con contraseña `password`. La jornada queda
+abierta, sin registros y con un quórum de 30 afiliados.
 
 ### Pruebas y calidad
 
@@ -170,6 +180,109 @@ php artisan up
 Las actas son el respaldo legal de cada sorteo: respalda la base de datos al menos después de cada asamblea.
 Con SQLite basta copiar el archivo de la base; con MySQL, `mysqldump`.
 
+## Despliegue en hosting compartido (cPanel)
+
+Así corre la demo: un cPanel de iFastNet con CloudLinux, en un subdominio cuya raíz es la carpeta `public/`
+de una copia del repositorio. Los datos del servidor (usuario, host, puerto SSH) no van aquí, porque este
+repositorio es público.
+
+Un hosting compartido no puede tener Reverb corriendo todo el tiempo, así que el tiempo real va por
+**Pusher Channels**. El plan gratuito (Sandbox) alcanza para una asamblea: 100 conexiones a la vez y 200.000
+mensajes al día.
+
+### Lo que git no trae
+
+| Qué | Cómo llega al servidor |
+| --- | --- |
+| `vendor/` | `composer install --no-dev --optimize-autoloader` en el servidor |
+| `public/build/` | `npm run build` en tu PC y `scp` |
+| `.env` | Se escribe a mano en el servidor, una sola vez |
+
+### Primera vez
+
+1. **PHP y Composer en la consola.** El servidor usa alt-php: el binario es `/opt/alt/php84/usr/bin/php`, y el
+   selector de PHP de cPanel no cambia el de la consola. Pon `export PATH=$HOME/bin:/opt/alt/php84/usr/bin:$PATH`
+   en `~/.bashrc` e instala Composer en `~/bin`.
+2. **Código:** `git clone https://github.com/KevinEscobarV/simac.git ~/apps/simac` y, dentro,
+   `composer install --no-dev --optimize-autoloader`.
+3. **Subdominio** desde cPanel, con raíz `apps/simac/public`. cPanel deja en `public/` un `.user.ini`, un
+   `php.ini` y un bloque al final del `.htaccess`. El `.user.ini` ya hace lo mismo que ese bloque, así que
+   devuelve el `.htaccess` a su versión con `git checkout -- public/.htaccess` y agrega los otros a
+   `.git/info/exclude` para que `git status` quede limpio.
+4. **Base de datos** MySQL y su usuario, desde cPanel.
+5. **`.env`**, con estas diferencias frente al de desarrollo:
+
+   | Variable | Valor |
+   | --- | --- |
+   | `APP_ENV` / `APP_DEBUG` / `APP_URL` | `production` / `false` / la dirección con `https://` |
+   | `LOG_LEVEL` | `error` |
+   | `DB_CONNECTION`, `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | `mysql`, `localhost` y los datos de la base |
+   | `SESSION_SECURE_COOKIE` | `true` |
+   | `QUEUE_CONNECTION` | `sync` (no hay worker de colas) |
+   | `BROADCAST_CONNECTION` | `pusher` |
+   | `PUSHER_APP_ID`, `PUSHER_APP_KEY`, `PUSHER_APP_SECRET`, `PUSHER_APP_CLUSTER` | Los de la app en Pusher |
+
+6. **Arranque**, con el build ya subido (ver *Cada actualización*):
+
+   ```bash
+   php artisan key:generate --force
+   php artisan migrate --force
+   php artisan db:seed --class=RolesAndPermissionsSeeder --force
+   php artisan db:seed --class=CitySeeder --force
+   php artisan app:create-admin-user
+   php artisan optimize
+   ```
+
+El hosting le entrega `HTTPS=on` a PHP, así que no hace falta forzar `https` ni confiar en proxies.
+
+### Pusher
+
+1. En [pusher.com](https://pusher.com), crea una app de **Channels**. De *App Keys* salen `app_id`, `key`,
+   `secret` y `cluster`.
+2. En el servidor, ponlos en el `.env` (tabla de arriba) y corre `php artisan optimize`.
+3. En tu PC, crea un `.env.production` (git ya lo ignora) con la llave pública y el cluster, que se incrustan en
+   el JavaScript:
+
+   ```ini
+   VITE_PUSHER_APP_KEY=la-key-de-pusher
+   VITE_PUSHER_APP_CLUSTER=us2
+   VITE_REVERB_APP_KEY=
+   ```
+
+   `npm run build` lo lee y deja el build listo para el hosting. `composer run dev` no lo lee, así que en
+   desarrollo sigues con Reverb.
+
+Sin Pusher la aplicación también funciona: la pantalla y la consola del sorteo se ponen al día cada pocos
+segundos, y el panel al recargar.
+
+### Cada actualización
+
+En tu PC:
+
+```bash
+npm run build
+composer test
+git push origin main
+scp -P <puerto> -r public/build <usuario>@<servidor>:~/apps/simac/public/
+```
+
+`scp` copia encima sin borrar, así que el sitio sigue funcionando mientras sube.
+
+En el servidor:
+
+```bash
+cd ~/apps/simac
+php artisan down
+git pull
+composer install --no-dev --optimize-autoloader                   # si cambió composer.lock
+php artisan migrate --force                                       # si hay migraciones nuevas
+php artisan db:seed --class=RolesAndPermissionsSeeder --force     # si hay permisos nuevos
+php artisan optimize
+php artisan up
+```
+
+`php artisan optimize` vuelve a leer `.env` y `config/`: sin él, el servidor sigue con la configuración vieja.
+
 ## El día de la asamblea
 
 1. **Antes de abrir la puerta:** abre la jornada desde **Jornadas** y ajusta el quórum.
@@ -188,7 +301,8 @@ Con SQLite basta copiar el archivo de la base; con MySQL, `mysqldump`.
 - **La página se ve sin estilos ni JavaScript en desarrollo.** Quedó un `public/hot` de un `npm run dev` que ya
   no corre. Bórralo, o arranca `composer run dev`.
 - **Nada se actualiza en vivo.** Revisa que Reverb esté corriendo y que las credenciales `REVERB_*` no estén
-  vacías; si cambiaste las `VITE_REVERB_*`, vuelve a compilar con `npm run build`.
+  vacías; si cambiaste las `VITE_REVERB_*`, vuelve a compilar con `npm run build`. Con Pusher, abre el
+  *Debug Console* de la app en pusher.com: cada entrada registrada en la mesa debe aparecer ahí como un evento.
 - **La consola no detecta la pantalla.** La pantalla debe estar abierta en `/pantalla`. Recargarla la anuncia
   al instante, y cerrarla la quita del conteo.
 

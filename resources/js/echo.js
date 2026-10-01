@@ -3,8 +3,17 @@ import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
 window.Pusher = Pusher;
 
-// Without Reverb credentials the app still works, only without live updates.
-if (import.meta.env.VITE_REVERB_APP_KEY) {
+// Pusher where the hosting cannot keep a Reverb server running, Reverb
+// everywhere else. Without credentials for either, the app still works,
+// only without live updates.
+if (import.meta.env.VITE_PUSHER_APP_KEY) {
+    window.Echo = new Echo({
+        broadcaster: 'pusher',
+        key: import.meta.env.VITE_PUSHER_APP_KEY,
+        cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+        forceTLS: true,
+    });
+} else if (import.meta.env.VITE_REVERB_APP_KEY) {
     window.Echo = new Echo({
         broadcaster: 'reverb',
         key: import.meta.env.VITE_REVERB_APP_KEY,

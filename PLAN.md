@@ -472,3 +472,5 @@ Después del login, cada rol aterriza en su puesto (`User::homeRoute()`):
 | 2026-09-28 | 13 | Inicio y pulido. El inicio muestra solo lo que cada permiso autoriza. Páginas de error propias en español. Sin dependencias nuevas. |
 | 2026-09-28 | 11 | Arreglo: PDF del acta con `php artisan serve` en Windows (carpeta temporal de dompdf dentro de `storage`). |
 | 2026-09-28 | 14 | Cierre. La guía del proyecto y de despliegue queda en `README.md` (decisión del usuario). |
+| 2026-09-30 | — | Datos para una demostración en vivo: `DemoEventSeeder` (200 docentes en 14 municipios, 20 cuentas de mesa, quórum de 30). Solo desarrollo. |
+| 2026-09-30 | — | Demo en línea en `simac.ietellano.com`, en el mismo cPanel de iete-llano (decisión del usuario), con MySQL. La base local se copió con sus ids, porque los carnés ya estaban impresos. Tiempo real por Pusher, porque el hosting compartido no sostiene Reverb (`echo.js` elige Pusher si tiene llave). La suite pasa también contra MariaDB 10.11, la versión del servidor. Las contraseñas de demostración siguen en `password` (decisión del usuario). |

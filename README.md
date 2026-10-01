@@ -208,7 +208,8 @@ mensajes al día.
 3. **Subdominio** desde cPanel, con raíz `apps/simac/public`. cPanel deja en `public/` un `.user.ini`, un
    `php.ini` y un bloque al final del `.htaccess`. El `.user.ini` ya hace lo mismo que ese bloque, así que
    devuelve el `.htaccess` a su versión con `git checkout -- public/.htaccess` y agrega los otros a
-   `.git/info/exclude` para que `git status` quede limpio.
+   `.git/info/exclude` para que `git status` quede limpio. Activa también **Forzar redirección HTTPS** para el
+   subdominio, en *Dominios* de cPanel.
 4. **Base de datos** MySQL y su usuario, desde cPanel.
 5. **`.env`**, con estas diferencias frente al de desarrollo:
 
@@ -303,6 +304,9 @@ php artisan up
 - **Nada se actualiza en vivo.** Revisa que Reverb esté corriendo y que las credenciales `REVERB_*` no estén
   vacías; si cambiaste las `VITE_REVERB_*`, vuelve a compilar con `npm run build`. Con Pusher, abre el
   *Debug Console* de la app en pusher.com: cada entrada registrada en la mesa debe aparecer ahí como un evento.
+- **«Página expirada» al iniciar sesión, con «No seguro» en la barra.** El navegador entró por `http://`. La
+  cookie de sesión solo viaja por HTTPS, así que el formulario llega sin sesión. Pasa, por ejemplo, al abrir la
+  dirección desde la barra de búsqueda de Google en Android. La redirección a HTTPS del servidor lo evita.
 - **La consola no detecta la pantalla.** La pantalla debe estar abierta en `/pantalla`. Recargarla la anuncia
   al instante, y cerrarla la quita del conteo.
 

@@ -91,15 +91,22 @@
                 </flux:sidebar.nav>
             @endif
 
-            @can('viewAny', App\Models\User::class)
+            @if (auth()->user()->can('viewAny', App\Models\User::class) || auth()->user()->can('manage', App\Models\Setting::class))
                 <flux:sidebar.nav>
                     <flux:sidebar.group :heading="__('Administration')">
-                        <flux:sidebar.item icon="user-group" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>
-                            {{ __('Users') }}
-                        </flux:sidebar.item>
+                        @can('viewAny', App\Models\User::class)
+                            <flux:sidebar.item icon="user-group" :href="route('users.index')" :current="request()->routeIs('users.*')" wire:navigate>
+                                {{ __('Users') }}
+                            </flux:sidebar.item>
+                        @endcan
+                        @can('manage', App\Models\Setting::class)
+                            <flux:sidebar.item icon="cog-6-tooth" :href="route('configuration')" :current="request()->routeIs('configuration')" wire:navigate>
+                                {{ __('Configuration') }}
+                            </flux:sidebar.item>
+                        @endcan
                     </flux:sidebar.group>
                 </flux:sidebar.nav>
-            @endcan
+            @endif
 
             <flux:spacer />
 

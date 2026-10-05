@@ -23,6 +23,14 @@
         :description="__('Hello, :name.', ['name' => $user->name]).' '.Str::ucfirst(now()->translatedFormat('l j \d\e F'))"
     />
 
+    @if ($this->settings->hasEvent())
+        <x-event.banner
+            :title="$this->settings->event_title"
+            :subtitle="$this->settings->event_subtitle"
+            :image="$this->settings->eventImageUrl()"
+        />
+    @endif
+
     {{-- A raffle on screen comes first: someone may be waiting for the next order. --}}
     @if ($this->projection->isLive() && $user->can('control', Projection::class))
         <a

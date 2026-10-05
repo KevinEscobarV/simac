@@ -15,4 +15,5 @@ enum Permission: string
     case DrawRaffles = 'raffles.draw';
     case ViewRaffles = 'raffles.view';
     case ViewScreen = 'screen.view';
+    case ManageSettings = 'settings.manage';
 }

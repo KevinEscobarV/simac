@@ -5,6 +5,7 @@ use App\Http\Controllers\LeaveScreenController;
 use App\Http\Controllers\PrintCardsController;
 use App\Http\Controllers\RaffleRecordController;
 use App\Livewire\Assemblies;
+use App\Livewire\Configuration;
 use App\Livewire\Desk;
 use App\Livewire\Locations;
 use App\Livewire\Raffles;
@@ -15,6 +16,7 @@ use App\Models\Assembly;
 use App\Models\City;
 use App\Models\Projection;
 use App\Models\Raffle;
+use App\Models\Setting;
 use App\Models\Teacher;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
@@ -47,6 +49,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('usuarios', Users\Index::class)
         ->name('users.index')
         ->can('viewAny', User::class);
+
+    Route::livewire('configuracion', Configuration\Index::class)
+        ->name('configuration')
+        ->can('manage', Setting::class);
 
     Route::livewire('sorteos', Raffles\Index::class)
         ->name('raffles.index')

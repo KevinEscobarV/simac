@@ -5,6 +5,7 @@ namespace App\Livewire\Screen;
 use App\Enums\ProjectionPhase;
 use App\Models\Assembly;
 use App\Models\Projection;
+use App\Models\Setting;
 use App\Models\Teacher;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,6 +29,7 @@ use Random\Randomizer;
  *
  * @property-read Projection $projection
  * @property-read Assembly|null $assembly
+ * @property-read Setting $settings
  * @property-read Teacher|null $currentWinner
  * @property-read Collection<int, Teacher> $earlierWinners
  * @property-read list<array{id: int, name: string, short: string}> $reel
@@ -47,6 +49,15 @@ class Index extends Component
     public function assembly(): ?Assembly
     {
         return Assembly::current();
+    }
+
+    /**
+     * The event the union is holding, which the screen presents.
+     */
+    #[Computed]
+    public function settings(): Setting
+    {
+        return Setting::current();
     }
 
     /**

@@ -25,6 +25,8 @@ Después de iniciar sesión, cada rol llega directo a su puesto.
   - la pantalla solo muestra un resultado ya decidido;
   - se pueden sortear varios ganadores por acta.
 - **Historial:** actas en PDF con espacio para firmas. Mientras un sorteo está en pantalla, ni el historial ni el PDF revelan a los ganadores que aún no salieron.
+- **Configuración:** el evento que realiza el sindicato (título, subtítulo e imagen) se muestra en el inicio de
+  sesión, el inicio y la pantalla de proyección, en todas las jornadas. La imagen se sube desde la app.
 - **Tiempo real:** la mesa, el panel, la consola y la pantalla se actualizan solos con **Laravel Reverb**, o con **Pusher** en un hosting compartido. Si el tiempo real se cae, nada se detiene: la pantalla y la consola siguen al día preguntando cada pocos segundos.
 
 ## Tecnología
@@ -246,7 +248,8 @@ mensajes al día.
    php artisan migrate --force
    php artisan db:seed --class=RolesAndPermissionsSeeder --force
    php artisan db:seed --class=CitySeeder --force
-   php artisan app:create-admin-user
+   php artisan app:create-admin-user   # necesita una terminal interactiva (una sesión SSH normal)
+   php artisan storage:link            # public/storage: ahí se ven las imágenes que se suben
    php artisan optimize
    ```
 

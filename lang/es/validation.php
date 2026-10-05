@@ -201,6 +201,7 @@ return [
         'date' => 'fecha',
         'document_number' => 'cédula',
         'email' => 'correo electrónico',
+        'image' => 'imagen',
         'is_union_member' => 'afiliación',
         'location' => 'lugar',
         'name' => 'nombre',
@@ -212,6 +213,8 @@ return [
         'recovery_code' => 'código de recuperación',
         'role' => 'rol',
         'school_id' => 'colegio',
+        'subtitle' => 'subtítulo',
+        'title' => 'título',
         'winners_count' => 'número de ganadores',
     ],
 

@@ -8,31 +8,33 @@
             <aside class="dark bg-institutional hidden flex-col justify-between gap-12 p-10 text-white lg:flex xl:p-14">
                 <x-brand.logo :size="44" />
 
-                <div class="max-w-md animate-rise">
-                    <h2 class="font-display text-4xl leading-[1.15] font-semibold text-balance xl:text-5xl">
-                        {{ __('Roll, attendance and raffles') }}
-                        <span class="block text-gold-300">{{ __('with verifiable records.') }}</span>
-                    </h2>
+                <x-event.sign-in class="animate-rise">
+                    <div class="max-w-md animate-rise">
+                        <h2 class="font-display text-4xl leading-[1.15] font-semibold text-balance xl:text-5xl">
+                            {{ __('Roll, attendance and raffles') }}
+                            <span class="block text-gold-300">{{ __('with verifiable records.') }}</span>
+                        </h2>
 
-                    <p class="mt-5 text-base leading-relaxed text-white/60">
-                        {{ __('The Casanare Teachers\' Union system to record assembly attendance and hold transparent raffles.') }}
-                    </p>
+                        <p class="mt-5 text-base leading-relaxed text-white/60">
+                            {{ __('The Casanare Teachers\' Union system to record assembly attendance and hold transparent raffles.') }}
+                        </p>
 
-                    <ul class="mt-10 space-y-4">
-                        @foreach ([
-                            ['icon' => 'shield-check', 'text' => __('The winner is drawn on the server, never in the browser.')],
-                            ['icon' => 'document-check', 'text' => __('Every raffle is sealed in a record before it is shown.')],
-                            ['icon' => 'user-group', 'text' => __('Live attendance and quorum during the assembly.')],
-                        ] as $feature)
-                            <li class="flex items-center gap-3.5 text-sm text-white/75">
-                                <span class="flex size-9 shrink-0 items-center justify-center rounded-xl border border-gold-400/25 bg-gold-400/10 text-gold-300">
-                                    <flux:icon :icon="$feature['icon']" variant="outline" class="size-4.5" />
-                                </span>
-                                {{ $feature['text'] }}
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
+                        <ul class="mt-10 space-y-4">
+                            @foreach ([
+                                ['icon' => 'shield-check', 'text' => __('The winner is drawn on the server, never in the browser.')],
+                                ['icon' => 'document-check', 'text' => __('Every raffle is sealed in a record before it is shown.')],
+                                ['icon' => 'user-group', 'text' => __('Live attendance and quorum during the assembly.')],
+                            ] as $feature)
+                                <li class="flex items-center gap-3.5 text-sm text-white/75">
+                                    <span class="flex size-9 shrink-0 items-center justify-center rounded-xl border border-gold-400/25 bg-gold-400/10 text-gold-300">
+                                        <flux:icon :icon="$feature['icon']" variant="outline" class="size-4.5" />
+                                    </span>
+                                    {{ $feature['text'] }}
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </x-event.sign-in>
 
                 <p class="text-xs text-white/50">
                     &copy; {{ now()->year }} {{ __('Casanare Teachers\' Union') }}
@@ -44,6 +46,8 @@
                     <a href="{{ route('home') }}" class="mb-10 flex justify-center lg:hidden" wire:navigate>
                         <x-brand.logo surface="light" />
                     </a>
+
+                    <x-event.sign-in compact class="-mt-4 mb-8 lg:hidden" />
 
                     {{ $slot }}
                 </div>

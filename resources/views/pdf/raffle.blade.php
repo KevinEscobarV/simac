@@ -1,19 +1,11 @@
 {{--
     The record in PDF, rendered by dompdf: CSS 2.1 with tables for layout, the
-    DejaVu fonts it ships (they cover every accent) and the brand mark drawn
-    flat, without gradients.
+    DejaVu fonts it ships (they cover every accent) and the union's logo, read
+    from disk (it has a white background, like the paper).
 --}}
 @php
     $several = $raffle->winners_count > 1;
     $winnerPositions = $raffle->winners->pluck('pivot.winner_position', 'id');
-
-    $mark = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">'
-        .'<rect width="48" height="48" rx="14" fill="#195840"/>'
-        .'<path d="M24 11.5 38.5 18 24 24.5 9.5 18 24 11.5Z" fill="#f5c955"/>'
-        .'<path d="M16.8 21.2v5.6c0 2.7 3.2 4.8 7.2 4.8s7.2-2.1 7.2-4.8v-5.6" fill="none" stroke="#f2b72f" stroke-width="2.6" stroke-linecap="round"/>'
-        .'<path d="M35.2 19.4v6.8" stroke="#f2b72f" stroke-width="2.2" stroke-linecap="round"/>'
-        .'<circle cx="35.2" cy="28.4" r="2" fill="#f2b72f"/>'
-        .'</svg>';
 
     $quorum = match (true) {
         $raffle->assembly === null => __('There was no assembly open'),
@@ -261,7 +253,7 @@
         <table class="brand">
             <tr>
                 <td style="width: 13mm">
-                    <img src="data:image/svg+xml;base64,{{ base64_encode($mark) }}" width="36" height="36" alt="">
+                    <img src="{{ public_path('img/simac-logo.jpg') }}" width="42" height="36" alt="">
                 </td>
                 <td>
                     <div class="brand-name">{{ __('Casanare Teachers\' Union') }}</div>

@@ -115,11 +115,14 @@ img {
 }
 
 .logo {
-    border-radius: 12px;
+    background-color: #ffffff;
+    border: 6px solid #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 0 0 1px #daede2;
     display: block;
-    height: 48px;
+    height: 56px;
     margin: 0 auto 12px;
-    width: 48px;
+    width: 64px;
 }
 
 .brand-name {

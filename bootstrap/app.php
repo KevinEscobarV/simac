@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Middleware\AddSecurityHeaders;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\IgnoreInvalidSocketId;
+use App\Http\Middleware\RedirectToAppHost;
 use App\Http\Middleware\RedirectToHttps;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -16,7 +18,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->prepend(RedirectToHttps::class);
+        $middleware->prepend([
+            RedirectToAppHost::class,
+            RedirectToHttps::class,
+        ]);
+        $middleware->append(AddSecurityHeaders::class);
 
         $middleware->web(append: [
             EnsureUserIsActive::class,

@@ -23,3 +23,9 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Hidden files (.user.ini, .htaccess...) are never served. The ACME challenges
+# under .well-known/ still are: their own names do not start with a dot.
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

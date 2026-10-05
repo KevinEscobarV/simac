@@ -210,6 +210,16 @@ mensajes al día.
    devuelve el `.htaccess` a su versión con `git checkout -- public/.htaccess` y agrega los otros a
    `.git/info/exclude` para que `git status` quede limpio.
 
+   En el **dominio principal** la raíz es `public_html` y cPanel no deja cambiarla. Renómbrala, crea un enlace
+   en su lugar y copia su `.user.ini` a la app:
+
+   ```bash
+   cd ~ && mv public_html public_html.cpanel-orig && ln -s apps/simac/public public_html
+   cp public_html.cpanel-orig/.user.ini apps/simac/public/
+   ```
+
+   AutoSSL deja sus archivos de validación en `public/.well-known/`: agrégalo también a `.git/info/exclude`.
+
    De http a https redirige la aplicación misma, siempre que `APP_URL` empiece por `https://`. La opción
    *Forzar redirección HTTPS* de cPanel aparece como no disponible en este hosting, porque usa plantillas de
    Apache propias. Por SSH se puede activar igual (`uapi SSL toggle_ssl_redirect_for_domains domains=<dominio>
@@ -224,6 +234,8 @@ mensajes al día.
    | `DB_CONNECTION`, `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` | `mysql`, `localhost` y los datos de la base |
    | `SESSION_SECURE_COOKIE` | `true` |
    | `QUEUE_CONNECTION` | `sync` (no hay worker de colas) |
+   | `MAIL_MAILER`, `MAIL_SCHEME`, `MAIL_HOST`, `MAIL_PORT` | `smtp`, `smtps`, `mail.<dominio>` y `465` |
+   | `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` | Un buzón del cPanel, por ejemplo `no-reply@<dominio>` |
    | `BROADCAST_CONNECTION` | `pusher` |
    | `PUSHER_APP_ID`, `PUSHER_APP_KEY`, `PUSHER_APP_SECRET`, `PUSHER_APP_CLUSTER` | Los de la app en Pusher |
 

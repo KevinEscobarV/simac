@@ -67,7 +67,7 @@ test('the sheet lays out the cards eight per page, sorted to hand them out', fun
     $response = $this->get(route('teachers.cards.print'))
         ->assertOk()
         ->assertSeeInOrder([$first->name, $last->name])
-        ->assertSee([$first->code, __('Barcode :value', ['value' => $first->barcode])]);
+        ->assertSee([$first->code, __('Barcode :value', ['value' => $first->code])]);
 
     expect(substr_count($response->getContent(), 'data-sheet'))->toBe(2);
 });

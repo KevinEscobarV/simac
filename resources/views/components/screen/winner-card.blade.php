@@ -2,6 +2,7 @@
     'winner',
     'raffle',
     'position',
+    'showsMembership' => false,
 ])
 
 <div {{ $attributes->class('animate-pop px-4') }}>
@@ -46,7 +47,7 @@
                     <flux:icon.gift variant="micro" class="size-3.5" />
                     {{ $raffle->prize }}
                 </span>
-                @if ($winner->is_union_member)
+                @if ($showsMembership && $winner->is_union_member)
                     <span class="inline-flex items-center gap-1.5 rounded-full border border-brand-400/40 bg-brand-500/20 px-3 py-1 text-brand-100">
                         <flux:icon.shield-check variant="micro" class="size-3.5" />
                         {{ __('Union membership') }}

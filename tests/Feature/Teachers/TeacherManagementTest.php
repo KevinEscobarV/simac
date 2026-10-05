@@ -77,13 +77,14 @@ test('retired teachers are listed on their own tab', function () {
         ->assertDontSee('Paola Andrea Sarmiento');
 });
 
-test('administrators can register a teacher, typing the ID number with dots', function () {
+test('administrators can register a teacher with the code the union gave them, typing the ID number with dots', function () {
     $this->actingAs(User::factory()->admin()->create());
     $school = School::factory()->create();
 
     Livewire::test(Index::class)
         ->call('create')
         ->set('form.name', ' Luz Dary  Camargo ')
+        ->set('form.code', '0321')
         ->set('form.document_number', '1.118.663.019')
         ->set('form.city_id', (string) $school->city_id)
         ->set('form.school_id', (string) $school->id)
@@ -94,12 +95,13 @@ test('administrators can register a teacher, typing the ID number with dots', fu
     $teacher = Teacher::sole();
 
     expect($teacher->name)->toBe('Luz Dary Camargo')
+        ->and($teacher->code)->toBe('0321')
         ->and($teacher->document_number)->toBe('1118663019')
         ->and($teacher->school->is($school))->toBeTrue()
         ->and($teacher->is_union_member)->toBeFalse();
 });
 
-test('registering a teacher requires a name, ID number, municipality and school', function () {
+test('registering a teacher requires a name, code, ID number, municipality and school', function () {
     $this->actingAs(User::factory()->admin()->create());
 
     Livewire::test(Index::class)
@@ -107,12 +109,37 @@ test('registering a teacher requires a name, ID number, municipality and school'
         ->call('save')
         ->assertHasErrors([
             'form.name' => 'required',
+            'form.code' => 'required',
             'form.document_number' => 'required',
             'form.city_id' => 'required',
             'form.school_id' => 'required',
         ]);
 
     expect(Teacher::count())->toBe(0);
+});
+
+test('the code has only digits, up to 10', function (string $code) {
+    $this->actingAs(User::factory()->admin()->create());
+
+    Livewire::test(Index::class)
+        ->call('create')
+        ->set('form.code', $code)
+        ->call('save')
+        ->assertHasErrors(['form.code' => 'digits_between']);
+})->with([
+    'with letters' => 'SIM-003',
+    'too long' => '12345678901',
+]);
+
+test('the code cannot be repeated, not even with a retired teacher', function () {
+    $this->actingAs(User::factory()->admin()->create());
+    Teacher::factory()->trashed()->create(['code' => '0321']);
+
+    Livewire::test(Index::class)
+        ->call('create')
+        ->set('form.code', '0321')
+        ->call('save')
+        ->assertHasErrors(['form.code' => 'unique']);
 });
 
 test('the ID number must have between 5 and 12 digits', function (string $documentNumber) {
@@ -182,6 +209,7 @@ test('administrators can edit a teacher and move them to another school, keeping
 
     Livewire::test(Index::class)
         ->call('edit', $teacher->id)
+        ->assertSet('form.code', $code)
         ->assertSet('form.document_number', $teacher->document_number)
         ->set('form.name', 'Nombre corregido')
         ->set('form.city_id', (string) $school->city_id)
@@ -194,6 +222,19 @@ test('administrators can edit a teacher and move them to another school, keeping
     expect($teacher->name)->toBe('Nombre corregido')
         ->and($teacher->school->is($school))->toBeTrue()
         ->and($teacher->code)->toBe($code);
+});
+
+test('a teacher\'s code can be corrected', function () {
+    $this->actingAs(User::factory()->admin()->create());
+    $teacher = Teacher::factory()->create(['code' => '0312']);
+
+    Livewire::test(Index::class)
+        ->call('edit', $teacher->id)
+        ->set('form.code', '0321')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect($teacher->refresh()->code)->toBe('0321');
 });
 
 test('a school missing from the list can be added without leaving the dialog', function () {

@@ -7,6 +7,7 @@ use App\Models\Assembly;
 use App\Models\Projection;
 use App\Models\Setting;
 use App\Models\Teacher;
+use App\Support\RaffleFilters;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -30,6 +31,7 @@ use Random\Randomizer;
  * @property-read Projection $projection
  * @property-read Assembly|null $assembly
  * @property-read Setting $settings
+ * @property-read string|null $filterDescription
  * @property-read Teacher|null $currentWinner
  * @property-read Collection<int, Teacher> $earlierWinners
  * @property-read list<array{id: int, name: string, short: string}> $reel
@@ -58,6 +60,23 @@ class Index extends Component
     public function settings(): Setting
     {
         return Setting::current();
+    }
+
+    /**
+     * Who takes part in the raffle, as the room reads it: the record's words,
+     * or the same without union membership when the screen keeps it to
+     * itself (null when there is nothing else to say).
+     */
+    #[Computed]
+    public function filterDescription(): ?string
+    {
+        $raffle = $this->projection->raffle;
+
+        if ($raffle === null || $this->settings->screen_shows_membership) {
+            return $raffle?->filter_description;
+        }
+
+        return RaffleFilters::fromArray($raffle->filters)->describeWithoutMembership($raffle->assembly);
     }
 
     /**
@@ -188,6 +207,6 @@ class Index extends Component
      */
     private function refreshComputed(): void
     {
-        unset($this->projection, $this->assembly, $this->currentWinner, $this->earlierWinners, $this->reel);
+        unset($this->projection, $this->assembly, $this->filterDescription, $this->currentWinner, $this->earlierWinners, $this->reel);
     }
 }

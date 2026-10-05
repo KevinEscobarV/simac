@@ -10,9 +10,9 @@ class ResolveTeacher
 {
     /**
      * Find the teacher standing at the desk from what was typed or scanned.
-     * The exact keys (ID number, teacher code) go first, so a barcode reader
-     * never depends on a text search; then the text has to match exactly one
-     * active teacher.
+     * The exact keys go first, the code before the ID number (both are
+     * digits), so a barcode reader never depends on a text search; then the
+     * text has to match exactly one active teacher.
      *
      * @throws ValidationException when nobody or more than one teacher matches
      */
@@ -22,7 +22,7 @@ class ResolveTeacher
 
         if ($key === '') {
             throw ValidationException::withMessages([
-                'key' => __('Type the ID number, the code or the name of the teacher.'),
+                'key' => __('Type the code, the ID number or the name of the teacher.'),
             ]);
         }
 
@@ -47,16 +47,11 @@ class ResolveTeacher
 
     private function exactMatch(string $key): ?Teacher
     {
-        $id = Teacher::idFromCode($key);
-
-        if ($id !== null) {
-            return Teacher::find($id);
+        if (preg_match('/^[\d.\s-]+$/', $key) !== 1) {
+            return null;
         }
 
-        if (preg_match('/^[\d.\s-]+$/', $key) === 1) {
-            return Teacher::firstWhere('document_number', preg_replace('/\D/', '', $key));
-        }
-
-        return null;
+        return Teacher::firstWhere('code', $key)
+            ?? Teacher::firstWhere('document_number', preg_replace('/\D/', '', $key));
     }
 }

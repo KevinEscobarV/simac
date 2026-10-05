@@ -8,6 +8,7 @@ use App\Livewire\Screen\Index;
 use App\Models\Assembly;
 use App\Models\Projection;
 use App\Models\Raffle;
+use App\Models\Setting;
 use App\Models\Teacher;
 use App\Models\User;
 use App\Support\RaffleFilters;
@@ -51,12 +52,61 @@ test('a loaded raffle announces itself without giving away the winner', function
     $screen = Livewire::test(Index::class)
         ->assertSee(__('GET READY'))
         ->assertSee('Bicicleta todoterreno')
-        ->assertSee(trans_choice('{1} participant|[2,*] participants', 4));
+        ->assertSee(trans_choice('{1} participant|[2,*] participants', 4))
+        ->assertSee(__('All teachers'));
 
     expect($screen->instance()->currentWinner)->toBeNull()
         ->and($screen->instance()->reel)->toBe([]);
 
     $screen->assertDontSee($raffle->winners->sole()->name);
+});
+
+test('by default the screen does not tell union members apart', function () {
+    $this->actingAs(User::factory()->projector()->create());
+    Teacher::factory()->count(3)->create();
+    Projection::recordScreen('hall');
+    app(DrawRaffle::class)->handle(User::factory()->admin()->create(), new RaffleFilters(unionMembersOnly: true), 'Bicicleta todoterreno', 1, RaffleAnimation::Wheel);
+
+    // A raffle only for members has nothing else to say about who takes part: not "all teachers" either.
+    Livewire::test(Index::class)
+        ->assertSee('Bicicleta todoterreno')
+        ->assertDontSee(__('Only union members'))
+        ->assertDontSee(__('All teachers'));
+
+    $projection = Projection::current();
+    $projection->launch();
+    $projection->finish(1);
+
+    Livewire::test(Index::class)
+        ->assertSee(__('Congratulations!'))
+        ->assertDontSee(__('Union membership'));
+});
+
+test('Configuration can bring union membership to the screen', function () {
+    Setting::factory()->create(['screen_shows_membership' => true]);
+    $this->actingAs(User::factory()->projector()->create());
+    Teacher::factory()->count(3)->create();
+    Projection::recordScreen('hall');
+    app(DrawRaffle::class)->handle(User::factory()->admin()->create(), new RaffleFilters(unionMembersOnly: true), 'Bicicleta todoterreno', 1, RaffleAnimation::Wheel);
+
+    Livewire::test(Index::class)->assertSee(__('Only union members'));
+
+    $projection = Projection::current();
+    $projection->launch();
+    $projection->finish(1);
+
+    Livewire::test(Index::class)->assertSee(__('Union membership'));
+});
+
+test('Configuration can leave the number of participants and who takes part off the screen', function () {
+    Setting::factory()->create(['screen_shows_participants' => false, 'screen_shows_filters' => false]);
+    $this->actingAs(User::factory()->projector()->create());
+    screenRaffle();
+
+    Livewire::test(Index::class)
+        ->assertSee('Bicicleta todoterreno')
+        ->assertDontSee(trans_choice('{1} participant|[2,*] participants', 4))
+        ->assertDontSee(__('All teachers'));
 });
 
 test('the go brings the winner into the animation, among the others still in the draw', function () {

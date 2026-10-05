@@ -77,8 +77,8 @@ class Index extends Component
     }
 
     /**
-     * Whoever the search matches, with their attendance. Without a search term
-     * there is nothing to list.
+     * Whoever the search matches, with their attendance, the exact code first.
+     * Without a search term there is nothing to list.
      *
      * @return Collection<int, Teacher>
      */
@@ -94,6 +94,7 @@ class Index extends Component
         return Teacher::query()
             ->with(['school.city', 'attendances' => fn (Relation $attendances) => $attendances->whereBelongsTo($assembly)])
             ->search($this->search)
+            ->exactCodeFirst($this->search)
             ->orderByName()
             ->limit(self::RESULTS + 1)
             ->get();
@@ -116,7 +117,7 @@ class Index extends Component
     }
 
     /**
-     * Enter: checks in whoever the ID number, code or name points to. The
+     * Enter: checks in whoever the code, ID number or name points to. The
      * server resolves the key, so a barcode reader never waits for the list.
      */
     public function checkInByKey(string $key, ResolveTeacher $resolveTeacher, CheckIn $checkIn): void

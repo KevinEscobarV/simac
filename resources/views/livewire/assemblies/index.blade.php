@@ -53,7 +53,7 @@
                     wire:model.live.debounce.300ms="search"
                     wire:keydown.enter="checkInFromSearch"
                     icon="magnifying-glass"
-                    :placeholder="__('ID number, code or name…')"
+                    :placeholder="__('Code, ID number or name…')"
                     :aria-label="__('Search the roll')"
                     clearable
                     autofocus
@@ -84,7 +84,7 @@
         <p class="mb-4 flex items-start gap-2 px-1 text-xs text-zinc-500 dark:text-zinc-400">
             <flux:icon.sparkles variant="micro" class="mt-px shrink-0 text-gold-500" />
             <span>
-                {{ __('Type the ID number, the code or the name and press') }}
+                {{ __('Type the code, the ID number or the name and press') }}
                 <kbd class="rounded bg-zinc-200 px-1.5 font-sans text-zinc-700 dark:bg-white/10 dark:text-zinc-200">Enter</kbd>
                 {{ __('to check in without the mouse. It works with a barcode reader too.') }}
             </span>

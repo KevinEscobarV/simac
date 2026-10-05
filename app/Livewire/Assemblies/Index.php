@@ -221,7 +221,7 @@ class Index extends Component
     }
 
     /**
-     * Enter in the search box checks in whoever the ID number, code or name
+     * Enter in the search box checks in whoever the code, ID number or name
      * points to, so the panel works with a keyboard or a barcode reader.
      */
     public function checkInFromSearch(ResolveTeacher $resolveTeacher, CheckIn $checkIn): void
@@ -298,6 +298,7 @@ class Index extends Component
         return Teacher::query()
             ->with(['school', 'attendances' => fn (Relation $attendances) => $attendances->whereBelongsTo($assembly)])
             ->search($this->search)
+            ->exactCodeFirst($this->search)
             ->when($this->filter === 'presentes', fn (Builder $query) => $query->presentAt($assembly))
             ->when($this->filter === 'salieron', fn (Builder $query) => $query->whereHas(
                 'attendances',

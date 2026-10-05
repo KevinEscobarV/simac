@@ -22,6 +22,9 @@ class SettingFactory extends Factory
             'event_title' => null,
             'event_subtitle' => null,
             'event_image_path' => null,
+            'screen_shows_membership' => false,
+            'screen_shows_participants' => true,
+            'screen_shows_filters' => true,
         ];
     }
 

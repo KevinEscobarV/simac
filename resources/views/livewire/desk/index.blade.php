@@ -79,16 +79,35 @@
 
     <main class="mx-auto w-full max-w-5xl flex-1 space-y-5 px-4 py-6 sm:px-7 sm:py-7">
         @if ($current)
-            <div class="relative">
+            {{--
+                The code is what is asked for, so a touch screen opens the number pad; «ABC» switches to letters to
+                search by name, and the next teacher starts on numbers again. The keyboard only changes when the
+                field is focused again, and the morph leaves the attribute alone (wire:ignore.self).
+            --}}
+            <div
+                x-data="{
+                    busy: false,
+                    letters: false,
+                    useLetters(letters) {
+                        this.letters = letters
+                        this.$refs.key.setAttribute('inputmode', letters ? 'text' : 'numeric')
+                        this.$refs.key.blur()
+                        this.$refs.key.focus()
+                    },
+                }"
+                class="relative"
+            >
                 <flux:icon.magnifying-glass class="pointer-events-none absolute inset-s-4 top-1/2 size-6 -translate-y-1/2 text-zinc-400 sm:inset-s-5" />
 
                 {{-- The key goes to the server as typed, so a barcode reader never waits for the list. --}}
                 <input
                     type="text"
+                    inputmode="numeric"
                     wire:model.live.debounce.250ms="search"
-                    x-data="{ busy: false }"
+                    wire:ignore.self
+                    x-ref="key"
                     x-init="$el.focus()"
-                    x-on:desk-ready.window="$el.focus()"
+                    x-on:desk-ready.window="letters ? useLetters(false) : $el.focus()"
                     x-on:keydown.enter.prevent="
                         if (busy || ! $el.value.trim()) return
                         busy = true
@@ -100,12 +119,24 @@
                     autocorrect="off"
                     spellcheck="false"
                     enterkeyhint="go"
-                    aria-label="{{ __('ID number, teacher code or name') }}"
-                    placeholder="{{ __('ID number, code or name…') }}"
-                    class="w-full rounded-2xl border border-zinc-200 bg-white py-4 ps-12 pe-5 text-lg font-semibold text-zinc-900 shadow-card placeholder:font-normal placeholder:text-zinc-400 focus:ring-2 focus:ring-accent focus:outline-hidden sm:py-5 sm:ps-15 sm:text-2xl dark:border-white/10 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500"
+                    aria-label="{{ __('Teacher code, ID number or name') }}"
+                    placeholder="{{ __('Code, ID number or name…') }}"
+                    class="w-full rounded-2xl border border-zinc-200 bg-white py-4 ps-12 pe-5 text-lg font-semibold text-zinc-900 shadow-card placeholder:font-normal placeholder:text-zinc-400 focus:ring-2 focus:ring-accent focus:outline-hidden pointer-coarse:pe-24 sm:py-5 sm:ps-15 sm:text-2xl sm:pointer-coarse:pe-28 dark:border-white/10 dark:bg-zinc-900 dark:text-white dark:placeholder:text-zinc-500"
                 />
 
-                <span wire:loading wire:target="search" class="absolute inset-e-5 top-1/2 -translate-y-1/2 text-xs text-zinc-400">{{ __('Searching…') }}</span>
+                <div class="absolute inset-e-3 top-1/2 flex -translate-y-1/2 items-center gap-3 sm:inset-e-4">
+                    <span wire:loading wire:target="search" class="text-xs text-zinc-400 pointer-coarse:max-sm:hidden">{{ __('Searching…') }}</span>
+
+                    <button
+                        type="button"
+                        wire:ignore
+                        x-on:click="useLetters(! letters)"
+                        x-text="letters ? '123' : 'ABC'"
+                        :aria-label="letters ? @js(__('Type numbers')) : @js(__('Type letters'))"
+                        aria-label="{{ __('Type letters') }}"
+                        class="hidden min-w-16 cursor-pointer items-center justify-center rounded-xl border border-zinc-200 bg-zinc-100 px-3 py-2 text-sm font-bold tracking-wider text-zinc-700 transition active:bg-zinc-200 pointer-coarse:inline-flex sm:min-w-18 sm:py-2.5 sm:text-base dark:border-white/10 dark:bg-white/10 dark:text-zinc-100 dark:active:bg-white/15"
+                    >ABC</button>
+                </div>
             </div>
 
             {{-- Shortcuts only exist with a keyboard: on a phone they are in the way. --}}
@@ -143,7 +174,7 @@
                         <x-empty-state
                             icon="magnifying-glass"
                             :title="__('No matches')"
-                            :message="__('Check the ID number or the code, or search by the full name. A teacher who is not on the roll has to be added by the administrator.')"
+                            :message="__('Check the code or the ID number, or search by the full name. A teacher who is not on the roll has to be added by the administrator.')"
                         />
                     </div>
                 @else
@@ -157,8 +188,8 @@
                                 <div class="min-w-48 flex-1">
                                     <div class="font-display text-lg leading-tight font-semibold text-zinc-900 dark:text-white">{{ $teacher->name }}</div>
                                     <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                        <span class="rounded bg-zinc-100 px-1.5 py-0.5 font-semibold text-zinc-600 tabular-nums dark:bg-white/10 dark:text-zinc-300">{{ __('Code :code', ['code' => $teacher->code]) }}</span>
                                         <span class="tabular-nums">{{ __('ID :number', ['number' => $teacher->document_number]) }}</span>
-                                        <span class="rounded bg-zinc-100 px-1.5 py-0.5 font-semibold text-zinc-600 dark:bg-white/10 dark:text-zinc-300">{{ $teacher->code }}</span>
                                         <span>{{ $teacher->school->name }} · {{ $teacher->school->city->name }}</span>
                                     </div>
                                     @if ($attendance)
@@ -188,7 +219,7 @@
 
                     @if ($results->count() > App\Livewire\Desk\Index::RESULTS)
                         <p class="px-1 text-xs text-zinc-500 dark:text-zinc-400">
-                            {{ __('There are more matches: type more of the name, or the full ID number.') }}
+                            {{ __('There are more matches: type the full code or ID number, or more of the name.') }}
                         </p>
                     @endif
                 @endif
@@ -198,7 +229,7 @@
                         <x-empty-state
                             icon="clock"
                             :title="__('No check-ins yet')"
-                            :message="__('Ask for the ID number, the teacher code or the name, type it above and press Enter.')"
+                            :message="__('Ask for the teacher code, the ID number or the name, type it above and press Enter.')"
                         />
                     @else
                         <div class="flex items-center justify-between border-b border-zinc-200/80 px-5 py-3 dark:border-white/10">

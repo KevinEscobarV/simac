@@ -87,7 +87,7 @@ test('a scanned card checks the teacher in', function () {
 
     // The scanner types what the barcode carries and presses Enter, faster than the field syncs.
     Livewire::test(Index::class)
-        ->call('checkInByKey', $teacher->barcode)
+        ->call('checkInByKey', $teacher->code)
         ->assertHasNoErrors()
         ->assertSet('confirmation.title', __('Check-in registered'));
 
@@ -115,6 +115,18 @@ test('the roll is only listed for a search term', function () {
         ->assertDontSee('Paola Andrea Sarmiento')
         ->set('search', 'paola')
         ->assertSee('Paola Andrea Sarmiento');
+});
+
+test('a code typed in full puts its teacher first in the list', function () {
+    $this->actingAs(User::factory()->registrar()->create());
+    Assembly::factory()->create();
+    Teacher::factory()->create(['name' => 'Ana Rocío Bohórquez', 'code' => '10321', 'document_number' => '1118541203']);
+    Teacher::factory()->create(['name' => 'Luz Dary Camargo', 'code' => '0455', 'document_number' => '1118032145']);
+    Teacher::factory()->create(['name' => 'Zulma Patricia Rojas', 'code' => '0321', 'document_number' => '1118663019']);
+
+    Livewire::test(Index::class)
+        ->set('search', '0321')
+        ->assertSeeHtmlInOrder(['Zulma Patricia Rojas', 'Ana Rocío Bohórquez', 'Luz Dary Camargo']);
 });
 
 test('the movement on display can be undone', function () {

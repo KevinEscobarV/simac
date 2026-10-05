@@ -150,20 +150,26 @@
                     <div class="mt-2 font-display text-3xl font-semibold text-balance text-gold-200 sm:text-5xl">{{ $raffle->prize }}</div>
                 </div>
 
-                <div class="flex flex-wrap items-baseline justify-center gap-x-8 gap-y-3">
-                    <div class="flex items-baseline gap-3">
-                        <span class="font-display text-5xl leading-none font-semibold text-gold-300 tabular-nums sm:text-7xl">{{ number_format($raffle->participants_count, 0, ',', '.') }}</span>
-                        <span class="text-base text-white/55 sm:text-xl">{{ trans_choice('{1} participant|[2,*] participants', $raffle->participants_count) }}</span>
+                @if ($settings->screen_shows_participants || $raffle->winners_count > 1)
+                    <div class="flex flex-wrap items-baseline justify-center gap-x-8 gap-y-3">
+                        @if ($settings->screen_shows_participants)
+                            <div class="flex items-baseline gap-3">
+                                <span class="font-display text-5xl leading-none font-semibold text-gold-300 tabular-nums sm:text-7xl">{{ number_format($raffle->participants_count, 0, ',', '.') }}</span>
+                                <span class="text-base text-white/55 sm:text-xl">{{ trans_choice('{1} participant|[2,*] participants', $raffle->participants_count) }}</span>
+                            </div>
+                        @endif
+                        @if ($raffle->winners_count > 1)
+                            <div class="flex items-baseline gap-3">
+                                <span class="font-display text-5xl leading-none font-semibold text-gold-300 tabular-nums sm:text-7xl">{{ $raffle->winners_count }}</span>
+                                <span class="text-base text-white/55 sm:text-xl">{{ __('winners') }}</span>
+                            </div>
+                        @endif
                     </div>
-                    @if ($raffle->winners_count > 1)
-                        <div class="flex items-baseline gap-3">
-                            <span class="font-display text-5xl leading-none font-semibold text-gold-300 tabular-nums sm:text-7xl">{{ $raffle->winners_count }}</span>
-                            <span class="text-base text-white/55 sm:text-xl">{{ __('winners') }}</span>
-                        </div>
-                    @endif
-                </div>
+                @endif
 
-                <span class="rounded-full border border-white/12 bg-white/8 px-4 py-2 text-sm text-white/70 sm:text-base">{{ $raffle->filter_description }}</span>
+                @if ($settings->screen_shows_filters && filled($this->filterDescription))
+                    <span class="rounded-full border border-white/12 bg-white/8 px-4 py-2 text-sm text-white/70 sm:text-base">{{ $this->filterDescription }}</span>
+                @endif
             </div>
         @elseif ($winner)
             <div class="flex items-center gap-3 text-sm text-white/55 sm:text-base">
@@ -188,7 +194,7 @@
             </div>
 
             @if ($landed)
-                <x-screen.winner-card wire:key="winner-{{ $projection->attempt }}" :winner="$winner" :raffle="$raffle" :position="$projection->winner_position" />
+                <x-screen.winner-card wire:key="winner-{{ $projection->attempt }}" :winner="$winner" :raffle="$raffle" :position="$projection->winner_position" :shows-membership="$settings->screen_shows_membership" />
                 <x-screen.confetti wire:key="confetti-{{ $projection->attempt }}" />
             @endif
 

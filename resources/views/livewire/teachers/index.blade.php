@@ -195,7 +195,7 @@
 
     <p class="mt-5 flex items-start gap-2 px-1 text-xs text-zinc-500 dark:text-zinc-400">
         <flux:icon.sparkles variant="micro" class="mt-px shrink-0 text-gold-500" />
-        {{ __('Tap a teacher\'s membership to switch it on the spot. The code (SIM-…) identifies them at the desk when they do not carry their ID.') }}
+        {{ __('Tap a teacher\'s membership to switch it on the spot. Their code identifies them at the desk, before the ID number or the name.') }}
     </p>
 
     {{-- Register / edit --}}
@@ -205,21 +205,33 @@
                 <flux:heading size="lg" class="font-display">{{ $form->isEditing() ? __('Edit teacher') : __('Register teacher') }}</flux:heading>
                 <flux:text class="mt-1">
                     {{ $form->isEditing()
-                        ? __('Code :code stays the same.', ['code' => $form->teacher->code])
-                        : __('The system assigns their teacher code when you save.') }}
+                        ? __('If you change the code, print their card again: the barcode carries it.')
+                        : __('The code is the number the union assigned: it is what the desk asks for.') }}
                 </flux:text>
             </div>
 
             <flux:input wire:model="form.name" :label="__('Full name')" :placeholder="__('e.g. María Fernanda Rojas')" required autocomplete="off" />
 
-            <flux:input
-                wire:model="form.document_number"
-                :label="__('ID number')"
-                :placeholder="__('e.g. 1118541203')"
-                inputmode="numeric"
-                required
-                autocomplete="off"
-            />
+            <div class="grid gap-4 sm:grid-cols-2">
+                <flux:input
+                    wire:model="form.code"
+                    :label="__('Code')"
+                    :placeholder="__('e.g. 0321')"
+                    inputmode="numeric"
+                    maxlength="10"
+                    required
+                    autocomplete="off"
+                />
+
+                <flux:input
+                    wire:model="form.document_number"
+                    :label="__('ID number')"
+                    :placeholder="__('e.g. 1118541203')"
+                    inputmode="numeric"
+                    required
+                    autocomplete="off"
+                />
+            </div>
 
             <div class="grid gap-4 sm:grid-cols-2">
                 <flux:select wire:model.live="form.city_id" :label="__('Municipality')" :placeholder="__('Choose…')">

@@ -12,10 +12,17 @@ test('a teacher is found by ID number, typed with or without dots', function () 
 });
 
 test('a teacher is found by code', function () {
-    $teacher = Teacher::factory()->create();
+    $teacher = Teacher::factory()->create(['code' => '0321']);
     Teacher::factory()->count(2)->create();
 
-    expect(app(ResolveTeacher::class)->handle(strtolower($teacher->code))->is($teacher))->toBeTrue();
+    expect(app(ResolveTeacher::class)->handle(' 0321 ')->is($teacher))->toBeTrue();
+});
+
+test('the code goes before an ID number that reads the same', function () {
+    $byCode = Teacher::factory()->create(['code' => '54321']);
+    Teacher::factory()->create(['document_number' => '54321']);
+
+    expect(app(ResolveTeacher::class)->handle('54321')->is($byCode))->toBeTrue();
 });
 
 test('a teacher is found by name when only one matches', function () {

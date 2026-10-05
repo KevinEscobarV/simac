@@ -38,13 +38,14 @@ class DemoTeacherSeeder extends Seeder
 
     public function run(): void
     {
-        foreach (self::TEACHERS as [$documentNumber, $name, $schoolName, $cityName, $isUnionMember]) {
+        foreach (self::TEACHERS as $index => [$documentNumber, $name, $schoolName, $cityName, $isUnionMember]) {
             $school = City::where('name', $cityName)->firstOrFail()
                 ->schools()->where('name', $schoolName)->firstOrFail();
 
             Teacher::firstOrCreate(['document_number' => $documentNumber], [
                 'school_id' => $school->id,
                 'name' => $name,
+                'code' => sprintf('%04d', $index + 1),
                 'is_union_member' => $isUnionMember,
             ]);
         }

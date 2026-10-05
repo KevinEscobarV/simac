@@ -74,14 +74,38 @@ final readonly class RaffleFilters
      */
     public function describe(?Assembly $assembly): string
     {
+        return $this->conditions($assembly, membership: true) ?? __('All teachers');
+    }
+
+    /**
+     * The same words, leaving union membership out, for a projection screen
+     * that keeps it to itself. A raffle only for members then has nothing to
+     * say about who takes part: "all teachers" would not be true.
+     */
+    public function describeWithoutMembership(?Assembly $assembly): ?string
+    {
+        $conditions = $this->conditions($assembly, membership: false);
+
+        if ($conditions !== null || $this->unionMembersOnly) {
+            return $conditions;
+        }
+
+        return __('All teachers');
+    }
+
+    /**
+     * The conditions that apply, joined, or null when there are none.
+     */
+    private function conditions(?Assembly $assembly, bool $membership): ?string
+    {
         $conditions = collect([
             $this->presentOnly ? __('Only those present') : null,
-            $this->unionMembersOnly ? __('Only union members') : null,
+            $membership && $this->unionMembersOnly ? __('Only union members') : null,
             $this->cityId !== null ? City::find($this->cityId)?->name : null,
             $this->schoolId !== null ? School::find($this->schoolId)?->name : null,
             $this->excludePreviousWinners && $assembly !== null ? __('Without earlier winners') : null,
         ])->filter();
 
-        return $conditions->isEmpty() ? __('All teachers') : $conditions->implode(' · ');
+        return $conditions->isEmpty() ? null : $conditions->implode(' · ');
     }
 }

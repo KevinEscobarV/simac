@@ -19,23 +19,25 @@ use Illuminate\Support\Str;
 
 /**
  * A teacher of the roll. Retiring one soft deletes it: they leave the roll,
- * the desk and future raffles, but their history stays intact.
+ * the desk and future raffles, but their history stays intact. Their code
+ * (only digits, assigned by the union) is what the desk asks for and what
+ * the barcode on their card carries; it is never reused, not even after
+ * they retire.
  *
  * @property int $id
  * @property int $school_id
  * @property string $name
  * @property string $normalized_name
  * @property string $document_number
+ * @property string $code
  * @property bool $is_union_member
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
- * @property-read string $code
- * @property-read string $barcode
  * @property-read string $short_name
  * @property-read School $school
  */
-#[Fillable(['school_id', 'name', 'document_number', 'is_union_member'])]
+#[Fillable(['school_id', 'name', 'document_number', 'code', 'is_union_member'])]
 class Teacher extends Model
 {
     /** @use HasFactory<TeacherFactory> */
@@ -82,30 +84,6 @@ class Teacher extends Model
     }
 
     /**
-     * The teacher code (SIM-001, SIM-002…) that identifies them at the desk
-     * when they do not carry their ID. It is derived from the primary key,
-     * so it is unique, never reused and needs no counter.
-     *
-     * @return Attribute<non-falsy-string, never>
-     */
-    protected function code(): Attribute
-    {
-        return Attribute::get(fn (): string => sprintf('SIM-%03d', $this->id));
-    }
-
-    /**
-     * What the barcode on their card carries: the code without the hyphen.
-     * A scanner types as a US keyboard, and on a Spanish layout the hyphen's
-     * key gives another character; letters and digits come out the same.
-     *
-     * @return Attribute<non-falsy-string, never>
-     */
-    protected function barcode(): Attribute
-    {
-        return Attribute::get(fn (): string => sprintf('SIM%03d', $this->id));
-    }
-
-    /**
      * First name and last surname ("María Fernanda Rojas" → "María Rojas"):
      * fits a chip or a slice of the wheel without cutting.
      *
@@ -118,18 +96,6 @@ class Teacher extends Model
 
             return count($words) > 1 ? $words[0].' '.end($words) : $this->name;
         });
-    }
-
-    /**
-     * The id behind a teacher code, accepting "SIM-012", "sim-12" or "SIM12".
-     */
-    public static function idFromCode(string $code): ?int
-    {
-        if (preg_match('/^\s*SIM-?0*(\d{1,9})\s*$/i', $code, $matches) !== 1) {
-            return null;
-        }
-
-        return (int) $matches[1] ?: null;
     }
 
     /**
@@ -152,17 +118,26 @@ class Teacher extends Model
                     ->whereNameContains($term)
                     ->orWhereHas('city', fn (Builder $city) => $city->whereNameContains($term)));
 
-            // "1.118.541" and "1118541" are the same ID number.
+            // "1.118.541" and "1118541" are the same ID number. Codes are digits too.
             if (preg_match('/^[\d.\s-]+$/', $term) === 1) {
-                $query->orWhereLike('document_number', '%'.preg_replace('/\D/', '', $term).'%');
-            }
+                $digits = preg_replace('/\D/', '', $term);
 
-            $id = static::idFromCode($term);
-
-            if ($id !== null) {
-                $query->orWhereKey($id);
+                $query->orWhereLike('document_number', '%'.$digits.'%')
+                    ->orWhereLike('code', '%'.$digits.'%');
             }
         });
+    }
+
+    /**
+     * Whoever has exactly this code goes first: at the desk the code is what
+     * the teacher is asked for.
+     *
+     * @param  Builder<self>  $query
+     */
+    #[Scope]
+    protected function exactCodeFirst(Builder $query, string $term): void
+    {
+        $query->orderByRaw('case when code = ? then 0 else 1 end', [Str::squish($term)]);
     }
 
     /**

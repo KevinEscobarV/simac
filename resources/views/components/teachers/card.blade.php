@@ -36,7 +36,7 @@
         </div>
 
         <div class="flex items-end gap-[3mm]">
-            <x-teachers.barcode :value="$teacher->barcode" class="h-[11mm] w-[52mm] shrink-0" />
+            <x-teachers.barcode :value="$teacher->code" class="h-[11mm] w-[52mm] shrink-0" />
 
             <div class="min-w-0 flex-1 text-right leading-none">
                 <div class="text-[5.2pt] font-semibold tracking-[0.2em] text-zinc-500 uppercase">{{ __('Code') }}</div>

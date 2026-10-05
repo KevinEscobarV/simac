@@ -15,9 +15,9 @@ Después de iniciar sesión, cada rol llega directo a su puesto.
 
 ## Qué hace
 
-- **Padrón:** docentes con código `SIM-###`, afiliación sindical, municipios y colegios. Retirar a alguien no borra su historial.
+- **Padrón:** docentes con el código que asigna el sindicato (solo números, como `0321`), afiliación sindical, municipios y colegios. Retirar a alguien no borra su historial.
 - **Jornadas:** una abierta a la vez, con quórum por número o porcentaje de afiliados, medido en vivo.
-- **Mesa de registro:** un solo campo. `Enter` registra la entrada, `Shift+Enter` la salida y `Esc` borra. Cada movimiento se puede deshacer.
+- **Mesa de registro:** un solo campo, que busca primero por código y luego por cédula o nombre. En pantallas táctiles abre el teclado numérico, y el botón «ABC» cambia a letras. `Enter` registra la entrada, `Shift+Enter` la salida y `Esc` borra. Cada movimiento se puede deshacer.
 - **Carnés:** tamaño tarjeta de identificación, 8 por hoja carta, con un código de barras que la mesa lee de un toque.
 - **Sorteos:**
   - el servidor elige a los ganadores con un generador criptográfico;
@@ -27,6 +27,8 @@ Después de iniciar sesión, cada rol llega directo a su puesto.
 - **Historial:** actas en PDF con espacio para firmas. Mientras un sorteo está en pantalla, ni el historial ni el PDF revelan a los ganadores que aún no salieron.
 - **Configuración:** el evento que realiza el sindicato (título, subtítulo e imagen) se muestra en el inicio de
   sesión, el inicio y la pantalla de proyección, en todas las jornadas. La imagen se sube desde la app.
+  También decide qué ve el salón de cada sorteo: la afiliación sindical (oculta por defecto), la cantidad de
+  participantes y quién participa.
 - **Tiempo real:** la mesa, el panel, la consola y la pantalla se actualizan solos con **Laravel Reverb**, o con **Pusher** en un hosting compartido. Si el tiempo real se cae, nada se detiene: la pantalla y la consola siguen al día preguntando cada pocos segundos.
 
 ## Tecnología
@@ -313,7 +315,7 @@ php artisan up
 3. **Mesas:**
    - cada mesa entra con un usuario registrador, desde un celular o un computador;
    - un lector de códigos de barras USB funciona sin configurar nada más, siempre que envíe `Enter` al final (el sufijo de fábrica en casi todos);
-   - el código de barras lleva `SIM012`, sin guion, así que funciona con cualquier distribución de teclado.
+   - el código de barras lleva el código del docente, solo números, así que funciona con cualquier distribución de teclado.
 4. **Carnés:** imprímelos desde **Carnés** en tamaño carta, escala 100 % y con «Gráficos de fondo».
 
 ## Problemas frecuentes

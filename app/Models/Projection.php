@@ -329,7 +329,11 @@ class Projection extends Model
         return $changed;
     }
 
-    private function announce(): void
+    /**
+     * Screens and the console read the state again. Also when what the
+     * screens show changes in Configuration, so the room sees it at once.
+     */
+    public function announce(): void
     {
         broadcast(new ProjectionUpdated($this->phase, $this->attempt, $this->raffle_id, $this->winner_position))->toOthers();
     }

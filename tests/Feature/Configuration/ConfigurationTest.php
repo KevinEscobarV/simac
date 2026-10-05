@@ -1,10 +1,12 @@
 <?php
 
 use App\Enums\Role;
+use App\Events\ProjectionUpdated;
 use App\Livewire\Configuration\Index;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
@@ -96,3 +98,19 @@ test('only pictures up to 5 MB are taken, and never SVG', function (UploadedFile
     'an SVG' => fn () => UploadedFile::fake()->createWithContent('logo.svg', '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'),
     'a picture over 5 MB' => fn () => UploadedFile::fake()->image('mascota.png')->size(5 * 1024 + 1),
 ]);
+
+test('a switch for the projection screen is saved on flipping it, and the screens on hear it at once', function () {
+    Event::fake([ProjectionUpdated::class]);
+    $this->actingAs(User::factory()->admin()->create());
+
+    Livewire::test(Index::class)
+        ->assertSet('screen_shows_membership', false)
+        ->set('screen_shows_membership', true)
+        ->set('screen_shows_participants', false);
+
+    expect(Setting::current())
+        ->screen_shows_membership->toBeTrue()
+        ->screen_shows_participants->toBeFalse()
+        ->screen_shows_filters->toBeTrue();
+    Event::assertDispatched(ProjectionUpdated::class);
+});

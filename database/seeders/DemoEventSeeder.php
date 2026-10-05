@@ -122,6 +122,7 @@ class DemoEventSeeder extends Seeder
         $documents = array_fill_keys(Teacher::withTrashed()->pluck('document_number')->all(), true);
 
         $missing = self::ROLL - Teacher::count();
+        $lastCode = (int) Teacher::withTrashed()->pluck('code')->max();
 
         for ($created = 0; $created < $missing; $created++) {
             do {
@@ -142,6 +143,7 @@ class DemoEventSeeder extends Seeder
                 'school_id' => $schools[$random->getInt(0, count($schools) - 1)],
                 'name' => $name,
                 'document_number' => $document,
+                'code' => sprintf('%04d', ++$lastCode),
                 'is_union_member' => $random->getInt(1, 100) <= 75,
             ]);
         }

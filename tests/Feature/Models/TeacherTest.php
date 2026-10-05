@@ -29,7 +29,7 @@ test('search matches the teacher code, even typed without its leading zero', fun
 test('search matches the school and the municipality', function () {
     $maniSchool = School::factory()->for(City::factory()->create(['name' => 'Maní']))->create(['name' => 'IE Sagrado Corazón']);
     Teacher::factory()->for($maniSchool)->create(['name' => 'Martha Lucía Guatibonza']);
-    Teacher::factory()->create(['name' => 'Luz Dary Camargo']);
+    Teacher::factory()->withoutSchool()->for(City::factory()->create(['name' => 'Yopal']))->create(['name' => 'Luz Dary Camargo']);
 
     expect(Teacher::query()->search('corazon')->pluck('name')->all())->toBe(['Martha Lucía Guatibonza'])
         ->and(Teacher::query()->search('mani')->pluck('name')->all())->toBe(['Martha Lucía Guatibonza']);

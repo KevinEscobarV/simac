@@ -15,6 +15,7 @@ test('each filter narrows who takes part', function (Closure $filters, array $ex
     Teacher::factory()->for($school)->create(['name' => 'Afiliada Presente']);
     Teacher::factory()->for($school)->nonMember()->create(['name' => 'No Afiliado']);
     Teacher::factory()->for(School::factory()->for($yopal))->create(['name' => 'Otro Colegio']);
+    Teacher::factory()->withoutSchool()->for($yopal)->create(['name' => 'Sin Colegio']);
     Teacher::factory()->create(['name' => 'Otro Municipio']);
     Teacher::factory()->trashed()->create(['name' => 'Retirada']);
     Attendance::factory()->for($assembly)->for(Teacher::firstWhere('name', 'Afiliada Presente'))->create();
@@ -23,9 +24,9 @@ test('each filter narrows who takes part', function (Closure $filters, array $ex
 
     expect($names)->toBe($expected);
 })->with([
-    'nobody left out but the retired' => [fn () => new RaffleFilters, ['Afiliada Presente', 'No Afiliado', 'Otro Colegio', 'Otro Municipio']],
-    'union members' => [fn () => new RaffleFilters(unionMembersOnly: true), ['Afiliada Presente', 'Otro Colegio', 'Otro Municipio']],
-    'municipality' => [fn (City $city) => new RaffleFilters(cityId: $city->id), ['Afiliada Presente', 'No Afiliado', 'Otro Colegio']],
+    'nobody left out but the retired' => [fn () => new RaffleFilters, ['Afiliada Presente', 'No Afiliado', 'Otro Colegio', 'Otro Municipio', 'Sin Colegio']],
+    'union members' => [fn () => new RaffleFilters(unionMembersOnly: true), ['Afiliada Presente', 'Otro Colegio', 'Otro Municipio', 'Sin Colegio']],
+    'municipality, with or without a school' => [fn (City $city) => new RaffleFilters(cityId: $city->id), ['Afiliada Presente', 'No Afiliado', 'Otro Colegio', 'Sin Colegio']],
     'school' => [fn (City $city, School $school) => new RaffleFilters(schoolId: $school->id), ['Afiliada Presente', 'No Afiliado']],
     'those present' => [fn () => new RaffleFilters(presentOnly: true), ['Afiliada Presente']],
 ]);

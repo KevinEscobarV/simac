@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\City;
 use App\Models\School;
 use App\Models\Teacher;
 use Illuminate\Database\Eloquent\Builder;
@@ -74,15 +75,14 @@ final readonly class CardSelection
     public function teachers(): Builder
     {
         return Teacher::query()
-            ->with('school.city')
+            ->with(['school', 'city'])
             ->when($this->teacherId !== null, fn (Builder $query) => $query->whereKey($this->teacherId))
             ->when($this->cityId !== null, fn (Builder $query) => $query->inCity((int) $this->cityId))
             ->when($this->schoolId !== null, fn (Builder $query) => $query->where('school_id', $this->schoolId))
             ->when($this->unionMembers !== null, fn (Builder $query) => $query->unionMembers((bool) $this->unionMembers))
-            ->orderBy(School::query()
-                ->join('cities', 'cities.id', '=', 'schools.city_id')
-                ->select('cities.normalized_name')
-                ->whereColumn('schools.id', 'teachers.school_id'))
+            ->orderBy(City::query()
+                ->select('normalized_name')
+                ->whereColumn('cities.id', 'teachers.city_id'))
             ->orderBy(School::query()
                 ->select('normalized_name')
                 ->whereColumn('schools.id', 'teachers.school_id'))

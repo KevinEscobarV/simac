@@ -44,6 +44,7 @@ class DemoTeacherSeeder extends Seeder
 
             Teacher::firstOrCreate(['document_number' => $documentNumber], [
                 'school_id' => $school->id,
+                'city_id' => $school->city_id,
                 'name' => $name,
                 'code' => sprintf('%04d', $index + 1),
                 'is_union_member' => $isUnionMember,

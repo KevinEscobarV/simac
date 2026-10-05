@@ -51,7 +51,7 @@
                                 <flux:avatar :name="$winner->name" class="ring-2 ring-gold-300/50 max-sm:hidden" />
                                 <div class="min-w-0 flex-1">
                                     <div class="font-display text-lg leading-tight font-semibold text-white">{{ $winner->name }}</div>
-                                    <div class="truncate text-xs text-white/55">{{ $winner->school->name }} · {{ $winner->school->city->name }}</div>
+                                    <div class="truncate text-xs text-white/55">{{ $winner->place }}</div>
                                 </div>
                                 <span class="shrink-0 rounded-md border border-white/12 bg-white/8 px-2 py-1 text-xs font-semibold tracking-wide text-white/70 tabular-nums">{{ $winner->code }}</span>
                             </li>
@@ -122,12 +122,12 @@
                                                 <flux:avatar size="xs" :name="$participant->name" />
                                                 <div class="min-w-0">
                                                     <div class="truncate font-medium text-zinc-900 dark:text-white">{{ $participant->name }}</div>
-                                                    <div class="truncate text-xs text-zinc-500 dark:text-zinc-400">{{ $participant->school->name }}</div>
+                                                    <div class="truncate text-xs text-zinc-500 dark:text-zinc-400">{{ $participant->school?->name ?? $participant->city->name }}</div>
                                                 </div>
                                             </div>
                                         </flux:table.cell>
                                         <flux:table.cell class="text-xs font-semibold tracking-wide text-zinc-500 tabular-nums max-sm:hidden dark:text-zinc-400">{{ $participant->code }}</flux:table.cell>
-                                        <flux:table.cell class="max-md:hidden">{{ $participant->school->city->name }}</flux:table.cell>
+                                        <flux:table.cell class="max-md:hidden">{{ $participant->city->name }}</flux:table.cell>
                                         <flux:table.cell align="end">
                                             @if ($won)
                                                 <flux:badge size="sm" color="amber" icon="trophy">

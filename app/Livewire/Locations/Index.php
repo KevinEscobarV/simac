@@ -11,6 +11,7 @@ use App\Models\School;
 use Flux\Flux;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
@@ -201,7 +202,16 @@ class Index extends Component
 
         $this->authorize('update', $school);
 
-        $school->update($this->schoolForm->validate());
+        $validated = $this->schoolForm->validate();
+
+        // A school that moves takes its teachers along, retired ones too: they work there.
+        DB::transaction(function () use ($school, $validated): void {
+            $school->update($validated);
+
+            if ($school->wasChanged('city_id')) {
+                $school->teachers()->withTrashed()->update(['city_id' => $school->city_id]);
+            }
+        });
 
         Flux::modal('school-form')->close();
         Flux::toast(variant: 'success', text: $school->wasChanged('city_id')

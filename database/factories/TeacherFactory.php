@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\City;
 use App\Models\School;
 use App\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -12,8 +13,9 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class TeacherFactory extends Factory
 {
     /**
-     * Define the model's default state. Codes start at 90000, so a test can
-     * give any shorter code to a teacher without colliding.
+     * Define the model's default state. The municipality is the school's.
+     * Codes start at 90000, so a test can give any shorter code to a teacher
+     * without colliding.
      *
      * @return array<string, mixed>
      */
@@ -21,6 +23,9 @@ class TeacherFactory extends Factory
     {
         return [
             'school_id' => School::factory(),
+            'city_id' => fn (array $attributes) => $attributes['school_id'] === null
+                ? City::factory()
+                : School::query()->whereKey($attributes['school_id'])->value('city_id'),
             'name' => fake()->name(),
             'document_number' => fake()->unique()->numerify('11########'),
             'code' => fake()->unique()->numerify('9####'),
@@ -32,6 +37,16 @@ class TeacherFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'is_union_member' => false,
+        ]);
+    }
+
+    /**
+     * As the union's roll brings them: a municipality and no school.
+     */
+    public function withoutSchool(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'school_id' => null,
         ]);
     }
 }

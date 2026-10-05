@@ -130,7 +130,7 @@ class Create extends Component
     #[Computed]
     public function winners(): Collection
     {
-        return $this->projection->raffle?->winners()->with('school.city')->get() ?? new Collection;
+        return $this->projection->raffle?->winners()->with(['school', 'city'])->get() ?? new Collection;
     }
 
     #[Computed]

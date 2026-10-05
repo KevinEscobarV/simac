@@ -129,8 +129,13 @@
                                         <div class="min-w-0">
                                             <div class="truncate font-medium text-zinc-900 dark:text-white">{{ $teacher->name }}</div>
                                             <div class="flex items-center gap-1 text-xs text-zinc-500 dark:text-zinc-400">
-                                                <flux:icon.building-library variant="micro" class="size-3 shrink-0" />
-                                                <span class="truncate">{{ $teacher->school->name }}</span>
+                                                @if ($teacher->school)
+                                                    <flux:icon.building-library variant="micro" class="size-3 shrink-0" />
+                                                    <span class="truncate">{{ $teacher->school->name }}</span>
+                                                @else
+                                                    <flux:icon.map-pin variant="micro" class="size-3 shrink-0" />
+                                                    <span class="truncate">{{ $teacher->city->name }}</span>
+                                                @endif
                                             </div>
 
                                             {{-- On narrow screens identification and membership live under the name. --}}
@@ -148,7 +153,7 @@
                                 </flux:table.cell>
 
                                 <flux:table.cell class="max-lg:hidden">
-                                    <flux:badge size="sm" icon="map-pin">{{ $teacher->school->city->name }}</flux:badge>
+                                    <flux:badge size="sm" icon="map-pin">{{ $teacher->city->name }}</flux:badge>
                                 </flux:table.cell>
 
                                 <flux:table.cell class="max-sm:hidden">
@@ -240,12 +245,14 @@
                     @endforeach
                 </flux:select>
 
+                {{-- Optional: the union's roll does not always say where someone teaches. --}}
                 <flux:select
                     wire:model="form.school_id"
                     :label="__('School')"
-                    :placeholder="$form->city_id === '' ? __('Pick a municipality first') : __('Choose…')"
+                    :badge="__('Optional')"
                     :disabled="$form->city_id === ''"
                 >
+                    <flux:select.option value="">{{ $form->city_id === '' ? __('Pick a municipality first') : __('No school') }}</flux:select.option>
                     @foreach ($this->formSchools as $schoolOption)
                         <flux:select.option :value="$schoolOption->id">{{ $schoolOption->name }}</flux:select.option>
                     @endforeach

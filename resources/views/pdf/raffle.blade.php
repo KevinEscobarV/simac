@@ -302,8 +302,8 @@
                         <td class="position">{{ $several ? $winner->pivot->winner_position : '★' }}</td>
                         <td class="name">{{ $winner->name }}</td>
                         <td class="code">{{ $winner->code }}</td>
-                        <td>{{ $winner->school->name }}</td>
-                        <td>{{ $winner->school->city->name }}</td>
+                        <td>{{ $winner->school?->name ?? '—' }}</td>
+                        <td>{{ $winner->city->name }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -353,8 +353,8 @@
                                 @endif
                             </td>
                             <td class="code">{{ $participant->code }}</td>
-                            <td>{{ $participant->school->name }}</td>
-                            <td>{{ $participant->school->city->name }}</td>
+                            <td>{{ $participant->school?->name ?? '—' }}</td>
+                            <td>{{ $participant->city->name }}</td>
                         </tr>
                     @endforeach
                 </tbody>

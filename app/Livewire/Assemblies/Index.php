@@ -296,7 +296,7 @@ class Index extends Component
     private function roll(Assembly $assembly): LengthAwarePaginator
     {
         return Teacher::query()
-            ->with(['school', 'attendances' => fn (Relation $attendances) => $attendances->whereBelongsTo($assembly)])
+            ->with(['school', 'city', 'attendances' => fn (Relation $attendances) => $attendances->whereBelongsTo($assembly)])
             ->search($this->search)
             ->exactCodeFirst($this->search)
             ->when($this->filter === 'presentes', fn (Builder $query) => $query->presentAt($assembly))

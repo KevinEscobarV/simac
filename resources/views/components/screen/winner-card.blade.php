@@ -32,13 +32,15 @@
             <h2 class="mt-2 font-display text-4xl font-semibold text-balance text-white sm:text-6xl short:text-5xl">{{ $winner->name }}</h2>
 
             <div class="mt-4 flex flex-wrap items-center justify-center gap-x-6 short:mt-2 gap-y-1.5 text-base text-white/60 sm:text-lg">
-                <span class="flex items-center gap-2">
-                    <flux:icon.academic-cap variant="mini" class="size-4.5" />
-                    {{ $winner->school->name }}
-                </span>
+                @if ($winner->school)
+                    <span class="flex items-center gap-2">
+                        <flux:icon.academic-cap variant="mini" class="size-4.5" />
+                        {{ $winner->school->name }}
+                    </span>
+                @endif
                 <span class="flex items-center gap-2">
                     <flux:icon.map-pin variant="mini" class="size-4.5" />
-                    {{ $winner->school->city->name }}
+                    {{ $winner->city->name }}
                 </span>
             </div>
 

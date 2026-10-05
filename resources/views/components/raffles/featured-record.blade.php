@@ -41,7 +41,7 @@
                         </div>
                         <div class="min-w-0">
                             <div class="truncate font-semibold text-white">{{ $winner->name }}</div>
-                            <div class="truncate text-xs text-white/55">{{ $winner->school->name }} · {{ $winner->school->city->name }}</div>
+                            <div class="truncate text-xs text-white/55">{{ $winner->place }}</div>
                         </div>
                     </li>
                 @endforeach

@@ -190,7 +190,7 @@
                                     <div class="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
                                         <span class="rounded bg-zinc-100 px-1.5 py-0.5 font-semibold text-zinc-600 tabular-nums dark:bg-white/10 dark:text-zinc-300">{{ __('Code :code', ['code' => $teacher->code]) }}</span>
                                         <span class="tabular-nums">{{ __('ID :number', ['number' => $teacher->document_number]) }}</span>
-                                        <span>{{ $teacher->school->name }} · {{ $teacher->school->city->name }}</span>
+                                        <span>{{ $teacher->place }}</span>
                                     </div>
                                     @if ($attendance)
                                         <div class="mt-1 text-xs text-zinc-500 tabular-nums dark:text-zinc-400">
@@ -248,7 +248,7 @@
 
                                     <div class="min-w-0 flex-1">
                                         <div class="truncate text-sm font-semibold text-zinc-900 dark:text-white">{{ $movement->teacher->name }}</div>
-                                        <div class="truncate text-xs text-zinc-500 dark:text-zinc-400">{{ $movement->teacher->school->name }}</div>
+                                        <div class="truncate text-xs text-zinc-500 dark:text-zinc-400">{{ $movement->teacher->place }}</div>
                                     </div>
 
                                     @if ($movement->isPresent())

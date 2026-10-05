@@ -22,10 +22,13 @@ use Illuminate\Support\Str;
  * the desk and future raffles, but their history stays intact. Their code
  * (only digits, assigned by the union) is what the desk asks for and what
  * the barcode on their card carries; it is never reused, not even after
- * they retire.
+ * they retire. They belong to a municipality; the school is optional,
+ * since the union's roll does not always say it, and when there is one it
+ * is in that same municipality.
  *
  * @property int $id
- * @property int $school_id
+ * @property int|null $school_id
+ * @property int $city_id
  * @property string $name
  * @property string $normalized_name
  * @property string $document_number
@@ -35,9 +38,11 @@ use Illuminate\Support\Str;
  * @property Carbon|null $updated_at
  * @property Carbon|null $deleted_at
  * @property-read string $short_name
- * @property-read School $school
+ * @property-read string $place
+ * @property-read School|null $school
+ * @property-read City $city
  */
-#[Fillable(['school_id', 'name', 'document_number', 'code', 'is_union_member'])]
+#[Fillable(['school_id', 'city_id', 'name', 'document_number', 'code', 'is_union_member'])]
 class Teacher extends Model
 {
     /** @use HasFactory<TeacherFactory> */
@@ -61,6 +66,14 @@ class Teacher extends Model
     public function school(): BelongsTo
     {
         return $this->belongsTo(School::class);
+    }
+
+    /**
+     * @return BelongsTo<City, $this>
+     */
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class);
     }
 
     /**
@@ -99,6 +112,19 @@ class Teacher extends Model
     }
 
     /**
+     * Where they work, in a line: "IE Braulio González · Yopal", or only the
+     * municipality when the roll has no school for them.
+     *
+     * @return Attribute<string, never>
+     */
+    protected function place(): Attribute
+    {
+        return Attribute::get(fn (): string => $this->school === null
+            ? $this->city->name
+            : $this->school->name.' · '.$this->city->name);
+    }
+
+    /**
      * Name, ID number, code, school or municipality.
      *
      * @param  Builder<self>  $query
@@ -114,9 +140,8 @@ class Teacher extends Model
 
         $query->where(function (Builder $query) use ($term): void {
             $query->whereNameContains($term)
-                ->orWhereHas('school', fn (Builder $school) => $school
-                    ->whereNameContains($term)
-                    ->orWhereHas('city', fn (Builder $city) => $city->whereNameContains($term)));
+                ->orWhereHas('school', fn (Builder $school) => $school->whereNameContains($term))
+                ->orWhereHas('city', fn (Builder $city) => $city->whereNameContains($term));
 
             // "1.118.541" and "1118541" are the same ID number. Codes are digits too.
             if (preg_match('/^[\d.\s-]+$/', $term) === 1) {
@@ -155,7 +180,7 @@ class Teacher extends Model
     #[Scope]
     protected function inCity(Builder $query, int $cityId): void
     {
-        $query->whereRelation('school', 'city_id', $cityId);
+        $query->where('city_id', $cityId);
     }
 
     /**

@@ -73,7 +73,7 @@ class Index extends Component
     public function render(): View
     {
         $raffles = Raffle::query()
-            ->with(['assembly', 'winners.school.city'])
+            ->with(['assembly', 'winners.school', 'winners.city'])
             ->when($this->assembly === self::WITHOUT_ASSEMBLY, fn (Builder $query) => $query->whereNull('assembly_id'))
             ->when(ctype_digit($this->assembly), fn (Builder $query) => $query->where('assembly_id', (int) $this->assembly))
             ->latest()

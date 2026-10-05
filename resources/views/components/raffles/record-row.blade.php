@@ -36,7 +36,7 @@
             <span class="truncate">
                 {{ $raffle->prize }}
                 @if ($first && $others === 0)
-                    · {{ $first->school->name }}, {{ $first->school->city->name }}
+                    · {{ $first->place }}
                 @endif
             </span>
         </div>

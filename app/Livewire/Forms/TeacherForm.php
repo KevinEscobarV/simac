@@ -12,7 +12,7 @@ use Livewire\Form;
 
 /**
  * Registers a teacher, or edits one when $teacher is set. The municipality
- * is only there to narrow down the list of schools.
+ * is required; the school is optional and has to be in that municipality.
  */
 class TeacherForm extends Form
 {
@@ -39,7 +39,7 @@ class TeacherForm extends Form
         $this->name = $teacher->name;
         $this->document_number = $teacher->document_number;
         $this->code = $teacher->code;
-        $this->city_id = (string) $teacher->school->city_id;
+        $this->city_id = (string) $teacher->city_id;
         $this->school_id = (string) $teacher->school_id;
         $this->is_union_member = $teacher->is_union_member;
     }
@@ -53,7 +53,7 @@ class TeacherForm extends Form
      * The validated values that belong to the teacher itself.
      *
      * @param  array<string, mixed>  $validated
-     * @return array{name: string, document_number: string, code: string, school_id: int, is_union_member: bool}
+     * @return array{name: string, document_number: string, code: string, city_id: int, school_id: int|null, is_union_member: bool}
      */
     public function attributesFrom(array $validated): array
     {
@@ -61,7 +61,8 @@ class TeacherForm extends Form
             'name' => $validated['name'],
             'document_number' => $validated['document_number'],
             'code' => $validated['code'],
-            'school_id' => (int) $validated['school_id'],
+            'city_id' => (int) $validated['city_id'],
+            'school_id' => filled($validated['school_id'] ?? null) ? (int) $validated['school_id'] : null,
             'is_union_member' => (bool) $validated['is_union_member'],
         ];
     }
@@ -85,7 +86,7 @@ class TeacherForm extends Form
             ],
             'city_id' => ['required', 'integer', Rule::exists(City::class, 'id')],
             'school_id' => [
-                'required',
+                'nullable',
                 'integer',
                 Rule::exists(School::class, 'id')->where('city_id', $this->city_id),
             ],

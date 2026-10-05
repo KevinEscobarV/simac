@@ -100,7 +100,7 @@
                             <span class="flex size-7 shrink-0 items-center justify-center rounded-full bg-gold-400/20 font-display text-sm font-semibold text-gold-200">{{ $winner->pivot->winner_position }}</span>
                             <div class="min-w-0 flex-1">
                                 <div class="truncate text-sm font-semibold text-white">{{ $winner->name }}</div>
-                                <div class="truncate text-xs text-white/50">{{ $winner->school->name }} · {{ $winner->school->city->name }}</div>
+                                <div class="truncate text-xs text-white/50">{{ $winner->place }}</div>
                             </div>
                         </li>
                     @endforeach
@@ -116,7 +116,7 @@
                         {{ $several ? __('Winner :position of :total', ['position' => $position, 'total' => $total]) : __('Winner') }}
                     </div>
                     <div class="font-display text-2xl leading-tight font-semibold text-balance text-white sm:truncate">{{ $current->name }}</div>
-                    <div class="text-sm text-white/55 sm:truncate">{{ $current->school->name }} · {{ $current->school->city->name }}</div>
+                    <div class="text-sm text-white/55 sm:truncate">{{ $current->place }}</div>
                     @if ($phase !== ProjectionPhase::Winner)
                         <div class="mt-1 flex items-center gap-1.5 text-xs text-gold-200/80">
                             <flux:icon.eye variant="micro" class="size-3.5" />

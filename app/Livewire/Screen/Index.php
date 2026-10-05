@@ -93,7 +93,7 @@ class Index extends Component
 
         return $projection->raffle?->winners()
             ->wherePivot('winner_position', $projection->winner_position)
-            ->with('school.city')
+            ->with(['school', 'city'])
             ->first();
     }
 
@@ -109,7 +109,7 @@ class Index extends Component
 
         return $projection->raffle?->winners()
             ->wherePivot('winner_position', '<', $projection->winner_position)
-            ->with('school.city')
+            ->with(['school', 'city'])
             ->get() ?? new Collection;
     }
 

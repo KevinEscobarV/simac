@@ -8,12 +8,11 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Carbon;
 
 /**
- * A municipality of Casanare ("municipio" in the interface). Schools, and
- * through them the teachers of the roll, belong to one.
+ * A municipality of Casanare ("municipio" in the interface). Schools and the
+ * teachers of the roll belong to one.
  *
  * @property int $id
  * @property string $name
@@ -38,10 +37,10 @@ class City extends Model
     }
 
     /**
-     * @return HasManyThrough<Teacher, School, $this>
+     * @return HasMany<Teacher, $this>
      */
-    public function teachers(): HasManyThrough
+    public function teachers(): HasMany
     {
-        return $this->hasManyThrough(Teacher::class, School::class);
+        return $this->hasMany(Teacher::class);
     }
 }

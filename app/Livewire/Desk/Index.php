@@ -92,7 +92,7 @@ class Index extends Component
         }
 
         return Teacher::query()
-            ->with(['school.city', 'attendances' => fn (Relation $attendances) => $attendances->whereBelongsTo($assembly)])
+            ->with(['school', 'city', 'attendances' => fn (Relation $attendances) => $attendances->whereBelongsTo($assembly)])
             ->search($this->search)
             ->exactCodeFirst($this->search)
             ->orderByName()
@@ -109,7 +109,7 @@ class Index extends Component
     public function recentMovements(): Collection
     {
         return $this->current?->attendances()
-            ->with('teacher.school')
+            ->with(['teacher.school', 'teacher.city'])
             ->latest('updated_at')
             ->latest('id')
             ->limit(8)

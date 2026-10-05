@@ -54,7 +54,7 @@ class Dashboard extends Component
     #[Computed]
     public function latestRaffle(): ?Raffle
     {
-        return Raffle::query()->with(['assembly', 'winners.school.city'])->latest()->latest('id')->first();
+        return Raffle::query()->with(['assembly', 'winners.school', 'winners.city'])->latest()->latest('id')->first();
     }
 
     /**

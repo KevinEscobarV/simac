@@ -4,6 +4,7 @@ use App\Enums\Role;
 use App\Livewire\Desk\Index;
 use App\Models\Assembly;
 use App\Models\Attendance;
+use App\Models\City;
 use App\Models\Teacher;
 use App\Models\User;
 use Livewire\Livewire;
@@ -127,6 +128,17 @@ test('a code typed in full puts its teacher first in the list', function () {
     Livewire::test(Index::class)
         ->set('search', '0321')
         ->assertSeeHtmlInOrder(['Zulma Patricia Rojas', 'Ana Rocío Bohórquez', 'Luz Dary Camargo']);
+});
+
+test('a teacher without a school is listed with their municipality', function () {
+    $this->actingAs(User::factory()->registrar()->create());
+    Assembly::factory()->create();
+    Teacher::factory()->withoutSchool()->for(City::factory()->create(['name' => 'Paz de Ariporo']))->create(['name' => 'Luz Dary Camargo', 'code' => '321']);
+
+    Livewire::test(Index::class)
+        ->set('search', '321')
+        ->assertSee('Luz Dary Camargo')
+        ->assertSee('Paz de Ariporo');
 });
 
 test('the movement on display can be undone', function () {

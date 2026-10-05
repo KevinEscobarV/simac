@@ -98,10 +98,11 @@ test('administrators can register a teacher with the code the union gave them, t
         ->and($teacher->code)->toBe('0321')
         ->and($teacher->document_number)->toBe('1118663019')
         ->and($teacher->school->is($school))->toBeTrue()
+        ->and($teacher->city_id)->toBe($school->city_id)
         ->and($teacher->is_union_member)->toBeFalse();
 });
 
-test('registering a teacher requires a name, code, ID number, municipality and school', function () {
+test('registering a teacher requires a name, code, ID number and municipality', function () {
     $this->actingAs(User::factory()->admin()->create());
 
     Livewire::test(Index::class)
@@ -112,10 +113,28 @@ test('registering a teacher requires a name, code, ID number, municipality and s
             'form.code' => 'required',
             'form.document_number' => 'required',
             'form.city_id' => 'required',
-            'form.school_id' => 'required',
-        ]);
+        ])
+        ->assertHasNoErrors('form.school_id');
 
     expect(Teacher::count())->toBe(0);
+});
+
+test('a teacher can be registered without a school, in their municipality', function () {
+    $this->actingAs(User::factory()->admin()->create());
+    $city = City::factory()->create(['name' => 'Monterrey']);
+
+    Livewire::test(Index::class)
+        ->call('create')
+        ->set('form.name', 'Luz Dary Camargo')
+        ->set('form.code', '321')
+        ->set('form.document_number', '1118663019')
+        ->set('form.city_id', (string) $city->id)
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect(Teacher::sole())
+        ->city_id->toBe($city->id)
+        ->school_id->toBeNull();
 });
 
 test('the code has only digits, up to 10', function (string $code) {

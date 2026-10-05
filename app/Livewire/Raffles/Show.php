@@ -53,7 +53,7 @@ class Show extends Component
     #[Computed]
     public function winners(): Collection
     {
-        return $this->raffle->load('winners.school.city')->publicWinners($this->projection);
+        return $this->raffle->load('winners.school', 'winners.city')->publicWinners($this->projection);
     }
 
     /**
@@ -68,7 +68,7 @@ class Show extends Component
     public function render(): View
     {
         $participants = $this->raffle->participants()
-            ->with('school.city')
+            ->with(['school', 'city'])
             ->search($this->search)
             ->orderByName()
             ->paginate(50);

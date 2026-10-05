@@ -204,7 +204,7 @@
 
     <p class="mt-5 flex items-start gap-2 px-1 text-xs text-zinc-500 dark:text-zinc-400">
         <flux:icon.shield-check variant="micro" class="mt-px shrink-0 text-brand-600 dark:text-brand-400" />
-        {{ __('A municipality with schools, or a school with teachers, cannot be deleted: the roll never loses track of where someone works.') }}
+        {{ __('A municipality with schools or teachers, or a school with teachers, cannot be deleted: the roll never loses track of where someone works.') }}
     </p>
 
     {{-- Create / rename a municipality --}}
@@ -276,7 +276,7 @@
             @else
                 <div>
                     <flux:heading size="lg" class="font-display">{{ __('Delete :name?', ['name' => $deletingCity?->name]) }}</flux:heading>
-                    <flux:text class="mt-1">{{ __('It has no schools, so nothing else is affected.') }}</flux:text>
+                    <flux:text class="mt-1">{{ __('It has no schools or teachers, so nothing else is affected.') }}</flux:text>
                     <flux:error name="city" />
                 </div>
 

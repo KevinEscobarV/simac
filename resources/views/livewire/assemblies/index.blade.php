@@ -117,7 +117,7 @@
                                 <div class="flex flex-wrap items-center gap-x-2.5 text-xs text-zinc-500 dark:text-zinc-400">
                                     <span class="tabular-nums">{{ __('ID :number', ['number' => $teacher->document_number]) }}</span>
                                     <span class="font-semibold text-zinc-600 dark:text-zinc-300">{{ $teacher->code }}</span>
-                                    <span class="truncate max-sm:hidden">{{ $teacher->school->name }}</span>
+                                    <span class="truncate max-sm:hidden">{{ $teacher->place }}</span>
                                 </div>
                                 <x-assemblies.attendance-status :attendance="$attendance" class="mt-1.5 md:hidden" />
                             </div>

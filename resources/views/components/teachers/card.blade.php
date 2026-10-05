@@ -25,7 +25,7 @@
         <div class="flex items-start gap-[3mm]">
             <div class="min-w-0 flex-1">
                 <div class="line-clamp-2 font-display text-[11pt] leading-[1.15] font-semibold text-brand-950">{{ $teacher->name }}</div>
-                <div class="mt-[1mm] truncate text-[6.8pt] text-zinc-600">{{ $teacher->school->name }} · {{ $teacher->school->city->name }}</div>
+                <div class="mt-[1mm] truncate text-[6.8pt] text-zinc-600">{{ $teacher->place }}</div>
             </div>
 
             @if ($teacher->is_union_member)

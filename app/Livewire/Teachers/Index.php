@@ -268,7 +268,7 @@ class Index extends Component
     {
         $teachers = Teacher::query()
             ->when($this->showingRetired(), fn (Builder $query) => $query->onlyTrashed())
-            ->with('school.city')
+            ->with(['school', 'city'])
             ->search($this->search)
             ->when($this->city !== '', fn (Builder $query) => $query->inCity((int) $this->city))
             ->when($this->school !== '', fn (Builder $query) => $query->where('school_id', (int) $this->school))

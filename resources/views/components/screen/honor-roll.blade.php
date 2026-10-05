@@ -19,7 +19,7 @@
                 <span class="flex size-11 shrink-0 items-center justify-center rounded-full bg-gold-400 font-display text-xl font-semibold text-brand-950 shadow-gold">{{ $winner->pivot->winner_position }}</span>
                 <div class="min-w-0">
                     <div class="truncate font-display text-2xl font-semibold text-white">{{ $winner->name }}</div>
-                    <div class="truncate text-sm text-white/55">{{ $winner->school->name }} · {{ $winner->school->city->name }}</div>
+                    <div class="truncate text-sm text-white/55">{{ $winner->place }}</div>
                 </div>
             </li>
         @endforeach

@@ -123,6 +123,20 @@ test('a municipality that still has schools cannot be deleted', function () {
     $this->assertModelExists($city);
 });
 
+test('a municipality with teachers but no schools cannot be deleted, not even if they are retired', function () {
+    $this->actingAs(User::factory()->admin()->create());
+    $city = City::factory()->create();
+    Teacher::factory()->withoutSchool()->for($city)->trashed()->create();
+
+    Livewire::test(Index::class)
+        ->call('confirmCityDeletion', $city->id)
+        ->assertSet('cityDeletionBlocker', trans_choice('It has :count teacher on record, counting retired ones, so it is kept.|It has :count teachers on record, counting retired ones, so it is kept.', 1))
+        ->call('deleteCity')
+        ->assertHasErrors('city');
+
+    $this->assertModelExists($city);
+});
+
 test('the deletion dialog explains what still depends on the municipality', function () {
     $this->actingAs(User::factory()->admin()->create());
     $city = City::factory()->has(School::factory()->count(3))->create();
@@ -166,9 +180,11 @@ test('a school name is unique within its municipality only', function () {
     expect(School::where('name', 'IE Sagrado Corazón')->count())->toBe(2);
 });
 
-test('administrators can rename a school and move it to another municipality', function () {
+test('administrators can rename a school and move it to another municipality, its teachers along', function () {
     $this->actingAs(User::factory()->admin()->create());
     $school = School::factory()->create(['name' => 'IE Siglo 21']);
+    $teacher = Teacher::factory()->for($school)->create();
+    $retired = Teacher::factory()->for($school)->trashed()->create();
     $tauramena = City::factory()->create(['name' => 'Tauramena']);
 
     Livewire::test(Index::class)
@@ -181,7 +197,9 @@ test('administrators can rename a school and move it to another municipality', f
     $school->refresh();
 
     expect($school->name)->toBe('IE Siglo XXI')
-        ->and($school->city->is($tauramena))->toBeTrue();
+        ->and($school->city->is($tauramena))->toBeTrue()
+        ->and($teacher->refresh()->city_id)->toBe($tauramena->id)
+        ->and($retired->refresh()->city_id)->toBe($tauramena->id);
 });
 
 test('municipalities and schools show how many active teachers they have', function () {

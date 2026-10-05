@@ -15,7 +15,7 @@ Después de iniciar sesión, cada rol llega directo a su puesto.
 
 ## Qué hace
 
-- **Padrón:** docentes con el código que asigna el sindicato (solo números, como `0321`), afiliación sindical, municipios y colegios. Retirar a alguien no borra su historial.
+- **Padrón:** docentes con el código que asigna el sindicato (solo números, como `0321`), afiliación sindical y municipio; el colegio es opcional. Retirar a alguien no borra su historial.
 - **Jornadas:** una abierta a la vez, con quórum por número o porcentaje de afiliados, medido en vivo.
 - **Mesa de registro:** un solo campo, que busca primero por código y luego por cédula o nombre. En pantallas táctiles abre el teclado numérico, y el botón «ABC» cambia a letras. `Enter` registra la entrada, `Shift+Enter` la salida y `Esc` borra. Cada movimiento se puede deshacer.
 - **Carnés:** tamaño tarjeta de identificación, 8 por hoja carta, con un código de barras que la mesa lee de un toque.

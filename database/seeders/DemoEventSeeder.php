@@ -123,6 +123,7 @@ class DemoEventSeeder extends Seeder
 
         $missing = self::ROLL - Teacher::count();
         $lastCode = (int) Teacher::withTrashed()->pluck('code')->max();
+        $cityOf = School::query()->whereKey(array_unique($schools))->pluck('city_id', 'id');
 
         for ($created = 0; $created < $missing; $created++) {
             do {
@@ -139,8 +140,11 @@ class DemoEventSeeder extends Seeder
 
             $names[$name] = $documents[$document] = true;
 
+            $school = $schools[$random->getInt(0, count($schools) - 1)];
+
             Teacher::create([
-                'school_id' => $schools[$random->getInt(0, count($schools) - 1)],
+                'school_id' => $school,
+                'city_id' => $cityOf[$school],
                 'name' => $name,
                 'document_number' => $document,
                 'code' => sprintf('%04d', ++$lastCode),

@@ -25,7 +25,7 @@ En la demo la separación es solo por URL (no hay login). Aquí se hace con **ro
 
 **Padrón**
 - La cédula es obligatoria y única. El **código de profesor** lo asigna el sindicato: solo números (`0321`), único y nunca reutilizado, ni siquiera con un retirado (cambió el 2026-10-05; antes era `SIM-001`… derivado del id).
-- Un colegio pertenece a una ciudad. Su nombre es único dentro de esa ciudad.
+- Un colegio pertenece a una ciudad. Su nombre es único dentro de esa ciudad. El docente pertenece a una ciudad y el colegio es opcional (el padrón del sindicato no lo trae); si lo tiene, es de esa misma ciudad, y si el colegio cambia de ciudad sus docentes cambian con él.
 - No se elimina una ciudad o un colegio que tenga registros asociados. El mensaje dice cuántos hay.
 - No se borra a un docente que ya ganó un sorteo: el acta lo protege.
 
@@ -146,7 +146,7 @@ users ── roles/permissions (spatie)
 | --- | --- |
 | `cities` | name (único) |
 | `schools` | city_id (restrict), name · único (city_id, name) |
-| `teachers` | school_id (restrict), name, normalized_name, document_number (único, solo dígitos), code (único, solo dígitos, lo asigna el sindicato), is_union_member, soft deletes |
+| `teachers` | city_id (restrict), school_id (opcional, restrict), name, normalized_name, document_number (único, solo dígitos), code (único, solo dígitos, lo asigna el sindicato), is_union_member, soft deletes |
 | `assemblies` (jornadas) | name, date, location?, quorum_type? (`count`/`percentage`), quorum_value?, closed_at? (null = abierta), opened_by |
 | `attendances` | assembly_id (cascade), teacher_id, checked_in_at, checked_out_at?, registered_by · único (assembly_id, teacher_id) |
 | `raffles` (actas) | assembly_id? (null on delete), prize, winners_count, animation, filters (json), filter_description, participants_count, quorum_met?, drawn_by, drawn_at |
@@ -480,3 +480,4 @@ Después del login, cada rol aterriza en su puesto (`User::homeRoute()`):
 | 2026-10-05 | — | Revisión de seguridad de producción. Se rotó `APP_KEY` (quedó expuesta en una sesión de trabajo; aún no había 2FA ni passkeys), logs diarios por 14 días, archivos ocultos bloqueados en `.htaccess`, cabeceras de seguridad (HSTS, nosniff, SAMEORIGIN, Referrer-Policy) y `www` y demás alias redirigen al host de `APP_URL`, porque las passkeys solo sirven allí. Copias diarias de la base: el usuario decidió no hacerlas por ahora. Correo en español con la marca: plantillas de Laravel publicadas solo donde cambian (encabezado, pie y tema). |
 | 2026-10-05 | — | Módulo de Configuración (permiso `settings.manage`, solo administradores) con el evento del año: título, subtítulo e imagen subida al disco `public`. Va en la configuración y no en la jornada porque un evento abarca varias jornadas (decisión del usuario). Se muestra en el inicio de sesión, el inicio y la pantalla: en reposo la mascota junto al título; con un sorteo en curso, el título en una esquina y la imagen a un lado, sin tapar la animación. El logo real de SIMAC (JPEG de baja calidad, sobre recuadro blanco) reemplaza al birrete en la app, carnés, acta y correo; el favicon no cambia. |
 | 2026-10-05 | — | Ajustes pedidos en la demo. (1) El código de profesor lo asigna el sindicato (solo números, como `0321`, decisión del usuario): columna `code` única, editable en el formulario; los docentes que ya había quedan con su número anterior (`SIM-003` pasa a `0003`). La mesa busca primero por código, luego por cédula y nombre, con el código exacto al principio de la lista; el carné y el lector de barras usan el mismo número. (2) En pantallas táctiles la mesa abre el teclado numérico, y un botón «ABC» cambia a letras para buscar por nombre (decisión del usuario). (3) Configuración decide qué ve el salón de cada sorteo: la afiliación sindical (apagada por defecto, para no distinguir afiliados), la cantidad de participantes y la línea de quién participa. Las pantallas encendidas aplican el cambio al instante. |
+| 2026-10-05 | — | Carga del padrón real en producción desde los Excel del sindicato (carga única con un script fuera del proyecto, decisión del usuario). El docente tiene municipio propio y el colegio pasa a ser opcional, porque el padrón no lo trae (decisión del usuario); donde no hay colegio se muestra solo el municipio. Código = número de carné tal cual (decisión del usuario), nombres en nombre propio, afiliados por cédula según las dos listas de afiliación. `/data` queda fuera de git: son datos personales. |

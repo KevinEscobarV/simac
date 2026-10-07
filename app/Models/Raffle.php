@@ -11,11 +11,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection as SupportCollection;
 
 /**
  * The record of a raffle ("acta"): what was raffled, among whom, who won and
  * whether the assembly had quorum at that moment. It is sealed before the
- * screen shows anything and never changes afterwards.
+ * screen shows anything. The only later change is a winner who did not come
+ * forward: they stay in it as such, and the replacement drawn among those
+ * left takes their position, sealed before it is shown too.
  *
  * @property int $id
  * @property int|null $assembly_id
@@ -31,6 +34,7 @@ use Illuminate\Support\Carbon;
  * @property-read Assembly|null $assembly
  * @property-read User|null $drawer
  * @property-read Collection<int, Teacher> $winners
+ * @property-read Collection<int, Teacher> $forfeits
  */
 #[Fillable(['assembly_id', 'prize', 'winners_count', 'animation', 'filters', 'filter_description', 'participants_count', 'quorum_met', 'drawn_by'])]
 class Raffle extends Model
@@ -86,8 +90,32 @@ class Raffle extends Model
     {
         return $this->belongsToMany(Teacher::class, 'raffle_entries')
             ->using(RaffleEntry::class)
-            ->withPivot('winner_position')
+            ->withPivot('winner_position', 'forfeited_position', 'forfeited_at', 'forfeited_by')
             ->withTrashed();
+    }
+
+    /**
+     * The winners who did not come forward, in the order they were declared
+     * absent. Another participant took their position.
+     *
+     * @return BelongsToMany<Teacher, $this, RaffleEntry>
+     */
+    public function forfeits(): BelongsToMany
+    {
+        return $this->participants()
+            ->wherePivotNotNull('forfeited_position')
+            ->orderByPivot('forfeited_at');
+    }
+
+    /**
+     * The names of whoever declared each absence, by user: the record says
+     * who did it.
+     *
+     * @return SupportCollection<int, string>
+     */
+    public function forfeitDeclarers(): SupportCollection
+    {
+        return User::query()->whereKey($this->forfeits->pluck('pivot.forfeited_by')->filter()->unique()->all())->pluck('name', 'id');
     }
 
     /**

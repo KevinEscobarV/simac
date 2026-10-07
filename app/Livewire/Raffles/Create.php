@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Raffles;
 
+use App\Actions\Raffles\DeclareWinnerAbsent;
 use App\Actions\Raffles\DrawRaffle;
 use App\Concerns\ReportsOnProperty;
 use App\Enums\RaffleAnimation;
@@ -36,6 +37,7 @@ use Livewire\Component;
  * @property-read Collection<int, Teacher> $participantSample
  * @property-read string $filterDescription
  * @property-read Collection<int, Teacher> $winners
+ * @property-read Collection<int, Teacher> $forfeits
  * @property-read int $screens
  */
 class Create extends Component
@@ -49,6 +51,16 @@ class Create extends Component
 
     /** "See before": the console shows the current winner before the screen does. */
     public bool $peeking = false;
+
+    /**
+     * Raffles are held among those in the room: with an assembly open, the
+     * form starts with "only those present" checked. Without one the option
+     * cannot be used, so it starts unchecked.
+     */
+    public function mount(): void
+    {
+        $this->form->present_only = $this->assembly !== null;
+    }
 
     public function updated(string $property): void
     {
@@ -133,6 +145,17 @@ class Create extends Component
         return $this->projection->raffle?->winners()->with(['school', 'city'])->get() ?? new Collection;
     }
 
+    /**
+     * The winners of the raffle on screen who did not come forward.
+     *
+     * @return Collection<int, Teacher>
+     */
+    #[Computed]
+    public function forfeits(): Collection
+    {
+        return $this->projection->raffle?->forfeits()->get() ?? new Collection;
+    }
+
     #[Computed]
     public function screens(): int
     {
@@ -175,6 +198,19 @@ class Create extends Component
     public function repeat(): void
     {
         $this->control(fn (Projection $projection) => $projection->repeat());
+    }
+
+    /**
+     * "Did not come forward": the winner on screen loses the prize, leaves the
+     * room on record, and the screens animate their replacement right away.
+     */
+    public function declareAbsent(DeclareWinnerAbsent $declareWinnerAbsent): void
+    {
+        $this->control(fn () => $declareWinnerAbsent->handle(auth()->user()));
+
+        $this->peeking = false;
+
+        Flux::modal('winner-absent')->close();
     }
 
     public function release(): void
@@ -246,6 +282,6 @@ class Create extends Component
      */
     private function refreshComputed(): void
     {
-        unset($this->projection, $this->assembly, $this->quorum, $this->participantsCount, $this->participantSample, $this->filterDescription, $this->winners, $this->screens);
+        unset($this->projection, $this->assembly, $this->quorum, $this->participantsCount, $this->participantSample, $this->filterDescription, $this->winners, $this->forfeits, $this->screens);
     }
 }

@@ -7,6 +7,7 @@ use App\Models\Raffle;
 use App\Models\Teacher;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
@@ -19,6 +20,8 @@ use Livewire\WithPagination;
  *
  * @property-read Projection $projection
  * @property-read Collection<int, Teacher> $winners
+ * @property-read Collection<int, Teacher> $forfeits
+ * @property-read SupportCollection<int, string> $declarers
  */
 class Show extends Component
 {
@@ -57,12 +60,36 @@ class Show extends Component
     }
 
     /**
-     * The screens revealed another winner, or released the raffle.
+     * The winners who did not come forward. They were on screen, so they are
+     * public as soon as they are declared.
+     *
+     * @return Collection<int, Teacher>
+     */
+    #[Computed]
+    public function forfeits(): Collection
+    {
+        return $this->raffle->load('forfeits.school', 'forfeits.city')->forfeits;
+    }
+
+    /**
+     * Who declared each absence, by user.
+     *
+     * @return SupportCollection<int, string>
+     */
+    #[Computed]
+    public function declarers(): SupportCollection
+    {
+        return $this->forfeits->isEmpty() ? new SupportCollection : $this->raffle->forfeitDeclarers();
+    }
+
+    /**
+     * The screens revealed another winner, a winner was declared absent, or
+     * the raffle was released.
      */
     #[On('echo-private:projection,ProjectionUpdated')]
     public function refreshLive(): void
     {
-        unset($this->projection, $this->winners);
+        unset($this->projection, $this->winners, $this->forfeits, $this->declarers);
     }
 
     public function render(): View

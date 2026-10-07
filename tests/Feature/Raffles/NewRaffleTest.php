@@ -4,6 +4,7 @@ use App\Enums\ProjectionPhase;
 use App\Enums\RaffleAnimation;
 use App\Livewire\Raffles\Create;
 use App\Livewire\Raffles\LiveBadge;
+use App\Models\Assembly;
 use App\Models\City;
 use App\Models\Projection;
 use App\Models\Raffle;
@@ -76,6 +77,19 @@ test('the summary counts the participants as the filters change', function () {
     $raffle->set('form.union_members_only', true);
     expect($raffle->instance()->participantsCount)->toBe(2);
 });
+
+test('with an assembly open the raffle starts among those present, and without one among everyone', function (bool $open) {
+    $this->actingAs(User::factory()->admin()->create());
+
+    if ($open) {
+        Assembly::factory()->create();
+    }
+
+    Livewire::test(Create::class)->assertSet('form.present_only', $open);
+})->with([
+    'assembly open' => true,
+    'no assembly' => false,
+]);
 
 test('choosing another municipality clears the school', function () {
     $this->actingAs(User::factory()->admin()->create());

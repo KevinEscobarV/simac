@@ -191,6 +191,33 @@ class Projection extends Model
     }
 
     /**
+     * The winner on screen did not come forward: $replace seals another one
+     * in their position, inside this same change, and the screens animate it
+     * from the start.
+     *
+     * @param  Closure(Raffle, int): void  $replace  the raffle and the position to fill again
+     *
+     * @throws ValidationException when no winner is on screen, or no screen is on
+     */
+    public function replaceWinner(Closure $replace): void
+    {
+        $this->change(function (self $projection) use ($replace): void {
+            if ($projection->phase !== ProjectionPhase::Winner || $projection->raffle === null) {
+                throw ValidationException::withMessages([
+                    'projection' => __('Only the winner on screen can be declared absent.'),
+                ]);
+            }
+
+            self::ensureScreenConnected();
+
+            $replace($projection->raffle, $projection->winner_position);
+
+            $projection->phase = ProjectionPhase::Animating;
+            $projection->attempt++;
+        });
+    }
+
+    /**
      * A screen reached the end of the animation, so the winner is public. A
      * screen lagging behind may report an attempt that was already replaced:
      * that report is ignored.

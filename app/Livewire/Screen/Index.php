@@ -115,7 +115,8 @@ class Index extends Component
 
     /**
      * The names the animation goes through: the current winner and, around
-     * them, participants still in the draw. With long lists it is a sample;
+     * them, participants still in the draw (not a winner who did not come
+     * forward). With long lists it is a sample;
      * the count on screen says how many take part.
      *
      * The shuffle is seeded with the raffle and the position so every screen
@@ -140,6 +141,7 @@ class Index extends Component
         /** @var list<int> $others */
         $others = $raffle->participants()
             ->whereKeyNot($winner->id)
+            ->whereNull('raffle_entries.forfeited_position')
             ->where(fn (Builder $entries) => $entries
                 ->whereNull('raffle_entries.winner_position')
                 ->orWhere('raffle_entries.winner_position', '>', $position))

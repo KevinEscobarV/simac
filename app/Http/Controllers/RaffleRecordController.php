@@ -24,13 +24,14 @@ class RaffleRecordController extends Controller
      */
     public function __invoke(Raffle $raffle): Response
     {
-        $raffle->load(['assembly', 'drawer', 'winners.school', 'winners.city']);
+        $raffle->load(['assembly', 'drawer', 'winners.school', 'winners.city', 'forfeits.school', 'forfeits.city']);
 
         $participants = $raffle->participants()->with(['school', 'city'])->orderByName()->get();
 
         $document = Pdf::loadView('pdf.raffle', [
             'raffle' => $raffle,
             'participants' => $participants,
+            'declarers' => $raffle->forfeitDeclarers(),
             'title' => __('Raffle record No. :number', ['number' => $raffle->id]),
         ])
             ->setPaper('letter');

@@ -1,6 +1,7 @@
 @props([
     'projection',
     'winners',
+    'forfeits' => collect(),
     'peeking' => false,
     'screens' => 0,
 ])
@@ -108,6 +109,26 @@
             </div>
         @endif
 
+        @if ($forfeits->isNotEmpty())
+            <div>
+                <div class="mb-2 text-[0.66rem] font-semibold tracking-[0.2em] text-white/45 uppercase">{{ __('Did not come forward') }}</div>
+                <ul class="divide-y divide-white/8 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                    @foreach ($forfeits as $absent)
+                        <li wire:key="forfeit-{{ $absent->id }}" class="flex items-center gap-3 px-4 py-2.5 text-white/55">
+                            <flux:icon.user-minus variant="mini" class="size-4.5 shrink-0 text-white/40" />
+                            <div class="min-w-0 flex-1 truncate text-sm font-semibold text-white/70 line-through decoration-white/30">{{ $absent->name }}</div>
+                            <span class="shrink-0 text-xs tabular-nums">
+                                @if ($several)
+                                    {{ __('Position :position', ['position' => $absent->pivot->forfeited_position]) }} ·
+                                @endif
+                                {{ $absent->pivot->forfeited_at->translatedFormat('g:i a') }}
+                            </span>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         @if ($current && $shown)
             <div class="flex items-center gap-4 rounded-2xl border border-gold-400/30 bg-gold-400/10 p-4">
                 <flux:avatar size="lg" :name="$current->name" class="ring-2 ring-gold-300/60 max-sm:hidden" />
@@ -168,6 +189,13 @@
 
             @if ($phase !== ProjectionPhase::Ready)
                 <flux:button icon="arrow-path" wire:click="repeat" :disabled="$screens === 0" class="max-sm:flex-1">{{ __('Repeat animation') }}</flux:button>
+            @endif
+
+            {{-- Only for the winner the room is looking at: once the next one is launched it is too late. --}}
+            @if ($phase === ProjectionPhase::Winner && $current)
+                <flux:modal.trigger name="winner-absent">
+                    <flux:button icon="user-minus" :disabled="$screens === 0" class="max-sm:flex-1">{{ __('Did not come forward') }}</flux:button>
+                </flux:modal.trigger>
             @endif
 
             @if ($phase === ProjectionPhase::Winner && ! $winnersLeft)

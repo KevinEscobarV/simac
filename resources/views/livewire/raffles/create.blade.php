@@ -5,7 +5,7 @@
         <x-page-header :title="__('Raffle on screen')" :description="__('Drive the screens from here: nothing is projected on this page.')" />
 
         <div class="mx-auto max-w-3xl">
-            <x-raffles.console :projection="$projection" :winners="$this->winners" :peeking="$peeking" :screens="$this->screens" />
+            <x-raffles.console :projection="$projection" :winners="$this->winners" :forfeits="$this->forfeits" :peeking="$peeking" :screens="$this->screens" />
 
             <p class="mt-4 px-1 text-center text-xs text-zinc-500 dark:text-zinc-400">
                 <flux:link :href="route('screen')" target="_blank" class="font-semibold">{{ __('Open the projection screen') }}</flux:link>
@@ -28,6 +28,31 @@
                 </div>
             </div>
         </flux:modal>
+
+        {{-- Only once the screen revealed the winner: before that, their name must not reach the page. --}}
+        @if ($projection->phase === App\Enums\ProjectionPhase::Winner)
+            @php($onScreen = $this->winners->first(fn ($winner) => $winner->pivot->winner_position === $projection->winner_position))
+
+            <flux:modal name="winner-absent" class="max-w-md">
+                <div class="space-y-6">
+                    <div>
+                        <flux:heading size="lg">{{ __(':name did not come forward?', ['name' => $onScreen?->name]) }}</flux:heading>
+                        <ul class="mt-3 list-disc space-y-1.5 ps-5 text-sm text-zinc-600 dark:text-zinc-300">
+                            <li>{{ __('They lose the prize and the record keeps them as absent, with the time.') }}</li>
+                            <li>{{ __('If they were still checked in, their check-out is registered.') }}</li>
+                            <li>{{ __('Another winner is drawn among those still in the raffle, and the screen animates them right away.') }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="flex justify-end gap-2">
+                        <flux:modal.close>
+                            <flux:button variant="ghost">{{ __('They are here') }}</flux:button>
+                        </flux:modal.close>
+                        <flux:button variant="danger" icon="user-minus" wire:click="declareAbsent" wire:loading.attr="disabled">{{ __('Draw another winner') }}</flux:button>
+                    </div>
+                </div>
+            </flux:modal>
+        @endif
     @else
         @php($assembly = $this->assembly)
         @php($count = $this->participantsCount)

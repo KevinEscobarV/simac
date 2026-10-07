@@ -72,6 +72,31 @@
                             </li>
                         @endfor
                     </ol>
+
+                    @if ($this->forfeits->isNotEmpty())
+                        <div class="mt-6 mb-2 text-[0.66rem] font-semibold tracking-[0.2em] text-white/45 uppercase">{{ __('Did not come forward') }}</div>
+
+                        <ul class="divide-y divide-white/8 overflow-hidden rounded-xl border border-white/10 bg-white/5">
+                            @foreach ($this->forfeits as $absent)
+                                <li wire:key="forfeit-{{ $absent->id }}" class="flex flex-wrap items-center gap-x-3.5 gap-y-1 px-4 py-3">
+                                    <flux:icon.user-minus variant="mini" class="size-5 shrink-0 text-white/40" />
+                                    <div class="min-w-40 flex-1">
+                                        <div class="font-semibold text-white/75">{{ $absent->name }}</div>
+                                        <div class="truncate text-xs text-white/45">{{ $absent->place }} · {{ $absent->code }}</div>
+                                    </div>
+                                    <div class="text-xs text-white/55 tabular-nums">
+                                        @if ($several)
+                                            {{ __('Position :position', ['position' => $absent->pivot->forfeited_position]) }} ·
+                                        @endif
+                                        {{ $absent->pivot->forfeited_at->translatedFormat('g:i a') }}
+                                        @if ($declarer = $this->declarers[$absent->pivot->forfeited_by] ?? null)
+                                            · {{ __('declared by :name', ['name' => $declarer]) }}
+                                        @endif
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
                 </div>
             </section>
 
@@ -133,6 +158,8 @@
                                                 <flux:badge size="sm" color="amber" icon="trophy">
                                                     {{ $several ? __('Winner :position', ['position' => $position]) : __('Winner') }}
                                                 </flux:badge>
+                                            @elseif ($participant->pivot->forfeited_position !== null)
+                                                <flux:badge size="sm" color="zinc" icon="user-minus">{{ __('Did not come forward') }}</flux:badge>
                                             @endif
                                         </flux:table.cell>
                                     </flux:table.row>
@@ -188,6 +215,9 @@
                 </div>
                 <p class="mt-2 text-xs leading-relaxed text-brand-900/75 dark:text-brand-100/70">
                     {{ __('The server chose the winners with the system\'s cryptographic generator, over the list of participants in the database. The record was saved before the animation: the screen only showed a result already sealed.') }}
+                    @if ($this->forfeits->isNotEmpty())
+                        {{ __('A winner who did not come forward was replaced the same way, among the participants still in the raffle, before the screen showed the replacement.') }}
+                    @endif
                 </p>
             </section>
         </aside>

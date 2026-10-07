@@ -23,7 +23,8 @@ Después de iniciar sesión, cada rol llega directo a su puesto.
   - el servidor elige a los ganadores con un generador criptográfico;
   - el acta queda sellada **antes** de la animación, con ganadores, filtros, la lista completa de participantes y si había quórum;
   - la pantalla solo muestra un resultado ya decidido;
-  - se pueden sortear varios ganadores por acta.
+  - se pueden sortear varios ganadores por acta;
+  - si un ganador no se presenta, «No se presentó» en la consola lo deja en el acta como ausente (con la hora y quién lo declaró), le registra la salida si seguía en la jornada y sortea al reemplazo entre los que quedan, que la pantalla anima de inmediato.
 - **Historial:** actas en PDF con espacio para firmas. Mientras un sorteo está en pantalla, ni el historial ni el PDF revelan a los ganadores que aún no salieron.
 - **Configuración:** el evento que realiza el sindicato (título, subtítulo e imagen) se muestra en el inicio de
   sesión, el inicio y la pantalla de proyección, en todas las jornadas. La imagen se sube desde la app.

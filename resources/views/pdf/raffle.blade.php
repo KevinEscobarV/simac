@@ -185,6 +185,11 @@
             color: #0f3a2b;
         }
 
+        .forfeits .position,
+        .forfeits .name {
+            color: #6b7a73;
+        }
+
         .muted {
             color: #6b7a73;
         }
@@ -309,8 +314,43 @@
             </tbody>
         </table>
 
+        @if ($raffle->forfeits->isNotEmpty())
+            <h2>{{ __('Did not come forward') }}</h2>
+
+            <table class="winners forfeits">
+                <thead>
+                    <tr>
+                        <th>{{ $several ? '#' : '' }}</th>
+                        <th>{{ __('Teacher') }}</th>
+                        <th>{{ __('Code') }}</th>
+                        <th>{{ __('Municipality') }}</th>
+                        <th>{{ __('Declared') }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($raffle->forfeits as $absent)
+                        <tr>
+                            <td class="position">{{ $several ? $absent->pivot->forfeited_position : '—' }}</td>
+                            <td class="name">{{ $absent->name }}</td>
+                            <td class="code">{{ $absent->code }}</td>
+                            <td>{{ $absent->city->name }}</td>
+                            <td>
+                                {{ $absent->pivot->forfeited_at->translatedFormat('g:i a') }}
+                                @if ($declarer = $declarers[$absent->pivot->forfeited_by] ?? null)
+                                    · {{ $declarer }}
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
+
         <div class="statement">
             {{ __('The server chose the winners with the system\'s cryptographic generator, over the list of participants in the database. The record was saved before the animation: the screen only showed a result already sealed.') }}
+            @if ($raffle->forfeits->isNotEmpty())
+                {{ __('A winner who did not come forward was replaced the same way, among the participants still in the raffle, before the screen showed the replacement.') }}
+            @endif
             {{ trans_choice('{1} The list of the :count participant is attached.|[2,*] The list of the :count participants is attached.', $raffle->participants_count) }}
         </div>
 
@@ -350,6 +390,8 @@
                                 {{ $participant->name }}
                                 @if ($position !== null)
                                     · {{ $several ? __('Winner :position', ['position' => $position]) : __('Winner') }}
+                                @elseif ($participant->pivot->forfeited_position !== null)
+                                    · {{ __('Did not come forward') }}
                                 @endif
                             </td>
                             <td class="code">{{ $participant->code }}</td>

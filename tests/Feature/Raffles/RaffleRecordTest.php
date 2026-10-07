@@ -1,5 +1,6 @@
 <?php
 
+use App\Actions\Raffles\DeclareWinnerAbsent;
 use App\Enums\QuorumType;
 use App\Models\Assembly;
 use App\Models\Projection;
@@ -86,4 +87,21 @@ test('the record waits until the screen has shown every winner', function () {
     $projection->finish(1);
 
     $this->get(route('raffles.pdf', $raffle))->assertOk();
+});
+
+test('the record names who did not come forward and who declared it', function () {
+    $admin = User::factory()->admin()->create(['name' => 'Rocío Galindo']);
+    $this->actingAs($admin);
+    $raffle = Raffle::factory()->drawnAmong(Teacher::factory()->count(3)->create())->create();
+    Projection::recordScreen('hall');
+    $projection = Projection::current();
+    $projection->prepare($raffle);
+    $projection->launch();
+    $projection->finish(1);
+    $absent = $raffle->winners->sole();
+
+    app(DeclareWinnerAbsent::class)->handle($admin);
+    Projection::current()->finish(2);
+
+    expect(recordHtml($raffle))->toContain(__('Did not come forward'), e($absent->name), 'Rocío Galindo', e($raffle->winners()->sole()->name));
 });
